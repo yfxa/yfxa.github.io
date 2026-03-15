@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>yfx.studio</title>
-<meta name="description" content="yfx.studio — run by Uncle Fred X.">
+<title>yf(x).studio</title>
+<meta name="description" content="yf(x).studio — run by Uncle Fred X.">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -37,57 +37,52 @@ a:hover { color: var(--text-bright); }
   padding: 0 24px;
 }
 
-/* Hero */
-.hero {
-  padding: 120px 0 80px;
+/* Header — title + about on one row */
+.header {
+  padding: 32px 0 24px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
 }
-.hero h1 {
-  font-size: 48px;
+.header-left h1 {
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-bright);
-  letter-spacing: -1px;
-  margin-bottom: 12px;
+  letter-spacing: -0.5px;
 }
-.hero .tagline {
-  font-size: 18px;
+.header-left .tagline {
+  font-size: 12px;
   color: var(--text-dim);
   font-weight: 400;
-  max-width: 480px;
 }
-
-/* About */
-.about {
-  padding: 60px 0;
-  border-bottom: 1px solid var(--border);
+.header-right {
+  text-align: right;
+  flex-shrink: 0;
 }
-.about h2 {
-  font-size: 13px;
+.header-right .about-label {
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   color: var(--text-dim);
-  margin-bottom: 20px;
+  margin-bottom: 2px;
 }
-.about p {
-  font-size: 16px;
+.header-right .about-text {
+  font-size: 13px;
   color: var(--text);
-  max-width: 600px;
-  line-height: 1.7;
-}
-.about p + p {
-  margin-top: 12px;
 }
 
 /* Projects */
 .projects {
-  padding: 60px 0 100px;
+  padding: 40px 0 100px;
 }
 .projects h2 {
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 2px;
   color: var(--text-dim);
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 .project-grid {
   display: grid;
@@ -121,13 +116,13 @@ a:hover { color: var(--text-bright); }
   padding: 20px 24px;
 }
 .project-info h3 {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--text-bright);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .project-info .project-desc {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-dim);
   line-height: 1.6;
 }
@@ -183,10 +178,9 @@ a:hover { color: var(--text-bright); }
 
 /* Responsive */
 @media (max-width: 640px) {
-  .hero { padding: 80px 0 48px; }
-  .hero h1 { font-size: 36px; }
-  .hero .tagline { font-size: 16px; }
-  .about, .projects { padding: 40px 0; }
+  .header { flex-direction: column; gap: 8px; padding: 24px 0 20px; }
+  .header-right { text-align: left; }
+  .projects { padding: 32px 0 60px; }
   .project-info { padding: 16px 18px; }
   .footer { flex-direction: column; gap: 12px; text-align: center; }
 }
@@ -196,15 +190,16 @@ a:hover { color: var(--text-bright); }
 
 <div class="container">
 
-  <section class="hero fade-in">
-    <h1>yfx.studio</h1>
-    <p class="tagline">run by Uncle Fred X.</p>
-  </section>
-
-  <section class="about fade-in">
-    <h2>About</h2>
-    <p>I am just here to have fun.</p>
-  </section>
+  <header class="header fade-in">
+    <div class="header-left">
+      <h1>yf(x).studio</h1>
+      <p class="tagline">run by Uncle Fred X.</p>
+    </div>
+    <div class="header-right">
+      <p class="about-label">About</p>
+      <p class="about-text">I am just here to have fun.</p>
+    </div>
+  </header>
 
   <section class="projects fade-in">
     <h2>Projects</h2>
@@ -231,7 +226,7 @@ a:hover { color: var(--text-bright); }
 
 <footer class="container">
   <div class="footer">
-    <span class="copy">&copy; 2026 yfx</span>
+    <span class="copy">&copy; 2026 yf(x)</span>
     <div class="footer-links">
       <a href="https://github.com/yfxa" target="_blank" rel="noopener">GitHub</a>
     </div>
