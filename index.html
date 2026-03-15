@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yfx.studio</title>
+<meta name="description" content="yfx — design, data, and spatial research">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0e14;
+  --bg-card: #111822;
+  --border: #1e2a3a;
+  --text: #c8d0dc;
+  --text-dim: #5a7a9a;
+  --text-bright: #e8eef4;
+  --accent: #4a9eff;
+  --accent-dim: #2a5a8a;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--text-bright); }
+
+/* Layout */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Hero */
+.hero {
+  padding: 120px 0 80px;
+  border-bottom: 1px solid var(--border);
+}
+.hero h1 {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+.hero .tagline {
+  font-size: 18px;
+  color: var(--text-dim);
+  font-weight: 400;
+  max-width: 480px;
+}
+
+/* About */
+.about {
+  padding: 60px 0;
+  border-bottom: 1px solid var(--border);
+}
+.about h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+.about p {
+  font-size: 16px;
+  color: var(--text);
+  max-width: 600px;
+  line-height: 1.7;
+}
+.about p + p {
+  margin-top: 12px;
+}
+
+/* Projects */
+.projects {
+  padding: 60px 0 100px;
+}
+.projects h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+}
+.project-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.project-card:hover {
+  border-color: var(--accent-dim);
+  transform: translateY(-2px);
+  color: inherit;
+}
+.project-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+  border-bottom: 1px solid var(--border);
+}
+.project-info {
+  padding: 20px 24px;
+}
+.project-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-bright);
+  margin-bottom: 6px;
+}
+.project-info .project-desc {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.project-info .project-tags {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.project-tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(74, 158, 255, 0.08);
+  color: var(--accent);
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  letter-spacing: 0.3px;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer .copy {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+.footer-links a {
+  font-size: 13px;
+  color: var(--text-dim);
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--text-bright); }
+
+/* Fade-in animation */
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .hero { padding: 80px 0 48px; }
+  .hero h1 { font-size: 36px; }
+  .hero .tagline { font-size: 16px; }
+  .about, .projects { padding: 40px 0; }
+  .project-info { padding: 16px 18px; }
+  .footer { flex-direction: column; gap: 12px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <section class="hero fade-in">
+    <h1>yfx</h1>
+    <p class="tagline">Design, data, and spatial research.</p>
+  </section>
+
+  <section class="about fade-in">
+    <h2>About</h2>
+    <p>I explore the intersections of design, technology, and urban systems. My work focuses on using data to tell stories about the spaces we live in and how they're changing.</p>
+  </section>
+
+  <section class="projects fade-in">
+    <h2>Projects</h2>
+    <div class="project-grid">
+
+      <a href="projects/smo/" class="project-card">
+        <img class="project-thumb" src="assets/smo-thumb.jpg" alt="LA Basin air traffic density map showing flight paths as glowing lines on a dark basemap">
+        <div class="project-info">
+          <h3>The Future of Santa Monica Airport</h3>
+          <p class="project-desc">An interactive density map of LA Basin airspace visualizing real ADS-B flight data and imagined futures — from SMO's closure in 2029 to a drone delivery hub in 2033.</p>
+          <div class="project-tags">
+            <span class="project-tag">ADS-B</span>
+            <span class="project-tag">Canvas</span>
+            <span class="project-tag">Urban Planning</span>
+            <span class="project-tag">Data Viz</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+</div>
+
+<footer class="container">
+  <div class="footer">
+    <span class="copy">&copy; 2026 yfx</span>
+    <div class="footer-links">
+      <a href="https://github.com/yfxa" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Fade in on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
