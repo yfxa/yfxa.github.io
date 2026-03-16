@@ -189,6 +189,28 @@ a:hover { color: var(--text-bright); }
   line-height: 1.7;
   max-width: 600px;
 }
+.fleet-table {
+  margin-top: 16px;
+  border-collapse: collapse;
+  font-size: 13px;
+  width: 100%;
+  max-width: 480px;
+}
+.fleet-table th {
+  text-align: left;
+  color: var(--text-dim);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 6px 12px 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.fleet-table td {
+  padding: 6px 12px 6px 0;
+  color: var(--text);
+  border-bottom: 1px solid rgba(30, 42, 58, 0.5);
+}
 
 /* Footer */
 .footer {
@@ -279,6 +301,17 @@ a:hover { color: var(--text-bright); }
       <div class="service-info">
         <h3>Fly with me</h3>
         <p>Help me build my hour by booking a flight with me. Kindly split the gas with me because legally I can't charge you. Let me know when and where you wanna go. Let's go for an adventure.</p>
+        <p style="margin-top:12px;">I fly SR20 with <a href="https://santamonicaflyers.com/our-fleet/#cirrus" target="_blank" rel="noopener">Santa Monica Flyers</a>.</p>
+        <table class="fleet-table">
+          <thead>
+            <tr><th>Tail #</th><th>Model</th><th>Rate</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>N258JS</td><td>SR20 (G3)</td><td>$295/h</td></tr>
+            <tr><td>N724TT</td><td>SR20 (G3)</td><td>$289/h</td></tr>
+            <tr><td>N862RJ</td><td>SR22T</td><td>$489/h | $440/h (10-hr block)</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
