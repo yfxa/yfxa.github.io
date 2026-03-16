@@ -161,19 +161,24 @@ a:hover { color: var(--text-bright); }
   color: var(--text-dim);
   margin-bottom: 24px;
 }
+.service-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
 .service-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   display: flex;
-  align-items: stretch;
+  flex-direction: column;
   overflow: hidden;
 }
 .service-thumb {
-  width: 330px;
-  height: 330px;
+  width: 100%;
+  aspect-ratio: 1;
   object-fit: cover;
   flex-shrink: 0;
-  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 .service-info {
   padding: 24px;
@@ -351,8 +356,8 @@ a:hover { color: var(--text-bright); }
   .projects { padding: 32px 0 60px; }
   .project-info { padding: 16px 18px; }
   .footer { flex-direction: column; gap: 12px; text-align: center; }
-  .service-card { flex-direction: column; }
-  .service-thumb { width: 100%; height: 160px; border-right: none; border-bottom: 1px solid var(--border); }
+  .service-grid { grid-template-columns: 1fr; }
+  .service-thumb { height: 160px; }
 }
 </style>
 </head>
@@ -394,6 +399,7 @@ a:hover { color: var(--text-bright); }
 
   <section class="services fade-in">
     <h2>Services</h2>
+    <div class="service-grid">
     <div class="service-card">
       <img class="service-thumb" src="assets/fly-thumb.jpg" alt="DC-3 aircraft N242SM at Santa Monica Airport">
       <div class="service-info">
@@ -419,6 +425,7 @@ a:hover { color: var(--text-bright); }
         <p>Help keep my printer busy. Submit your file <a href="#" id="print-link">here</a> and I will print it and ship it to you.</p>
         <p style="margin-top:12px;">Printer info: Bambu Lab H2D Laser Combo-40W</p>
       </div>
+    </div>
     </div>
   </section>
 
