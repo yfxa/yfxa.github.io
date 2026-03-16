@@ -432,11 +432,11 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   <div class="panel">
     <h3>Filters</h3>
 
-    <div class="type-group-header" id="filter-perf-toggle" style="margin-bottom:6px;">
+    <div class="type-group-header collapsed" id="filter-perf-toggle" style="margin-bottom:6px;">
       <span class="type-group-arrow">&#9662;</span>
       <span>Performance</span>
     </div>
-    <div id="filter-perf-body">
+    <div id="filter-perf-body" style="display:none;">
       <div class="slider-row">
         <label>Alt Min</label>
         <input type="range" id="sl-alt-min" min="0" max="450" value="0">
@@ -459,11 +459,11 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
       </div>
     </div>
 
-    <div class="type-group-header" id="filter-aircraft-toggle" style="margin-bottom:6px;">
+    <div class="type-group-header collapsed" id="filter-aircraft-toggle" style="margin-bottom:6px;">
       <span class="type-group-arrow">&#9662;</span>
       <span>Aircraft</span>
     </div>
-    <div id="filter-aircraft-body">
+    <div id="filter-aircraft-body" style="display:none;">
       <div style="display:flex; gap:6px; margin-bottom:6px;">
         <button class="preset-btn" id="type-all" style="flex:1; padding:4px; font-size:11px;">All</button>
         <button class="preset-btn" id="type-none" style="flex:1; padding:4px; font-size:11px;">None</button>
