@@ -312,6 +312,38 @@ a:hover { color: var(--text-bright); }
 }
 .modal-actions button:hover { opacity: 0.85; }
 
+/* Dropzone */
+.dropzone {
+  border: 2px dashed var(--border);
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  margin-top: 12px;
+}
+.dropzone:hover, .dropzone.dragover {
+  border-color: var(--accent);
+  background: rgba(74, 158, 255, 0.05);
+}
+.dropzone p {
+  color: var(--text-dim) !important;
+  font-size: 14px !important;
+  pointer-events: none;
+}
+.dropzone .drop-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+.dropzone .file-name {
+  color: var(--accent) !important;
+  font-weight: 600;
+  margin-top: 8px;
+}
+.dropzone .file-hint {
+  font-size: 12px !important;
+  margin-top: 4px;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .header { flex-direction: column; gap: 8px; padding: 24px 0 20px; }
@@ -384,7 +416,7 @@ a:hover { color: var(--text-bright); }
       <img class="service-thumb" src="assets/printer-thumb.png" alt="Uncle Fred's printer">
       <div class="service-info">
         <h3>Uncle Fred prints for you</h3>
-        <p>Help keep my printer busy. Submit your file here and I will print it and ship it to you.</p>
+        <p>Help keep my printer busy. Submit your file <a href="#" id="print-link">here</a> and I will print it and ship it to you.</p>
         <p style="margin-top:12px;">Printer info: Bambu Lab H2D Laser Combo-40W</p>
       </div>
     </div>
@@ -400,6 +432,30 @@ a:hover { color: var(--text-bright); }
     </div>
   </div>
 </footer>
+
+<!-- Print Modal -->
+<div class="modal-overlay" id="print-modal">
+  <div class="modal">
+    <h3>Submit a 3D Model</h3>
+    <label for="pr-name">Name</label>
+    <input type="text" id="pr-name" placeholder="Your name">
+    <label for="pr-email">Email</label>
+    <input type="email" id="pr-email" placeholder="you@example.com">
+    <div class="dropzone" id="pr-dropzone">
+      <p class="drop-icon">📦</p>
+      <p>Drag & drop your file here or click to browse</p>
+      <p class="file-hint">Supported formats: .stl, .obj</p>
+      <p class="file-name" id="pr-file-name"></p>
+    </div>
+    <input type="file" id="pr-file-input" accept=".stl,.obj" style="display:none">
+    <label for="pr-msg">Message (optional)</label>
+    <textarea id="pr-msg" placeholder="Any special instructions?"></textarea>
+    <div class="modal-actions">
+      <button id="pr-cancel">Cancel</button>
+      <button class="primary" id="pr-send">Send</button>
+    </div>
+  </div>
+</div>
 
 <!-- Copilot Modal -->
 <div class="modal-overlay" id="copilot-modal">
@@ -453,6 +509,66 @@ document.getElementById('cp-send').addEventListener('click', () => {
   );
   window.location.href = 'mailto:fredsclawninja@gmail.com?subject=' + subject + '&body=' + body;
   modal.classList.remove('active');
+});
+
+// Print modal
+const printModal = document.getElementById('print-modal');
+const dropzone = document.getElementById('pr-dropzone');
+const fileInput = document.getElementById('pr-file-input');
+const fileName = document.getElementById('pr-file-name');
+let printFile = null;
+
+document.getElementById('print-link').addEventListener('click', e => {
+  e.preventDefault();
+  printModal.classList.add('active');
+});
+document.getElementById('pr-cancel').addEventListener('click', () => {
+  printModal.classList.remove('active');
+});
+printModal.addEventListener('click', e => {
+  if (e.target === printModal) printModal.classList.remove('active');
+});
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropzone.classList.add('dragover');
+});
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('dragover');
+  handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) handleFile(fileInput.files[0]);
+});
+
+function handleFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext !== 'stl' && ext !== 'obj') {
+    alert('Unsupported format. Please upload an .stl or .obj file.');
+    return;
+  }
+  printFile = file;
+  fileName.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+}
+
+document.getElementById('pr-send').addEventListener('click', () => {
+  const name = document.getElementById('pr-name').value.trim();
+  const email = document.getElementById('pr-email').value.trim();
+  const msg = document.getElementById('pr-msg').value.trim();
+  const filePart = printFile ? '\nFile: ' + printFile.name : '\nFile: (none attached)';
+  const subject = encodeURIComponent('3D Print Request from ' + (name || 'someone'));
+  const body = encodeURIComponent(
+    'Name: ' + name + '\n' +
+    'Email: ' + email + filePart + '\n\n' +
+    (msg || '(no message)') +
+    '\n\n--- Please reply to this email and ask the sender to attach the file. ---'
+  );
+  window.location.href = 'mailto:fredsclawninja@gmail.com?subject=' + subject + '&body=' + body;
+  printModal.classList.remove('active');
 });
 </script>
 </body>
