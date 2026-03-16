@@ -356,6 +356,27 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   </div>
 
   <div class="panel">
+    <h3>Animation</h3>
+    <div class="anim-controls">
+      <button class="anim-btn" id="anim-play" title="Play">&#9654;</button>
+      <button class="anim-btn" id="anim-pause" title="Pause" style="display:none;">&#9646;&#9646;</button>
+      <button class="anim-btn" id="anim-stop" title="Reset">&#9632;</button>
+      <input type="range" id="anim-progress" min="0" max="1000" value="0">
+      <span id="anim-time">0%</span>
+    </div>
+    <div class="slider-row">
+      <label>Speed</label>
+      <input type="range" id="sl-anim-speed" min="1" max="20" value="5">
+      <span class="val" id="vl-anim-speed">5x</span>
+    </div>
+    <div class="slider-row">
+      <label>Trail</label>
+      <input type="range" id="sl-anim-trail" min="1" max="40" value="12">
+      <span class="val" id="vl-anim-trail">12</span>
+    </div>
+  </div>
+
+  <div class="panel">
     <h3>Color Gradient</h3>
     <div class="preset-row" id="gradient-presets"></div>
     <div class="gradient-preview" id="gradient-preview"></div>
@@ -396,7 +417,20 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   </div>
 
   <div class="panel">
-    <h3>Filters</h3>
+    <h3>Overlays</h3>
+    <label style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer; margin-bottom:4px;">
+      <input type="checkbox" id="show-zones"> Show Residential Zones
+    </label>
+    <div id="zone-legend" style="display:none; font-size:10px; margin-bottom:4px; padding:4px; background:#1a2535; border-radius:4px;">
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;"><span style="display:inline-block;width:12px;height:12px;background:rgba(255,100,100,0.5);border-radius:2px;"></span> Multi-family residential (R3/R4)</div>
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;"><span style="display:inline-block;width:12px;height:12px;background:rgba(255,180,60,0.5);border-radius:2px;"></span> Mixed (SF + MF)</div>
+      <div style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;background:rgba(100,200,255,0.5);border-radius:2px;"></span> Single-family residential</div>
+      <div style="margin-top:3px;color:#5a7a9a;font-size:9px;">Source: LA City Planning ZIMAS<br>5,815 parcels · 200m grid</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Performance Filters</h3>
     <div class="slider-row">
       <label>Alt Min</label>
       <input type="range" id="sl-alt-min" min="0" max="450" value="0">
@@ -420,41 +454,11 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   </div>
 
   <div class="panel">
-    <h3>Animation</h3>
-    <div class="anim-controls">
-      <button class="anim-btn" id="anim-play" title="Play">&#9654;</button>
-      <button class="anim-btn" id="anim-pause" title="Pause" style="display:none;">&#9646;&#9646;</button>
-      <button class="anim-btn" id="anim-stop" title="Reset">&#9632;</button>
-      <input type="range" id="anim-progress" min="0" max="1000" value="0">
-      <span id="anim-time">0%</span>
-    </div>
-    <div class="slider-row">
-      <label>Speed</label>
-      <input type="range" id="sl-anim-speed" min="1" max="20" value="5">
-      <span class="val" id="vl-anim-speed">5x</span>
-    </div>
-    <div class="slider-row">
-      <label>Trail</label>
-      <input type="range" id="sl-anim-trail" min="1" max="40" value="12">
-      <span class="val" id="vl-anim-trail">12</span>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h3>Overlays</h3>
-    <label style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer; margin-bottom:4px;">
-      <input type="checkbox" id="show-zones"> Show Residential Zones
-    </label>
-    <div id="zone-legend" style="display:none; font-size:10px; margin-bottom:4px; padding:4px; background:#1a2535; border-radius:4px;">
-      <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;"><span style="display:inline-block;width:12px;height:12px;background:rgba(255,100,100,0.5);border-radius:2px;"></span> Multi-family residential (R3/R4)</div>
-      <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;"><span style="display:inline-block;width:12px;height:12px;background:rgba(255,180,60,0.5);border-radius:2px;"></span> Mixed (SF + MF)</div>
-      <div style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;background:rgba(100,200,255,0.5);border-radius:2px;"></span> Single-family residential</div>
-      <div style="margin-top:3px;color:#5a7a9a;font-size:9px;">Source: LA City Planning ZIMAS<br>5,815 parcels · 200m grid</div>
-    </div>
-  </div>
-
-  <div class="panel">
     <h3>Aircraft Filter</h3>
+    <div style="display:flex; gap:6px; margin-bottom:6px;">
+      <button class="preset-btn" id="type-all" style="flex:1; padding:4px; font-size:11px;">All</button>
+      <button class="preset-btn" id="type-none" style="flex:1; padding:4px; font-size:11px;">None</button>
+    </div>
     <input type="text" id="type-search" placeholder="Search types...">
     <div id="type-list"></div>
   </div>
@@ -1720,6 +1724,27 @@ function buildTypeFilter() {
       renderTypeList(e.target.value.toUpperCase());
     });
     searchEl._bound = true;
+  }
+
+  // All / None buttons (only attach once)
+  const allBtn = document.getElementById('type-all');
+  const noneBtn = document.getElementById('type-none');
+  if (!allBtn._bound) {
+    allBtn.addEventListener('click', () => {
+      activeTypes = new Set(Object.keys(DATA.types));
+      activeTypes.add('UNKNOWN');
+      renderTypeList(searchEl.value.toUpperCase());
+      requestRender();
+    });
+    allBtn._bound = true;
+  }
+  if (!noneBtn._bound) {
+    noneBtn.addEventListener('click', () => {
+      activeTypes = new Set();
+      renderTypeList(searchEl.value.toUpperCase());
+      requestRender();
+    });
+    noneBtn._bound = true;
   }
 }
 
