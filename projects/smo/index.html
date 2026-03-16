@@ -1568,16 +1568,17 @@ function updateCompareSliderPosition() {
   const ctrRect = ctr.getBoundingClientRect();
 
   if (mobileRotated) {
-    // On mobile (rotated -90deg), canvas X maps to screen Y (top-to-bottom)
-    const screenY = rect.top - ctrRect.top + rect.height * compareX;
+    // On mobile (rotated -90deg CCW), canvas X=0 is at screen bottom, X=W at top
+    // So invert: screenY corresponds to (1 - compareX)
+    const screenY = rect.top - ctrRect.top + rect.height * (1 - compareX);
     line.style.top = screenY + 'px';
 
-    // Labels: A above line, B below
+    // Labels: A (left/clipped) below line, B (right/full) above line
     lblLeft.style.left = '12px';
-    lblLeft.style.top = (screenY - 30) + 'px';
+    lblLeft.style.top = (screenY + 10) + 'px';
     lblLeft.style.right = '';
     lblRight.style.left = '12px';
-    lblRight.style.top = (screenY + 10) + 'px';
+    lblRight.style.top = (screenY - 30) + 'px';
     lblRight.style.right = '';
   } else {
     // Desktop: vertical split line
@@ -2092,7 +2093,7 @@ async function init() {
     const rect = canvas.getBoundingClientRect();
     if (mobileRotated) {
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      compareX = Math.max(0.02, Math.min(0.98, (clientY - rect.top) / rect.height));
+      compareX = Math.max(0.02, Math.min(0.98, 1 - (clientY - rect.top) / rect.height));
     } else {
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       compareX = Math.max(0.02, Math.min(0.98, (clientX - rect.left) / rect.width));
