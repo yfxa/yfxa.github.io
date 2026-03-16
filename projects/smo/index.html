@@ -104,6 +104,25 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   font-size: 11px; color: #5a7a9a; width: 36px; text-align: right;
 }
 
+/* Animation controls */
+.anim-controls {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+}
+.anim-btn {
+  background: #243044; border: 1px solid #2e4060; color: #8ab4ff;
+  width: 32px; height: 28px; border-radius: 4px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; padding: 0;
+}
+.anim-btn:hover { background: #2e4060; }
+.anim-btn.active { background: #1a4a80; border-color: #4a8aff; }
+#anim-progress {
+  flex: 1; margin: 0;
+}
+#anim-time {
+  font-size: 10px; color: #5a7a9a; min-width: 32px; text-align: right;
+}
+
 .preset-row {
   display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0;
 }
@@ -401,6 +420,27 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   </div>
 
   <div class="panel">
+    <h3>Animation</h3>
+    <div class="anim-controls">
+      <button class="anim-btn" id="anim-play" title="Play">&#9654;</button>
+      <button class="anim-btn" id="anim-pause" title="Pause" style="display:none;">&#9646;&#9646;</button>
+      <button class="anim-btn" id="anim-stop" title="Reset">&#9632;</button>
+      <input type="range" id="anim-progress" min="0" max="1000" value="0">
+      <span id="anim-time">0%</span>
+    </div>
+    <div class="slider-row">
+      <label>Speed</label>
+      <input type="range" id="sl-anim-speed" min="1" max="20" value="5">
+      <span class="val" id="vl-anim-speed">5x</span>
+    </div>
+    <div class="slider-row">
+      <label>Trail</label>
+      <input type="range" id="sl-anim-trail" min="1" max="40" value="12">
+      <span class="val" id="vl-anim-trail">12</span>
+    </div>
+  </div>
+
+  <div class="panel">
     <h3>Overlays</h3>
     <label style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer; margin-bottom:4px;">
       <input type="checkbox" id="show-zones"> Show Residential Zones
@@ -452,6 +492,21 @@ let DATA_CACHE = {}; // cache loaded scenario data by filename
 // Active types (all on by default)
 let activeTypes = new Set();
 let renderPending = false;
+
+// Animation state
+let anim = {
+  active: false,       // animation mode on/off
+  playing: false,      // currently animating
+  progress: 0,         // 0.0 → 1.0
+  speed: 5,            // steps per frame
+  trailLen: 12,        // points in active trail
+  wakeDensity: null,   // Float32Array — accumulated wake
+  wakeStep: -1,        // last step rendered into wake
+  allPaths: null,      // cached pixel paths [{pts, weight, numPts}]
+  maxPts: 0,           // max points across all flights
+  lastFrameTime: 0,    // for delta timing
+  rafId: null,         // requestAnimationFrame ID
+};
 
 // Data stride (5 = lat,lon,alt,gs,trk per point)
 const STRIDE = 5;
@@ -902,6 +957,437 @@ function requestRender() {
       renderCompare();
     } else {
       render();
+    }
+  });
+}
+
+// ============================================================
+// ANIMATION SYSTEM
+// Progressive reveal: sweep through flight point indices
+// Wake (persistent) + Trail (active heads) dual-layer render
+// ============================================================
+
+function animCachePaths() {
+  if (!DATA || !basemapImg) return;
+
+  const bounds = { north: 34.1741, south: 33.8364, west: -118.884, east: -118.0277 };
+  const origin = DATA.origin;
+  const latToMercY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
+  const mercNorth = latToMercY(bounds.north);
+  const mercSouth = latToMercY(bounds.south);
+
+  const stride = DATA.stride || 2;
+  const altMinFt = filters.altMin * 100;
+  const altMaxFt = filters.altMax * 100;
+  const filtersActive = altMinFt > 0 || altMaxFt < 45000 ||
+    filters.spdMin > 0 || filters.spdMax < 600;
+
+  const flights = DATA.flights.filter(f => activeTypes.has(f.t || 'UNKNOWN'));
+
+  let maxPts = 0;
+  const cached = [];
+
+  for (const flight of flights) {
+    const pts = []; // [x, y, x, y, ...] in pixel space
+    for (let i = 0; i < flight.p.length; i += stride) {
+      const alt = stride >= 5 ? (flight.p[i + 2] || 0) : 0;
+      const gs  = stride >= 5 ? (flight.p[i + 3] || 0) : 0;
+      const trk = stride >= 5 ? (flight.p[i + 4] || 0) : 0;
+
+      if (filtersActive) {
+        if (alt > 0 && (alt < altMinFt || alt > altMaxFt)) { pts.push(Infinity, Infinity); continue; }
+        if (alt === 0 && altMinFt > 0) { pts.push(Infinity, Infinity); continue; }
+        if (gs > 0 && (gs < filters.spdMin || gs > filters.spdMax)) { pts.push(Infinity, Infinity); continue; }
+      }
+
+      const lat = origin.lat + flight.p[i] / 10000;
+      const lon = origin.lon + flight.p[i + 1] / 10000;
+      const x = ((lon - bounds.west) / (bounds.east - bounds.west)) * W;
+      const y = ((mercNorth - latToMercY(lat)) / (mercNorth - mercSouth)) * H;
+      pts.push(x, y);
+    }
+
+    const numPts = pts.length / 2;
+    if (numPts < 2) continue;
+    if (numPts > maxPts) maxPts = numPts;
+
+    cached.push({ pts, numPts });
+  }
+
+  // Compute path lengths for weighting
+  const lengths = cached.map(c => {
+    let len = 0;
+    for (let i = 2; i < c.pts.length; i += 2) {
+      if (!isFinite(c.pts[i]) || !isFinite(c.pts[i-2])) continue;
+      const dx = c.pts[i] - c.pts[i - 2], dy = c.pts[i + 1] - c.pts[i - 1];
+      len += Math.sqrt(dx * dx + dy * dy);
+    }
+    return len;
+  });
+  const sortedLens = [...lengths].sort((a, b) => a - b);
+  const p20 = sortedLens[Math.floor(sortedLens.length * 0.2)] || 1;
+  const p80 = sortedLens[Math.floor(sortedLens.length * 0.8)] || 100;
+
+  for (let i = 0; i < cached.length; i++) {
+    const len = lengths[i];
+    cached[i].weight = len < p20 ? 0.3 : len < p80 ? 0.7 : 1.0;
+  }
+
+  anim.allPaths = cached;
+  anim.maxPts = maxPts;
+  anim.wakeDensity = new Float32Array(W * H);
+  anim.wakeStep = -1;
+
+  // Pre-compute reference normalization from full density grid
+  // so animation builds up to match the static render exactly
+  const fullGrid = new Float32Array(W * H);
+  rasterizeRange(fullGrid, 0, maxPts, false);
+
+  // Compute reference glow
+  const CELL = 3;
+  const dW = Math.ceil(W / CELL);
+  const dH = Math.ceil(H / CELL);
+  const refGlow = new Float32Array(dW * dH);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const v = fullGrid[y * W + x];
+      if (v > 0) {
+        const gx = Math.floor(x / CELL);
+        const gy = Math.floor(y / CELL);
+        if (gx < dW && gy < dH) refGlow[gy * dW + gx] += v;
+      }
+    }
+  }
+  // 3-pass box blur (same as static render)
+  const blurR = params.blurRadius;
+  for (let p = 0; p < 3; p++) {
+    const tmp = new Float32Array(dW * dH);
+    for (let y = 0; y < dH; y++) {
+      for (let x = 0; x < dW; x++) {
+        let sum = 0, cnt = 0;
+        for (let dx = -blurR; dx <= blurR; dx++) {
+          const nx = x + dx;
+          if (nx >= 0 && nx < dW) { sum += refGlow[y * dW + nx]; cnt++; }
+        }
+        tmp[y * dW + x] = sum / cnt;
+      }
+    }
+    for (let y = 0; y < dH; y++) {
+      for (let x = 0; x < dW; x++) {
+        let sum = 0, cnt = 0;
+        for (let dy = -blurR; dy <= blurR; dy++) {
+          const ny = y + dy;
+          if (ny >= 0 && ny < dH) { sum += tmp[ny * dW + x]; cnt++; }
+        }
+        refGlow[y * dW + x] = sum / cnt;
+      }
+    }
+  }
+
+  // Percentile normalization (same as static render)
+  function pctVal(arr, pct) {
+    const nonzero = [];
+    for (let i = 0; i < arr.length; i++) if (arr[i] > 0) nonzero.push(arr[i]);
+    if (nonzero.length === 0) return 1;
+    nonzero.sort((a, b) => a - b);
+    return nonzero[Math.min(nonzero.length - 1, Math.floor(nonzero.length * pct / 100))] || 1;
+  }
+
+  anim.refMaxDetail = pctVal(fullGrid, params.detailNormPct);
+  anim.refMaxGlow = pctVal(refGlow, params.glowNormPct);
+  console.log(`Animation ref normalization: detail=${anim.refMaxDetail.toFixed(1)}, glow=${anim.refMaxGlow.toFixed(1)}`);
+}
+
+// Rasterize segments between point indices [fromIdx, toIdx) for given paths into a density grid
+function rasterizeRange(grid, fromStep, toStep, trailMode) {
+  const spacing = params.pixelSpacing;
+  let samples = 0;
+
+  for (const path of anim.allPaths) {
+    const { pts, numPts, weight } = path;
+    // Map global step to this flight's local point index
+    const localFrom = Math.floor(fromStep / anim.maxPts * numPts);
+    const localTo = Math.min(numPts - 1, Math.floor(toStep / anim.maxPts * numPts));
+
+    if (localTo < 1) continue;
+
+    const segStart = Math.max(0, localFrom) * 2;
+    const segEnd = Math.min(pts.length - 2, localTo * 2);
+
+    for (let i = segStart; i < segEnd; i += 2) {
+      const x0 = pts[i], y0 = pts[i + 1];
+      const x1 = pts[i + 2], y1 = pts[i + 3];
+      if (!isFinite(x0) || !isFinite(x1)) continue;
+
+      const dx = x1 - x0, dy = y1 - y0;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const steps = Math.max(1, Math.ceil(dist / spacing));
+      const w = trailMode ? weight * 2.0 : weight; // trail is brighter
+
+      for (let s = 0; s <= steps; s++) {
+        const t = s / steps;
+        const px = Math.round(x0 + dx * t);
+        const py = Math.round(y0 + dy * t);
+        if (px >= 0 && px < W && py >= 0 && py < H) {
+          grid[py * W + px] += w;
+          samples++;
+        }
+      }
+    }
+  }
+  return samples;
+}
+
+function compositeGrid(detail, opacity, refMaxD, refMaxG) {
+  // Downsample for glow
+  const CELL = 3;
+  const dW = Math.ceil(W / CELL);
+  const dH = Math.ceil(H / CELL);
+  const glow = new Float32Array(dW * dH);
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const v = detail[y * W + x];
+      if (v > 0) {
+        const gx = Math.floor(x / CELL);
+        const gy = Math.floor(y / CELL);
+        if (gx < dW && gy < dH) glow[gy * dW + gx] += v;
+      }
+    }
+  }
+
+  // Blur — use 2-pass with params.blurRadius if reference norms provided (animation mode)
+  const blurPasses = refMaxD ? 2 : 1;
+  const r = refMaxD ? params.blurRadius : 2;
+  for (let p = 0; p < blurPasses; p++) {
+    const tmp = new Float32Array(dW * dH);
+    for (let y = 0; y < dH; y++) {
+      for (let x = 0; x < dW; x++) {
+        let sum = 0, cnt = 0;
+        for (let dx = -r; dx <= r; dx++) {
+          const nx = x + dx;
+          if (nx >= 0 && nx < dW) { sum += glow[y * dW + nx]; cnt++; }
+        }
+        tmp[y * dW + x] = sum / cnt;
+      }
+    }
+    for (let y = 0; y < dH; y++) {
+      for (let x = 0; x < dW; x++) {
+        let sum = 0, cnt = 0;
+        for (let dy = -r; dy <= r; dy++) {
+          const ny = y + dy;
+          if (ny >= 0 && ny < dH) { sum += tmp[ny * dW + x]; cnt++; }
+        }
+        glow[y * dW + x] = sum / cnt;
+      }
+    }
+  }
+
+  // Normalization — use reference values if provided (builds up to match static render)
+  let maxD, maxG;
+  if (refMaxD) {
+    maxD = refMaxD;
+    maxG = refMaxG;
+  } else {
+    maxD = 0; maxG = 0;
+    for (let i = 0; i < detail.length; i++) if (detail[i] > maxD) maxD = detail[i];
+    for (let i = 0; i < glow.length; i++) if (glow[i] > maxG) maxG = glow[i];
+    if (maxD === 0) maxD = 1;
+    if (maxG === 0) maxG = 1;
+  }
+
+  // Composite onto current canvas
+  const imgData = ctx.getImageData(0, 0, W, H);
+  const pixels = imgData.data;
+  const stops = getActiveStops();
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const idx = (y * W + x) * 4;
+      const gx = Math.floor(x / CELL);
+      const gy = Math.floor(y / CELL);
+      const gv = Math.min(1, glow[gy * dW + gx] / maxG);
+      const dv = Math.min(1, detail[y * W + x] / maxD);
+      const colorVal = Math.min(1, Math.max(dv, gv * 0.7));
+      if (colorVal < 0.003) continue;
+
+      const [cr, cg, cb] = colorFromStops(colorVal, stops);
+      const detailAlpha = dv > 0 ? Math.min(0.85, Math.sqrt(dv) * opacity) : 0;
+      const glowAlpha = gv * gv * opacity * 0.3;
+      const alpha = Math.min(1, detailAlpha + glowAlpha);
+
+      pixels[idx]     = Math.min(255, pixels[idx]     + Math.floor(cr * alpha));
+      pixels[idx + 1] = Math.min(255, pixels[idx + 1] + Math.floor(cg * alpha));
+      pixels[idx + 2] = Math.min(255, pixels[idx + 2] + Math.floor(cb * alpha));
+    }
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+}
+
+function animRenderFrame() {
+  const currentStep = Math.floor(anim.progress * anim.maxPts);
+  const trailStart = Math.max(0, currentStep - anim.trailLen);
+
+  // 1. Update wake — add newly expired trail segments
+  const newWakeFrom = Math.max(0, anim.wakeStep + 1);
+  const newWakeTo = trailStart;
+  if (newWakeTo > newWakeFrom) {
+    rasterizeRange(anim.wakeDensity, newWakeFrom, newWakeTo, false);
+    anim.wakeStep = newWakeTo - 1;
+  }
+
+  // 2. Draw basemap
+  ctx.drawImage(basemapImg, 0, 0, W, H);
+
+  // Draw residential zones if enabled
+  if (showZones) {
+    const bounds = { north: 34.1741, south: 33.8364, west: -118.884, east: -118.0277 };
+    const latToMercY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
+    drawZones(ctx, bounds, latToMercY(bounds.north), latToMercY(bounds.south), latToMercY);
+  }
+
+  // 3. Composite wake layer using reference normalization (builds up to match static render)
+  if (anim.wakeStep >= 0) {
+    compositeGrid(anim.wakeDensity, params.detailOpacity, anim.refMaxDetail, anim.refMaxGlow);
+  }
+
+  // 4. Render active trail (slightly brighter to highlight moving heads)
+  const trailGrid = new Float32Array(W * H);
+  const trailSamples = rasterizeRange(trailGrid, trailStart, currentStep, true);
+
+  if (trailSamples > 0) {
+    compositeGrid(trailGrid, params.detailOpacity * 1.5, anim.refMaxDetail, anim.refMaxGlow);
+  }
+
+  fitCanvas();
+
+  // Update status
+  const pct = Math.round(anim.progress * 100);
+  document.getElementById('status').textContent =
+    `Animation ${pct}% | step ${currentStep}/${anim.maxPts} | ${anim.allPaths.length} flights`;
+}
+
+function animLoop(timestamp) {
+  if (!anim.playing) return;
+
+  if (anim.lastFrameTime === 0) anim.lastFrameTime = timestamp;
+  const delta = timestamp - anim.lastFrameTime;
+  anim.lastFrameTime = timestamp;
+
+  // Advance progress: speed = steps per 16ms frame
+  const stepsPerFrame = anim.speed;
+  const advance = stepsPerFrame / anim.maxPts;
+  anim.progress = Math.min(1, anim.progress + advance);
+
+  // Update UI
+  document.getElementById('anim-progress').value = Math.round(anim.progress * 1000);
+  document.getElementById('anim-time').textContent = Math.round(anim.progress * 100) + '%';
+
+  // Render
+  animRenderFrame();
+
+  if (anim.progress >= 1) {
+    animStop();
+    return;
+  }
+
+  anim.rafId = requestAnimationFrame(animLoop);
+}
+
+function animStart() {
+  if (anim.playing) return;
+  if (!anim.allPaths) animCachePaths();
+  if (!anim.allPaths || anim.allPaths.length === 0) return;
+
+  anim.active = true;
+  anim.playing = true;
+  anim.lastFrameTime = 0;
+
+  document.getElementById('anim-play').style.display = 'none';
+  document.getElementById('anim-pause').style.display = '';
+
+  anim.rafId = requestAnimationFrame(animLoop);
+}
+
+function animPause() {
+  anim.playing = false;
+  if (anim.rafId) cancelAnimationFrame(anim.rafId);
+  anim.rafId = null;
+
+  document.getElementById('anim-play').style.display = '';
+  document.getElementById('anim-pause').style.display = 'none';
+}
+
+function animStop() {
+  animPause();
+  anim.progress = 0;
+  anim.wakeStep = -1;
+  anim.wakeDensity = null;
+  anim.allPaths = null;
+  anim.active = false;
+
+  document.getElementById('anim-progress').value = 0;
+  document.getElementById('anim-time').textContent = '0%';
+
+  // Re-render static view
+  requestRender();
+}
+
+function animSeek(progress) {
+  anim.progress = Math.max(0, Math.min(1, progress));
+
+  // Rebuild wake from scratch up to this point
+  if (!anim.allPaths) animCachePaths();
+  if (!anim.allPaths) return;
+
+  anim.active = true;
+  anim.wakeDensity = new Float32Array(W * H);
+  anim.wakeStep = -1;
+
+  const currentStep = Math.floor(anim.progress * anim.maxPts);
+  const trailStart = Math.max(0, currentStep - anim.trailLen);
+
+  if (trailStart > 0) {
+    rasterizeRange(anim.wakeDensity, 0, trailStart, false);
+    anim.wakeStep = trailStart - 1;
+  }
+
+  animRenderFrame();
+
+  document.getElementById('anim-time').textContent = Math.round(anim.progress * 100) + '%';
+}
+
+function setupAnimation() {
+  document.getElementById('anim-play').addEventListener('click', animStart);
+  document.getElementById('anim-pause').addEventListener('click', animPause);
+  document.getElementById('anim-stop').addEventListener('click', animStop);
+
+  // Progress scrubber
+  const progressEl = document.getElementById('anim-progress');
+  progressEl.addEventListener('input', () => {
+    const wasPlaying = anim.playing;
+    if (wasPlaying) animPause();
+    animSeek(parseInt(progressEl.value) / 1000);
+  });
+
+  // Speed slider
+  const speedEl = document.getElementById('sl-anim-speed');
+  const speedVl = document.getElementById('vl-anim-speed');
+  speedEl.addEventListener('input', () => {
+    anim.speed = parseInt(speedEl.value);
+    speedVl.textContent = anim.speed + 'x';
+  });
+
+  // Trail length slider
+  const trailEl = document.getElementById('sl-anim-trail');
+  const trailVl = document.getElementById('vl-anim-trail');
+  trailEl.addEventListener('input', () => {
+    anim.trailLen = parseInt(trailEl.value);
+    trailVl.textContent = anim.trailLen;
+    if (anim.active && !anim.playing) {
+      // Re-render current frame with new trail length
+      animSeek(anim.progress);
     }
   });
 }
@@ -1399,10 +1885,12 @@ async function init() {
   buildGradientUI();
   setupSliders();
   setupFilters();
+  setupAnimation();
   buildTypeFilter();
 
   // Scenario selector
   document.getElementById('scenario-select').addEventListener('change', (e) => {
+    if (anim.active) animStop();
     if (compareMode) exitCompareMode();
     loadScenario(e.target.value);
   });
