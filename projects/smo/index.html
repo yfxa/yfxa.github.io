@@ -229,6 +229,34 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
 }
 #compare-label-left { left: 12px; }
 #compare-label-right { right: 12px; }
+
+/* ---- Mobile responsive ---- */
+@media (max-width: 768px) {
+  #sidebar {
+    width: 100%;
+    top: 0; right: 0; bottom: 0;
+    max-height: 100vh;
+    padding: 12px;
+    gap: 10px;
+  }
+  #sidebar.collapsed { transform: translateX(100%); }
+  #sidebar-toggle {
+    right: 12px;
+    top: 10px;
+    width: 36px; height: 36px;
+    font-size: 18px;
+  }
+  #sidebar-toggle:not(.collapsed) { right: 12px; }
+  .panel { padding: 10px; }
+  .panel h3 { font-size: 11px; margin-bottom: 6px; }
+  .slider-row label { width: 70px; font-size: 11px; }
+  .slider-row .val { width: 30px; font-size: 10px; }
+  #type-list { max-height: 180px; }
+  #zoom-controls { bottom: 10px; left: 10px; }
+  #zoom-controls button { width: 36px; height: 36px; font-size: 18px; }
+  #status { display: none; }
+  #compare-label-left, #compare-label-right { font-size: 11px; padding: 3px 8px; }
+}
 </style>
 </head>
 <body>
@@ -1343,6 +1371,12 @@ document.getElementById('sidebar-toggle').addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('collapsed');
   document.getElementById('sidebar-toggle').classList.toggle('collapsed');
 });
+
+// Auto-collapse sidebar on mobile
+if (window.innerWidth <= 768) {
+  document.getElementById('sidebar').classList.add('collapsed');
+  document.getElementById('sidebar-toggle').classList.add('collapsed');
+}
 
 init().catch(err => {
   document.getElementById('load-status').textContent = 'Error: ' + err.message;
