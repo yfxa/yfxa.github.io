@@ -4,14 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LA Basin Air Traffic Density</title>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LQF8403XDW"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-LQF8403XDW');
-</script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; }
@@ -159,7 +151,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   display: flex; align-items: center; gap: 6px; cursor: pointer;
   padding: 4px 0; user-select: none;
 }
-.parent-cat-arrow { font-size: 10px; color: #5a7a9a; transition: transform 0.2s; display: inline-block; }
+.parent-cat-arrow { font-size: 14px; color: #5a7a9a; transition: transform 0.2s; display: inline-block; }
 .parent-cat-header.collapsed .parent-cat-arrow { transform: rotate(-90deg); }
 .parent-cat-label { font-size: 11px; font-weight: 600; color: #8ab4ff; flex: 1; }
 .parent-cat-toggle {
@@ -190,7 +182,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   font-size: 10px; font-weight: 600; color: #6a8aaa; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .type-group-header:hover { color: #8ab4ff; }
-.type-group-arrow { font-size: 9px; color: #5a7a9a; transition: transform 0.2s; display: inline-block; }
+.type-group-arrow { font-size: 14px; color: #5a7a9a; transition: transform 0.2s; display: inline-block; }
 .type-group-header.collapsed .type-group-arrow { transform: rotate(-90deg); }
 .type-group-count { color: #4a6a8a; font-size: 9px; font-weight: 400; margin-left: auto; }
 
@@ -302,8 +294,13 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
       <option value="viewer_data.json">2026 — Today</option>
       <option value="viewer_data_2028.json">2028 — SMO Exodus</option>
       <option value="viewer_data_2029.json">2029 — SMO Closed</option>
+      <option value="viewer_data_2031.json">2031 — eVTOL Air Taxis Launch</option>
       <option value="viewer_data_2033.json">2033 — Barker Hangar Turns Drone Hub</option>
-      <option value="viewer_data_2038.json">2038 — Drone Hubs Spring</option>    </select>
+      <option value="viewer_data_2035.json">2035 — Emergency Drone Grid</option>
+      <option value="viewer_data_2038.json">2038 — Drone Hubs Spring</option>
+      <option value="viewer_data_2040.json">2040 — Autonomous Freight Corridors</option>
+      <option value="viewer_data_2045.json">2045 — Full UAM Network</option>
+      <option value="viewer_data_2050.json">2050 — Autonomous Airspace</option>    </select>
     <button id="compare-btn" class="preset-btn" style="width:100%; padding:6px;">Compare</button>
     <div id="compare-controls" style="display:none; margin-top:6px;">
       <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
@@ -312,9 +309,13 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
           <option value="viewer_data.json">2026 — Today</option>
           <option value="viewer_data_2028.json">2028 — SMO Exodus</option>
           <option value="viewer_data_2029.json">2029 — SMO Closed</option>
+          <option value="viewer_data_2031.json">2031 — eVTOL Air Taxis Launch</option>
           <option value="viewer_data_2033.json">2033 — Barker Hangar Turns Drone Hub</option>
+          <option value="viewer_data_2035.json">2035 — Emergency Drone Grid</option>
           <option value="viewer_data_2038.json">2038 — Drone Hubs Spring</option>
-          <option value="viewer_data_2066.json">2066 — The Cross</option>
+          <option value="viewer_data_2040.json">2040 — Autonomous Freight Corridors</option>
+          <option value="viewer_data_2045.json">2045 — Full UAM Network</option>
+          <option value="viewer_data_2050.json">2050 — Autonomous Airspace</option>
         </select>
       </div>
       <div style="display:flex; align-items:center; gap:6px;">
@@ -323,9 +324,13 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
           <option value="viewer_data.json">2026 — Today</option>
           <option value="viewer_data_2028.json">2028 — SMO Exodus</option>
           <option value="viewer_data_2029.json" selected>2029 — SMO Closed</option>
+          <option value="viewer_data_2031.json">2031 — eVTOL Air Taxis Launch</option>
           <option value="viewer_data_2033.json">2033 — Barker Hangar Turns Drone Hub</option>
+          <option value="viewer_data_2035.json">2035 — Emergency Drone Grid</option>
           <option value="viewer_data_2038.json">2038 — Drone Hubs Spring</option>
-          <option value="viewer_data_2066.json">2066 — The Cross</option>
+          <option value="viewer_data_2040.json">2040 — Autonomous Freight Corridors</option>
+          <option value="viewer_data_2045.json">2045 — Full UAM Network</option>
+          <option value="viewer_data_2050.json">2050 — Autonomous Airspace</option>
         </select>
       </div>
     </div>
@@ -368,6 +373,30 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
       <label>Glow %ile</label>
       <input type="range" id="sl-glowpct" min="80" max="100" value="90">
       <span class="val" id="vl-glowpct">90</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Filters</h3>
+    <div class="slider-row">
+      <label>Alt Min</label>
+      <input type="range" id="sl-alt-min" min="0" max="450" value="0">
+      <span class="val" id="vl-alt-min">0</span>
+    </div>
+    <div class="slider-row">
+      <label>Alt Max</label>
+      <input type="range" id="sl-alt-max" min="0" max="450" value="450">
+      <span class="val" id="vl-alt-max">45k</span>
+    </div>
+    <div class="slider-row">
+      <label>Speed Min</label>
+      <input type="range" id="sl-spd-min" min="0" max="600" value="0" step="10">
+      <span class="val" id="vl-spd-min">0</span>
+    </div>
+    <div class="slider-row">
+      <label>Speed Max</label>
+      <input type="range" id="sl-spd-max" min="0" max="600" value="600" step="10">
+      <span class="val" id="vl-spd-max">600</span>
     </div>
   </div>
 
@@ -423,6 +452,17 @@ let DATA_CACHE = {}; // cache loaded scenario data by filename
 // Active types (all on by default)
 let activeTypes = new Set();
 let renderPending = false;
+
+// Data stride (5 = lat,lon,alt,gs,trk per point)
+const STRIDE = 5;
+
+// Filter state
+let filters = {
+  altMin: 0,      // hundreds of feet (slider value)
+  altMax: 450,    // hundreds of feet (slider value)
+  spdMin: 0,      // knots
+  spdMax: 600,    // knots
+};
 
 // Zoom/pan state
 let zoom = 1;
@@ -676,11 +716,38 @@ function render() {
     drawZones(ctx, bounds, mercNorth, mercSouth, latToMercY);
   }
 
+  // Point-level filter check
+  const altMinFt = filters.altMin * 100;
+  const altMaxFt = filters.altMax * 100;
+  const filtersActive = altMinFt > 0 || altMaxFt < 45000 ||
+    filters.spdMin > 0 || filters.spdMax < 600;
+
+  function pointPassesFilter(alt, gs, trk) {
+    if (!filtersActive) return true;
+    // alt=0 means ground/unknown — pass alt filter unless min > 0
+    if (alt > 0 && (alt < altMinFt || alt > altMaxFt)) return false;
+    if (alt === 0 && altMinFt > 0) return false;
+    // gs=0 means unknown — pass speed filter
+    if (gs > 0 && (gs < filters.spdMin || gs > filters.spdMax)) return false;
+    return true;
+  }
+
   // Build paths as pixel coords (Web Mercator projection)
+  // Stride-5: [lat, lon, alt, gs, trk, ...]
+  const stride = DATA.stride || 2;
   const allPaths = [];
   for (const flight of flights) {
     const pts = [];
-    for (let i = 0; i < flight.p.length; i += 2) {
+    for (let i = 0; i < flight.p.length; i += stride) {
+      const alt = stride >= 5 ? (flight.p[i + 2] || 0) : 0;
+      const gs  = stride >= 5 ? (flight.p[i + 3] || 0) : 0;
+      const trk = stride >= 5 ? (flight.p[i + 4] || 0) : 0;
+
+      if (filtersActive && !pointPassesFilter(alt, gs, trk)) {
+        pts.push(Infinity, Infinity); // break marker
+        continue;
+      }
+
       const lat = origin.lat + flight.p[i] / 10000;
       const lon = origin.lon + flight.p[i + 1] / 10000;
       const x = ((lon - bounds.west) / (bounds.east - bounds.west)) * W;
@@ -717,6 +784,7 @@ function render() {
     for (let i = 0; i < pts.length - 2; i += 2) {
       const x0 = pts[i], y0 = pts[i + 1];
       const x1 = pts[i + 2], y1 = pts[i + 3];
+      if (!isFinite(x0) || !isFinite(x1)) continue; // skip filter breaks
       const dx = x1 - x0, dy = y1 - y0;
       const dist = Math.sqrt(dx * dx + dy * dy);
       const steps = Math.max(1, Math.ceil(dist / spacing));
@@ -1086,6 +1154,50 @@ function setupSliders() {
 }
 
 // ============================================================
+// UI: FILTERS (altitude, speed, heading)
+// ============================================================
+function setupFilters() {
+  // Altitude min (hundreds of feet: 0-450 → 0-45000ft)
+  const altMinEl = document.getElementById('sl-alt-min');
+  const altMinVl = document.getElementById('vl-alt-min');
+  altMinEl.addEventListener('input', () => {
+    filters.altMin = parseInt(altMinEl.value);
+    altMinVl.textContent = filters.altMin === 0 ? '0' :
+      (filters.altMin * 100 >= 10000 ? (filters.altMin / 10).toFixed(0) + 'k' : (filters.altMin * 100).toString());
+    requestRender();
+  });
+
+  // Altitude max
+  const altMaxEl = document.getElementById('sl-alt-max');
+  const altMaxVl = document.getElementById('vl-alt-max');
+  altMaxEl.addEventListener('input', () => {
+    filters.altMax = parseInt(altMaxEl.value);
+    altMaxVl.textContent = filters.altMax >= 450 ? '45k' :
+      (filters.altMax * 100 >= 10000 ? (filters.altMax / 10).toFixed(0) + 'k' : (filters.altMax * 100).toString());
+    requestRender();
+  });
+
+  // Speed min
+  const spdMinEl = document.getElementById('sl-spd-min');
+  const spdMinVl = document.getElementById('vl-spd-min');
+  spdMinEl.addEventListener('input', () => {
+    filters.spdMin = parseInt(spdMinEl.value);
+    spdMinVl.textContent = filters.spdMin + 'kt';
+    requestRender();
+  });
+
+  // Speed max
+  const spdMaxEl = document.getElementById('sl-spd-max');
+  const spdMaxVl = document.getElementById('vl-spd-max');
+  spdMaxEl.addEventListener('input', () => {
+    filters.spdMax = parseInt(spdMaxEl.value);
+    spdMaxVl.textContent = filters.spdMax >= 600 ? '600kt' : filters.spdMax + 'kt';
+    requestRender();
+  });
+
+}
+
+// ============================================================
 // UI: TYPE FILTER
 // ============================================================
 function buildTypeFilter() {
@@ -1118,7 +1230,9 @@ const MANNED_SUBCATS = [
   { key: 'other', label: 'Other' },
 ];
 const DRONE_SUBCATS = [
-  { key: 'drone', label: 'Wing Drone' },
+  { key: 'drone', label: 'Delivery Drone' },
+  { key: 'evtol', label: 'eVTOL Air Taxi' },
+  { key: 'cargo', label: 'Autonomous Cargo' },
 ];
 
 function renderTypeList(filter) {
@@ -1130,8 +1244,9 @@ function renderTypeList(filter) {
     .sort((a, b) => b[1].count - a[1].count);
 
   // Split into manned vs drone
-  const manned = sorted.filter(([t, info]) => info.category !== 'drone');
-  const drone = sorted.filter(([t, info]) => info.category === 'drone');
+  const AUTONOMOUS_CATS = new Set(['drone', 'evtol', 'cargo']);
+  const manned = sorted.filter(([t, info]) => !AUTONOMOUS_CATS.has(info.category));
+  const drone = sorted.filter(([t, info]) => AUTONOMOUS_CATS.has(info.category));
 
   function applyFilter(list) {
     if (!filter) return list;
@@ -1283,6 +1398,7 @@ async function init() {
 
   buildGradientUI();
   setupSliders();
+  setupFilters();
   buildTypeFilter();
 
   // Scenario selector
