@@ -390,13 +390,13 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
     </div>
     <div class="slider-row">
       <label>Speed</label>
-      <input type="range" id="sl-anim-speed" min="1" max="20" value="5">
-      <span class="val" id="vl-anim-speed">5x</span>
+      <input type="range" id="sl-anim-speed" min="1" max="20" value="15">
+      <span class="val" id="vl-anim-speed">15x</span>
     </div>
     <div class="slider-row">
       <label>Trail</label>
-      <input type="range" id="sl-anim-trail" min="1" max="40" value="12">
-      <span class="val" id="vl-anim-trail">12</span>
+      <input type="range" id="sl-anim-trail" min="1" max="40" value="10">
+      <span class="val" id="vl-anim-trail">10</span>
     </div>
   </div>
 
@@ -536,8 +536,8 @@ let anim = {
   active: false,       // animation mode on/off
   playing: false,      // currently animating
   progress: 0,         // 0.0 → 1.0
-  speed: 5,            // steps per frame
-  trailLen: 12,        // points in active trail
+  speed: 15,           // steps per frame
+  trailLen: 10,        // points in active trail
   wakeDensity: null,   // Float32Array — accumulated wake
   wakeStep: -1,        // last step rendered into wake
   allPaths: null,      // cached pixel paths [{pts, weight, numPts}]
@@ -577,8 +577,8 @@ if (mobileRotated) {
 function fitCanvas() {
   const cw = container.clientWidth, ch = container.clientHeight;
   if (mobileRotated) {
-    // Rotate 90deg CCW: fit W(1920) into ch, H(1080) into cw
-    const baseScale = Math.min(ch / W, cw / H);
+    // Rotate 90deg CCW: fill screen — use Math.max so no black edges
+    const baseScale = Math.max(ch / W, cw / H);
     const totalScale = baseScale * zoom;
     // After rotation, canvas occupies (H*scale) wide x (W*scale) tall in screen space
     const cx = (cw - H * baseScale) / 2;
@@ -1385,6 +1385,12 @@ function animStart() {
   if (!anim.allPaths) animCachePaths();
   if (!anim.allPaths || anim.allPaths.length === 0) return;
 
+  // Exit compare mode if active
+  if (compareMode) exitCompareMode();
+  // Disable compare button during animation
+  document.getElementById('compare-btn').disabled = true;
+  document.getElementById('compare-btn').style.opacity = '0.4';
+
   anim.active = true;
   anim.playing = true;
   anim.lastFrameTime = 0;
@@ -1414,6 +1420,10 @@ function animStop() {
 
   document.getElementById('anim-progress').value = 0;
   document.getElementById('anim-time').textContent = '0%';
+
+  // Re-enable compare button
+  document.getElementById('compare-btn').disabled = false;
+  document.getElementById('compare-btn').style.opacity = '';
 
   // Re-render static view
   requestRender();
@@ -1572,6 +1582,12 @@ async function loadScenarioData(filename) {
 }
 
 async function enterCompareMode() {
+  // Stop animation if active
+  if (anim.active) animStop();
+  // Disable animation controls
+  document.getElementById('anim-play').disabled = true;
+  document.getElementById('anim-play').style.opacity = '0.4';
+
   compareMode = true;
   const slider = document.getElementById('compare-slider');
   slider.classList.add('active');
@@ -1628,6 +1644,11 @@ function exitCompareMode() {
   btn.classList.remove('active');
   btn.textContent = 'Compare';
   document.getElementById('compare-controls').style.display = 'none';
+
+  // Re-enable animation controls
+  document.getElementById('anim-play').disabled = false;
+  document.getElementById('anim-play').style.opacity = '';
+
   render();
 }
 
