@@ -242,6 +242,10 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
   font-size: 16px; color: #333; user-select: none;
 }
+@media (max-width: 768px) {
+  #compare-line { cursor: ns-resize; }
+  #compare-handle { cursor: ns-resize; }
+}
 #compare-label-left, #compare-label-right {
   position: absolute; top: 12px; padding: 4px 12px;
   background: rgba(0,0,0,0.7); color: #fff; font-size: 13px;
@@ -572,6 +576,8 @@ if (mobileRotated) {
   ni.style.display = 'block';
   // Rotate the compass to show north pointing left (90deg CCW rotation of map)
   ni.querySelector('svg').style.transform = 'rotate(-90deg)';
+  // Change compare handle to vertical arrows
+  document.getElementById('compare-handle').innerHTML = '&#x2195;';
 }
 
 function fitCanvas() {
@@ -1551,17 +1557,41 @@ function updateCompareSliderPosition() {
   const slider = document.getElementById('compare-slider');
   const ctr = document.getElementById('canvas-container');
   const rect = canvas.getBoundingClientRect();
-
-  // Position the slider line at the split point in screen coords
-  const screenX = rect.left - ctr.getBoundingClientRect().left + rect.width * compareX;
   const line = document.getElementById('compare-line');
-  line.style.left = screenX + 'px';
-
-  // Position labels
   const lblLeft = document.getElementById('compare-label-left');
   const lblRight = document.getElementById('compare-label-right');
-  lblLeft.style.left = (screenX - 100) + 'px';
-  lblRight.style.left = (screenX + 12) + 'px';
+
+  if (mobileRotated) {
+    // On mobile (rotated -90deg), canvas X maps to screen Y (top-to-bottom)
+    const ctrRect = ctr.getBoundingClientRect();
+    const screenY = rect.top - ctrRect.top + rect.height * compareX;
+    line.style.left = '0';
+    line.style.top = screenY + 'px';
+    line.style.width = '100%';
+    line.style.height = '3px';
+    line.style.bottom = '';
+
+    // Labels: A above line, B below
+    lblLeft.style.left = '12px';
+    lblLeft.style.top = (screenY - 30) + 'px';
+    lblLeft.style.right = '';
+    lblRight.style.left = '12px';
+    lblRight.style.top = (screenY + 10) + 'px';
+    lblRight.style.right = '';
+  } else {
+    // Desktop: vertical split line
+    const screenX = rect.left - ctr.getBoundingClientRect().left + rect.width * compareX;
+    line.style.left = screenX + 'px';
+    line.style.top = '0';
+    line.style.width = '3px';
+    line.style.height = '';
+    line.style.bottom = '0';
+
+    lblLeft.style.left = (screenX - 100) + 'px';
+    lblLeft.style.top = '12px';
+    lblRight.style.left = (screenX + 12) + 'px';
+    lblRight.style.top = '12px';
+  }
 }
 
 function getScenarioLabel(selectEl) {
@@ -2063,8 +2093,13 @@ async function init() {
     if (!compareDragging || !compareMode) return;
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    compareX = Math.max(0.02, Math.min(0.98, (clientX - rect.left) / rect.width));
+    if (mobileRotated) {
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      compareX = Math.max(0.02, Math.min(0.98, (clientY - rect.top) / rect.height));
+    } else {
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      compareX = Math.max(0.02, Math.min(0.98, (clientX - rect.left) / rect.width));
+    }
     renderCompare();
     updateCompareSliderPosition();
   };
