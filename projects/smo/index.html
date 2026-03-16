@@ -1575,11 +1575,11 @@ function updateCompareSliderPosition() {
 
     // Labels: A (left/clipped) below line, B (right/full) above line
     lblLeft.style.left = '12px';
+    lblLeft.style.right = 'auto';
     lblLeft.style.top = (screenY + 10) + 'px';
-    lblLeft.style.right = '';
     lblRight.style.left = '12px';
+    lblRight.style.right = 'auto';
     lblRight.style.top = (screenY - 30) + 'px';
-    lblRight.style.right = '';
   } else {
     // Desktop: vertical split line
     const screenX = rect.left - ctrRect.left + rect.width * compareX;
