@@ -22,7 +22,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
 }
 
 #zoom-controls {
-  position: absolute; bottom: 14px; left: 14px; z-index: 11;
+  position: fixed; bottom: 14px; left: 14px; z-index: 11;
   display: flex; gap: 6px; align-items: center;
 }
 #zoom-controls button {
@@ -56,7 +56,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
 #sidebar.collapsed { transform: translateX(100%); }
 
 #sidebar-toggle {
-  position: absolute;
+  position: fixed;
   top: 12px; right: 332px;
   z-index: 11;
   background: rgba(18, 23, 31, 0.85);
@@ -206,7 +206,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
 .type-group-count { color: #4a6a8a; font-size: 9px; font-weight: 400; margin-left: auto; }
 
 #status {
-  position: absolute; bottom: 16px; left: 180px;
+  position: fixed; bottom: 16px; left: 180px;
   font-size: 11px; color: #4a6a8a; z-index: 11;
 }
 
@@ -261,6 +261,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   }
   #sidebar.collapsed { transform: translateX(100%); }
   #sidebar-toggle {
+    position: fixed;
     right: 12px;
     top: 10px;
     width: 36px; height: 36px;
