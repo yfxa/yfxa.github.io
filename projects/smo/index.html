@@ -430,37 +430,47 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   </div>
 
   <div class="panel">
-    <h3>Performance Filters</h3>
-    <div class="slider-row">
-      <label>Alt Min</label>
-      <input type="range" id="sl-alt-min" min="0" max="450" value="0">
-      <span class="val" id="vl-alt-min">0</span>
-    </div>
-    <div class="slider-row">
-      <label>Alt Max</label>
-      <input type="range" id="sl-alt-max" min="0" max="450" value="450">
-      <span class="val" id="vl-alt-max">45k</span>
-    </div>
-    <div class="slider-row">
-      <label>Speed Min</label>
-      <input type="range" id="sl-spd-min" min="0" max="600" value="0" step="10">
-      <span class="val" id="vl-spd-min">0</span>
-    </div>
-    <div class="slider-row">
-      <label>Speed Max</label>
-      <input type="range" id="sl-spd-max" min="0" max="600" value="600" step="10">
-      <span class="val" id="vl-spd-max">600</span>
-    </div>
-  </div>
+    <h3>Filters</h3>
 
-  <div class="panel">
-    <h3>Aircraft Filter</h3>
-    <div style="display:flex; gap:6px; margin-bottom:6px;">
-      <button class="preset-btn" id="type-all" style="flex:1; padding:4px; font-size:11px;">All</button>
-      <button class="preset-btn" id="type-none" style="flex:1; padding:4px; font-size:11px;">None</button>
+    <div class="type-group-header" id="filter-perf-toggle" style="margin-bottom:6px;">
+      <span class="type-group-arrow">&#9662;</span>
+      <span>Performance</span>
     </div>
-    <input type="text" id="type-search" placeholder="Search types...">
-    <div id="type-list"></div>
+    <div id="filter-perf-body">
+      <div class="slider-row">
+        <label>Alt Min</label>
+        <input type="range" id="sl-alt-min" min="0" max="450" value="0">
+        <span class="val" id="vl-alt-min">0</span>
+      </div>
+      <div class="slider-row">
+        <label>Alt Max</label>
+        <input type="range" id="sl-alt-max" min="0" max="450" value="450">
+        <span class="val" id="vl-alt-max">45k</span>
+      </div>
+      <div class="slider-row">
+        <label>Speed Min</label>
+        <input type="range" id="sl-spd-min" min="0" max="600" value="0" step="10">
+        <span class="val" id="vl-spd-min">0</span>
+      </div>
+      <div class="slider-row">
+        <label>Speed Max</label>
+        <input type="range" id="sl-spd-max" min="0" max="600" value="600" step="10">
+        <span class="val" id="vl-spd-max">600</span>
+      </div>
+    </div>
+
+    <div class="type-group-header" id="filter-aircraft-toggle" style="margin-bottom:6px;">
+      <span class="type-group-arrow">&#9662;</span>
+      <span>Aircraft</span>
+    </div>
+    <div id="filter-aircraft-body">
+      <div style="display:flex; gap:6px; margin-bottom:6px;">
+        <button class="preset-btn" id="type-all" style="flex:1; padding:4px; font-size:11px;">All</button>
+        <button class="preset-btn" id="type-none" style="flex:1; padding:4px; font-size:11px;">None</button>
+      </div>
+      <input type="text" id="type-search" placeholder="Search types...">
+      <div id="type-list"></div>
+    </div>
   </div>
 </div>
 
@@ -1636,6 +1646,16 @@ document.getElementById('color-stops-toggle').addEventListener('click', function
   this.classList.toggle('collapsed');
   const stops = document.getElementById('color-stops');
   stops.style.display = this.classList.contains('collapsed') ? 'none' : 'block';
+});
+
+// Filter sub-section toggles
+document.getElementById('filter-perf-toggle').addEventListener('click', function() {
+  this.classList.toggle('collapsed');
+  document.getElementById('filter-perf-body').style.display = this.classList.contains('collapsed') ? 'none' : 'block';
+});
+document.getElementById('filter-aircraft-toggle').addEventListener('click', function() {
+  this.classList.toggle('collapsed');
+  document.getElementById('filter-aircraft-body').style.display = this.classList.contains('collapsed') ? 'none' : 'block';
 });
 
 // ============================================================
