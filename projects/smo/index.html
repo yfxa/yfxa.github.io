@@ -225,7 +225,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
 
 /* Comparison slider */
 #compare-slider {
-  position: absolute; top: 0; bottom: 0; z-index: 15;
+  position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 15;
   pointer-events: none; display: none;
 }
 #compare-slider.active { display: block; }
@@ -243,7 +243,11 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   font-size: 16px; color: #333; user-select: none;
 }
 @media (max-width: 768px) {
-  #compare-line { cursor: ns-resize; }
+  #compare-line {
+    top: auto; bottom: auto; left: 0; right: 0;
+    width: auto; height: 3px;
+    cursor: ns-resize;
+  }
   #compare-handle { cursor: ns-resize; }
 }
 #compare-label-left, #compare-label-right {
@@ -1561,15 +1565,12 @@ function updateCompareSliderPosition() {
   const lblLeft = document.getElementById('compare-label-left');
   const lblRight = document.getElementById('compare-label-right');
 
+  const ctrRect = ctr.getBoundingClientRect();
+
   if (mobileRotated) {
     // On mobile (rotated -90deg), canvas X maps to screen Y (top-to-bottom)
-    const ctrRect = ctr.getBoundingClientRect();
     const screenY = rect.top - ctrRect.top + rect.height * compareX;
-    line.style.left = '0';
     line.style.top = screenY + 'px';
-    line.style.width = '100%';
-    line.style.height = '3px';
-    line.style.bottom = '';
 
     // Labels: A above line, B below
     lblLeft.style.left = '12px';
@@ -1580,12 +1581,8 @@ function updateCompareSliderPosition() {
     lblRight.style.right = '';
   } else {
     // Desktop: vertical split line
-    const screenX = rect.left - ctr.getBoundingClientRect().left + rect.width * compareX;
+    const screenX = rect.left - ctrRect.left + rect.width * compareX;
     line.style.left = screenX + 'px';
-    line.style.top = '0';
-    line.style.width = '3px';
-    line.style.height = '';
-    line.style.bottom = '0';
 
     lblLeft.style.left = (screenX - 100) + 'px';
     lblLeft.style.top = '12px';
