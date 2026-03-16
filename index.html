@@ -247,6 +247,71 @@ a:hover { color: var(--text-bright); }
   transform: translateY(0);
 }
 
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 32px;
+  width: 100%;
+  max-width: 440px;
+  margin: 24px;
+}
+.modal h3 {
+  font-size: 18px;
+  color: var(--text-bright);
+  margin-bottom: 16px;
+}
+.modal label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  margin-top: 12px;
+}
+.modal input, .modal textarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+.modal input:focus, .modal textarea:focus { border-color: var(--accent); }
+.modal textarea { height: 100px; resize: vertical; }
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.modal-actions button {
+  padding: 8px 20px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.modal-actions button.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.modal-actions button:hover { opacity: 0.85; }
+
 /* Responsive */
 @media (max-width: 640px) {
   .header { flex-direction: column; gap: 8px; padding: 24px 0 20px; }
@@ -302,7 +367,7 @@ a:hover { color: var(--text-bright); }
       <div class="service-info">
         <h3>Fly with me</h3>
         <p>Help me build my hour by booking a flight with me. Kindly split the gas with me because legally I can't charge you. Let me know when and where you wanna go. Let's go for an adventure.</p>
-        <p style="margin-top:12px;">I fly SR20 with <a href="https://santamonicaflyers.com/our-fleet/#cirrus" target="_blank" rel="noopener">Santa Monica Flyers</a>. be my copilot. (you can bring 1 more passenger with you)</p>
+        <p style="margin-top:12px;">I fly SR20 with <a href="https://santamonicaflyers.com/our-fleet/#cirrus" target="_blank" rel="noopener">Santa Monica Flyers</a>.<br><a href="#" id="copilot-link">be my copilot</a>. (you can bring 1 more passenger with you)</p>
         <table class="fleet-table">
           <thead>
             <tr><th>Tail #</th><th>Model</th><th>Rate</th></tr>
@@ -328,12 +393,59 @@ a:hover { color: var(--text-bright); }
   </div>
 </footer>
 
+<!-- Copilot Modal -->
+<div class="modal-overlay" id="copilot-modal">
+  <div class="modal">
+    <h3>Be My Copilot</h3>
+    <label for="cp-name">Name</label>
+    <input type="text" id="cp-name" placeholder="Your name">
+    <label for="cp-email">Email</label>
+    <input type="email" id="cp-email" placeholder="you@example.com">
+    <label for="cp-date">Preferred Date</label>
+    <input type="date" id="cp-date">
+    <label for="cp-msg">Message</label>
+    <textarea id="cp-msg" placeholder="Where do you wanna go?"></textarea>
+    <div class="modal-actions">
+      <button id="cp-cancel">Cancel</button>
+      <button class="primary" id="cp-send">Send</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // Fade in on scroll
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Copilot modal
+const modal = document.getElementById('copilot-modal');
+document.getElementById('copilot-link').addEventListener('click', e => {
+  e.preventDefault();
+  modal.classList.add('active');
+});
+document.getElementById('cp-cancel').addEventListener('click', () => {
+  modal.classList.remove('active');
+});
+modal.addEventListener('click', e => {
+  if (e.target === modal) modal.classList.remove('active');
+});
+document.getElementById('cp-send').addEventListener('click', () => {
+  const name = document.getElementById('cp-name').value.trim();
+  const email = document.getElementById('cp-email').value.trim();
+  const date = document.getElementById('cp-date').value;
+  const msg = document.getElementById('cp-msg').value.trim();
+  const subject = encodeURIComponent('Copilot Request from ' + (name || 'someone'));
+  const body = encodeURIComponent(
+    'Name: ' + name + '\n' +
+    'Email: ' + email + '\n' +
+    'Preferred Date: ' + (date || 'Flexible') + '\n\n' +
+    msg
+  );
+  window.location.href = 'mailto:fredsclawninja@gmail.com?subject=' + subject + '&body=' + body;
+  modal.classList.remove('active');
+});
 </script>
 </body>
 </html>
