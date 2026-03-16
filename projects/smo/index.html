@@ -955,6 +955,25 @@ function requestRender() {
     if (compareMode) {
       await refreshCompareCanvases();
       renderCompare();
+    } else if (anim.active) {
+      // Re-cache paths with new filters and restart wake from current progress
+      const wasPlaying = anim.playing;
+      const savedProgress = anim.progress;
+      animCachePaths();
+      anim.progress = savedProgress;
+      // Rebuild wake up to current position
+      const currentStep = Math.floor(anim.progress * anim.maxPts);
+      const trailStart = Math.max(0, currentStep - anim.trailLen);
+      if (trailStart > 0) {
+        rasterizeRange(anim.wakeDensity, 0, trailStart, false);
+        anim.wakeStep = trailStart - 1;
+      }
+      animRenderFrame();
+      if (wasPlaying && !anim.playing) {
+        anim.playing = true;
+        anim.lastFrameTime = performance.now();
+        requestAnimationFrame(animLoop);
+      }
     } else {
       render();
     }
