@@ -250,6 +250,19 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
 #compare-label-left { left: 12px; }
 #compare-label-right { right: 12px; }
 
+/* North indicator */
+#north-indicator {
+  position: fixed;
+  top: 14px; left: 14px;
+  z-index: 11;
+  width: 40px; height: 40px;
+  display: none;
+}
+#north-indicator svg {
+  width: 100%; height: 100%;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7));
+}
+
 /* ---- Mobile responsive ---- */
 @media (max-width: 768px) {
   #sidebar {
@@ -305,6 +318,14 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   <button id="zoom-out" title="Zoom out">&minus;</button>
   <button id="zoom-reset" title="Reset zoom">&#8634;</button>
   <span id="zoom-level">100%</span>
+</div>
+
+<div id="north-indicator" title="North direction">
+  <svg viewBox="0 0 40 40">
+    <polygon points="20,4 26,20 20,16 14,20" fill="#e04040" stroke="#fff" stroke-width="0.5"/>
+    <polygon points="20,36 14,20 20,24 26,20" fill="#888" stroke="#fff" stroke-width="0.5"/>
+    <text x="20" y="13" text-anchor="middle" font-size="7" font-weight="bold" fill="#fff">N</text>
+  </svg>
 </div>
 
 <div id="sidebar">
@@ -541,17 +562,33 @@ let isDragging = false;
 let compareDragging = false;
 let dragStartX, dragStartY, panStartX, panStartY;
 const container = document.getElementById('canvas-container');
+const mobileRotated = window.innerWidth <= 768;
+
+// Show north indicator when rotated
+if (mobileRotated) {
+  const ni = document.getElementById('north-indicator');
+  ni.style.display = 'block';
+  // Rotate the compass to show north pointing left (90deg CCW rotation of map)
+  ni.querySelector('svg').style.transform = 'rotate(-90deg)';
+}
 
 function fitCanvas() {
-  // Compute scale to fit 1920x1080 into container
   const cw = container.clientWidth, ch = container.clientHeight;
-  const baseScale = Math.min(cw / W, ch / H);
-  const totalScale = baseScale * zoom;
-  const renderedW = W * totalScale, renderedH = H * totalScale;
-  // Center offset
-  const cx = (cw - W * baseScale) / 2;
-  const cy = (ch - H * baseScale) / 2;
-  canvas.style.transform = `translate(${cx + panX}px, ${cy + panY}px) scale(${totalScale})`;
+  if (mobileRotated) {
+    // Rotate 90deg CCW: fit W(1920) into ch, H(1080) into cw
+    const baseScale = Math.min(ch / W, cw / H);
+    const totalScale = baseScale * zoom;
+    // After rotation, canvas occupies (H*scale) wide x (W*scale) tall in screen space
+    const cx = (cw - H * baseScale) / 2;
+    const cy = (ch - W * baseScale) / 2;
+    canvas.style.transform = `translate(${cx + panX}px, ${cy + panY + W * totalScale}px) scale(${totalScale}) rotate(-90deg)`;
+  } else {
+    const baseScale = Math.min(cw / W, ch / H);
+    const totalScale = baseScale * zoom;
+    const cx = (cw - W * baseScale) / 2;
+    const cy = (ch - H * baseScale) / 2;
+    canvas.style.transform = `translate(${cx + panX}px, ${cy + panY}px) scale(${totalScale})`;
+  }
   canvas.style.width = '';
   canvas.style.height = '';
 }
@@ -563,17 +600,29 @@ function updateZoomLabel() {
 function zoomAt(factor, clientX, clientY) {
   const rect = container.getBoundingClientRect();
   const cw = rect.width, ch = rect.height;
-  const baseScale = Math.min(cw / W, ch / H);
-  const cx = (cw - W * baseScale) / 2;
-  const cy = (ch - H * baseScale) / 2;
-  // Mouse position relative to canvas origin before zoom
-  const mx = clientX - rect.left - cx - panX;
-  const my = clientY - rect.top - cy - panY;
-  const oldZoom = zoom;
-  zoom = Math.max(0.5, Math.min(20, zoom * factor));
-  const ratio = zoom / oldZoom;
-  panX = (clientX - rect.left - cx) - mx * ratio;
-  panY = (clientY - rect.top - cy) - my * ratio;
+  if (mobileRotated) {
+    const baseScale = Math.min(ch / W, cw / H);
+    const cx = (cw - H * baseScale) / 2;
+    const cy = (ch - W * baseScale) / 2;
+    const mx = clientX - rect.left - cx - panX;
+    const my = clientY - rect.top - cy - panY;
+    const oldZoom = zoom;
+    zoom = Math.max(0.5, Math.min(20, zoom * factor));
+    const ratio = zoom / oldZoom;
+    panX = (clientX - rect.left - cx) - mx * ratio;
+    panY = (clientY - rect.top - cy) - my * ratio;
+  } else {
+    const baseScale = Math.min(cw / W, ch / H);
+    const cx = (cw - W * baseScale) / 2;
+    const cy = (ch - H * baseScale) / 2;
+    const mx = clientX - rect.left - cx - panX;
+    const my = clientY - rect.top - cy - panY;
+    const oldZoom = zoom;
+    zoom = Math.max(0.5, Math.min(20, zoom * factor));
+    const ratio = zoom / oldZoom;
+    panX = (clientX - rect.left - cx) - mx * ratio;
+    panY = (clientY - rect.top - cy) - my * ratio;
+  }
   fitCanvas();
   updateZoomLabel();
 }
