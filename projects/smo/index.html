@@ -403,8 +403,8 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
     </div>
     <div class="slider-row">
       <label>Trail</label>
-      <input type="range" id="sl-anim-trail" min="1" max="40" value="10">
-      <span class="val" id="vl-anim-trail">10</span>
+      <input type="range" id="sl-anim-trail" min="1" max="30" value="8">
+      <span class="val" id="vl-anim-trail">8%</span>
     </div>
   </div>
 
@@ -545,7 +545,7 @@ let anim = {
   playing: false,      // currently animating
   progress: 0,         // 0.0 → 1.0
   speed: 15,           // steps per frame
-  trailLen: 10,        // points in active trail
+  trailLen: 8,         // trail length as % of maxPts
   wakeDensity: null,   // Float32Array — accumulated wake
   wakeStep: -1,        // last step rendered into wake
   allPaths: null,      // cached pixel paths [{pts, weight, numPts}]
@@ -1039,7 +1039,7 @@ function requestRender() {
       anim.progress = savedProgress;
       // Rebuild wake up to current position
       const currentStep = Math.floor(anim.progress * anim.maxPts);
-      const trailStart = Math.max(0, currentStep - anim.trailLen);
+      const trailStart = Math.max(0, currentStep - trailSteps());
       if (trailStart > 0) {
         rasterizeRange(anim.wakeDensity, 0, trailStart, false);
         anim.wakeStep = trailStart - 1;
@@ -1194,6 +1194,10 @@ function animCachePaths() {
 }
 
 // Rasterize segments between point indices [fromIdx, toIdx) for given paths into a density grid
+function trailSteps() {
+  return Math.floor(anim.trailLen / 100 * anim.maxPts);
+}
+
 function rasterizeRange(grid, fromStep, toStep, trailMode) {
   const spacing = params.pixelSpacing;
   let samples = 0;
@@ -1322,7 +1326,7 @@ function compositeGrid(detail, opacity, refMaxD, refMaxG) {
 
 function animRenderFrame() {
   const currentStep = Math.floor(anim.progress * anim.maxPts);
-  const trailStart = Math.max(0, currentStep - anim.trailLen);
+  const trailStart = Math.max(0, currentStep - trailSteps());
 
   // 1. Update wake — add newly expired trail segments
   const newWakeFrom = Math.max(0, anim.wakeStep + 1);
@@ -1451,7 +1455,7 @@ function animSeek(progress) {
   anim.wakeStep = -1;
 
   const currentStep = Math.floor(anim.progress * anim.maxPts);
-  const trailStart = Math.max(0, currentStep - anim.trailLen);
+  const trailStart = Math.max(0, currentStep - trailSteps());
 
   if (trailStart > 0) {
     rasterizeRange(anim.wakeDensity, 0, trailStart, false);
@@ -1489,7 +1493,7 @@ function setupAnimation() {
   const trailVl = document.getElementById('vl-anim-trail');
   trailEl.addEventListener('input', () => {
     anim.trailLen = parseInt(trailEl.value);
-    trailVl.textContent = anim.trailLen;
+    trailVl.textContent = anim.trailLen + '%';
     if (anim.active && !anim.playing) {
       // Re-render current frame with new trail length
       animSeek(anim.progress);
