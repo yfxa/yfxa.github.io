@@ -2455,7 +2455,7 @@ async function csDrawPlacementOverlay() {
 
   // 2. Paint green cells where residential grid has data (valid placement areas)
   if (csState.gridData.cells && csState.gridData.cells.length > 0) {
-    const cellSize = 0.004; // grid cell size in degrees
+    const cellSize = 0.002; // grid cell size in degrees (matches ZIMAS grid)
     const half = cellSize / 2;
     for (const cell of csState.gridData.cells) {
       const x0 = ((cell.lon - half - bounds.west) / (bounds.east - bounds.west)) * W;
