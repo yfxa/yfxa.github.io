@@ -3024,10 +3024,16 @@ function csEnterCreateMode() {
 }
 
 function csExitCreateMode() {
+  // Stop animation and clear generated data
+  if (anim.active) animStop();
   csState.createMode = false;
   csState.generated = false;
   csState.hubs = [];
   csUpdateHubList();
+  document.getElementById('cs-pause').disabled = true;
+  document.getElementById('cs-stop').disabled = true;
+  document.getElementById('cs-save-png').disabled = true;
+  document.getElementById('cs-record-gif').disabled = true;
 
   // Restore all panels
   const panels = document.querySelectorAll('#sidebar .panel');
