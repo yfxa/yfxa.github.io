@@ -2572,8 +2572,10 @@ async function csGenerate() {
   // Generate drone hub flights
   if (document.getElementById('cs-drones').checked && csState.hubs.length > 0) {
     status.textContent = 'Generating drone delivery flights...';
-    await new Promise(r => setTimeout(r, 10)); // yield to UI
+    await new Promise(r => setTimeout(r, 10));
     const flightsPerHub = parseInt(document.getElementById('cs-drone-count').value);
+    const laxEnc = csLaxEnc();
+    const MAX_DIST = 0.08;
 
     // Load grid if not cached
     if (!csState.gridData) {
@@ -2581,53 +2583,80 @@ async function csGenerate() {
         const resp = await fetch('data/la_residential_basin_grid.json');
         csState.gridData = await resp.json();
       } catch(e) {
-        // Fall back: generate random targets around hub
         csState.gridData = { cells: [] };
       }
     }
 
-    for (const hub of csState.hubs) {
-      const hubEnc = csToEnc(hub.lat, hub.lon);
-      const laxEnc = csLaxEnc();
+    // Step 1: Assign each cell to its NEAREST hub (Voronoi partitioning)
+    // No overlapping coverage — each address gets deliveries from one hub only
+    const hubAssignments = csState.hubs.map(() => ({ targets: [], totalWeight: 0 }));
 
-      // Build targets from grid or random
-      const targets = [];
-      let totalWeight = 0;
-      const MAX_DIST = 0.08;
-
-      if (csState.gridData.cells && csState.gridData.cells.length > 0) {
-        for (const cell of csState.gridData.cells) {
-          const dlat = cell.lat - hub.lat, dlon = cell.lon - hub.lon;
-          const dist = Math.sqrt(dlat*dlat + dlon*dlon);
-          if (dist > MAX_DIST) continue;
-          const cellEnc = csToEnc(cell.lat, cell.lon);
-          if (csDistEnc(cellEnc[0], cellEnc[1], laxEnc) < CS_LAX_EXCLUSION) continue;
-          const decay = 1 - (dist / MAX_DIST) * 0.4;
-          const w = (cell.i || 1) * decay;
-          if (w < 0.05) continue;
-          targets.push({ enc: cellEnc, w });
-          totalWeight += w;
+    if (csState.gridData.cells && csState.gridData.cells.length > 0) {
+      for (const cell of csState.gridData.cells) {
+        // Find nearest hub within range
+        let bestHub = -1, bestDist = Infinity;
+        for (let hi = 0; hi < csState.hubs.length; hi++) {
+          const dlat = cell.lat - csState.hubs[hi].lat;
+          const dlon = cell.lon - csState.hubs[hi].lon;
+          const dist = Math.sqrt(dlat * dlat + dlon * dlon);
+          if (dist < MAX_DIST && dist < bestDist) {
+            bestDist = dist;
+            bestHub = hi;
+          }
         }
-      }
+        if (bestHub === -1) continue;
 
-      // Fallback: random radial targets
-      if (targets.length === 0) {
+        const cellEnc = csToEnc(cell.lat, cell.lon);
+        if (csDistEnc(cellEnc[0], cellEnc[1], laxEnc) < CS_LAX_EXCLUSION) continue;
+
+        const decay = 1 - (bestDist / MAX_DIST) * 0.4;
+        const w = (cell.i || 1) * decay;
+        if (w < 0.05) continue;
+
+        hubAssignments[bestHub].targets.push({ enc: cellEnc, w });
+        hubAssignments[bestHub].totalWeight += w;
+      }
+    }
+
+    // Step 2: Generate flights for each hub's exclusive service area
+    for (let hi = 0; hi < csState.hubs.length; hi++) {
+      const hub = csState.hubs[hi];
+      const hubEnc = csToEnc(hub.lat, hub.lon);
+      const assignment = hubAssignments[hi];
+
+      // Fallback: random radial targets if no grid cells assigned
+      if (assignment.targets.length === 0) {
         for (let i = 0; i < 100; i++) {
           const angle = csRand() * Math.PI * 2;
           const dist = 0.01 + csRand() * 0.06;
           const tLat = hub.lat + Math.cos(angle) * dist;
           const tLon = hub.lon + Math.sin(angle) * dist;
+          // Check not closer to another hub
+          let closest = true;
+          for (let hj = 0; hj < csState.hubs.length; hj++) {
+            if (hj === hi) continue;
+            const d2 = Math.sqrt((tLat - csState.hubs[hj].lat) ** 2 + (tLon - csState.hubs[hj].lon) ** 2);
+            if (d2 < dist) { closest = false; break; }
+          }
+          if (!closest) continue;
           const enc = csToEnc(tLat, tLon);
-          targets.push({ enc, w: 1 });
-          totalWeight += 1;
+          assignment.targets.push({ enc, w: 1 });
+          assignment.totalWeight += 1;
         }
       }
 
-      // Distribute flights across targets
-      const perTarget = targets.map(t => Math.max(1, Math.round(t.w / totalWeight * flightsPerHub)));
-      for (let ti = 0; ti < targets.length; ti++) {
+      if (assignment.targets.length === 0) continue;
+
+      // Each target gets exactly 1 drone (no 2 drones to same house).
+      // The drone makes multiple round trips throughout the day.
+      // Distribute total flights across targets by weight.
+      const perTarget = assignment.targets.map(t =>
+        Math.max(1, Math.round(t.w / assignment.totalWeight * flightsPerHub))
+      );
+
+      for (let ti = 0; ti < assignment.targets.length; ti++) {
         for (let f = 0; f < perTarget[ti]; f++) {
-          const pts = csGenerateDroneFlight(hubEnc, targets[ti].enc);
+          const pts = csGenerateDroneFlight(hubEnc, assignment.targets[ti].enc);
           if (pts.length >= 10) flights.push({ t: 'WING', p: pts });
         }
       }
