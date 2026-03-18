@@ -3208,6 +3208,9 @@ function setupScenarioBuilder() {
   // Canvas click for hub placement
   canvas.addEventListener('click', (e) => {
     if (!csState.placingHub) return;
+    // Ignore if user dragged (was panning the map, not placing)
+    const dx = e.clientX - dragStartX, dy = e.clientY - dragStartY;
+    if (Math.sqrt(dx * dx + dy * dy) > 5) return;
     const pos = csScreenToLatLon(e.clientX, e.clientY);
     // Validate within bounds
     if (pos.lat < 33.5 || pos.lat > 34.5 || pos.lon < -119 || pos.lon > -117) return;
