@@ -3122,7 +3122,7 @@ function setupScenarioBuilder() {
     csState.placingHub = !csState.placingHub;
     const btn = document.getElementById('cs-add-hub');
     if (csState.placingHub) {
-      btn.textContent = 'Click map to place...';
+      btn.textContent = 'Done Deploying';
       btn.style.background = '#2a4a5a';
       canvas.style.cursor = 'crosshair';
     } else {
@@ -3146,18 +3146,20 @@ function setupScenarioBuilder() {
       return;
     }
     csAddHub(pos.lat, pos.lon);
-    // Exit placement mode
-    csState.placingHub = false;
-    const btn = document.getElementById('cs-add-hub');
-    btn.textContent = '+ Place Hub on Map';
-    btn.style.background = '';
-    canvas.style.cursor = '';
-    // Redraw basemap with hub markers (don't call render() which restores traffic)
+    // Stay in placement mode — redraw with new hub + overlay
     csDrawBasemapWithHubs();
   });
 
-  // Generate button — always generates fresh from empty
+  // Generate button — exit placement mode first, then generate
   document.getElementById('cs-generate').addEventListener('click', () => {
+    // Exit placement mode if active
+    if (csState.placingHub) {
+      csState.placingHub = false;
+      const btn = document.getElementById('cs-add-hub');
+      btn.textContent = '+ Place Hub on Map';
+      btn.style.background = '';
+      canvas.style.cursor = '';
+    }
     csGenerate();
   });
 
