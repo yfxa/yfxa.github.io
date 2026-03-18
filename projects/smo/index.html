@@ -422,7 +422,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
       <button class="anim-btn" id="anim-pause" title="Pause" style="display:none;">&#9646;&#9646;</button>
       <button class="anim-btn" id="anim-stop" title="Reset">&#9632;</button>
       <input type="range" id="anim-progress" min="0" max="1000" value="0">
-      <span id="anim-time">0%</span>
+      <span id="anim-time">00:00:00</span>
     </div>
     <div class="slider-row">
       <label>Speed</label>
@@ -636,6 +636,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
 </div>
 
 <div id="status"></div>
+<div id="map-timer" style="display:none; position:fixed; bottom:50px; left:50%; transform:translateX(-50%); z-index:20; font-family:'Courier New',monospace; font-size:32px; font-weight:bold; color:#8ab4ff; text-shadow:0 0 12px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,0.8); pointer-events:none; letter-spacing:2px;">00:00:00</div>
 
 <script>
 // ============================================================
@@ -1216,10 +1217,18 @@ function requestRender() {
 // ============================================================
 
 function animTimeStr(progress) {
-  const totalMinutes = Math.floor(progress * 1440);
-  const hh = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
-  const mm = String(totalMinutes % 60).padStart(2, '0');
-  return hh + ':' + mm;
+  const totalSeconds = Math.floor(progress * 86400); // 24h in seconds
+  const hh = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+  const mm = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+  const ss = String(totalSeconds % 60).padStart(2, '0');
+  return hh + ':' + mm + ':' + ss;
+}
+
+function updateMapTimer(progress) {
+  const timer = document.getElementById('map-timer');
+  if (!anim.active) { timer.style.display = 'none'; return; }
+  timer.style.display = '';
+  timer.textContent = animTimeStr(progress);
 }
 
 function animCachePaths() {
@@ -1542,6 +1551,7 @@ function animLoop(timestamp) {
   // Update UI
   document.getElementById('anim-progress').value = Math.round(anim.progress * 1000);
   document.getElementById('anim-time').textContent = animTimeStr(anim.progress);
+  updateMapTimer(anim.progress);
 
   // Render
   animRenderFrame();
@@ -1593,7 +1603,8 @@ function animStop() {
   anim.active = false;
 
   document.getElementById('anim-progress').value = 0;
-  document.getElementById('anim-time').textContent = '00:00';
+  document.getElementById('anim-time').textContent = '00:00:00';
+  document.getElementById('map-timer').style.display = 'none';
 
   // Re-enable compare button
   document.getElementById('compare-btn').disabled = false;
@@ -1625,6 +1636,7 @@ function animSeek(progress) {
   animRenderFrame();
 
   document.getElementById('anim-time').textContent = animTimeStr(anim.progress);
+  updateMapTimer(anim.progress);
 }
 
 function setupAnimation() {
