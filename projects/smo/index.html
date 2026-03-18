@@ -2217,10 +2217,10 @@ const CS_LAX_EXCLUSION = 450;
 
 function csGenerateDroneFlight(hubEnc, targetEnc) {
   const laxEnc = csLaxEnc();
-  const hubLat = hubEnc[0] + (csRand() - 0.5) * 25;
-  const hubLon = hubEnc[1] + (csRand() - 0.5) * 25;
-  const tgtLat = targetEnc[0] + (csRand() - 0.5) * 40;
-  const tgtLon = targetEnc[1] + (csRand() - 0.5) * 40;
+  const hubLat = hubEnc[0] + (csRand() - 0.5) * 30;
+  const hubLon = hubEnc[1] + (csRand() - 0.5) * 30;
+  const tgtLat = targetEnc[0] + (csRand() - 0.5) * 60;
+  const tgtLon = targetEnc[1] + (csRand() - 0.5) * 60;
   const droneAlt = 200 + Math.round(csRand() * 200);
   const droneGs = 60 + Math.round(csRand() * 20);
   const ptsPerLeg = 30 + Math.floor(csRand() * 20);
@@ -2228,27 +2228,39 @@ function csGenerateDroneFlight(hubEnc, targetEnc) {
   const offsetPts = Math.floor(csRand() * ptsPerLeg * 2);
   const points = [];
   const dLatTotal = tgtLat - hubLat, dLonTotal = tgtLon - hubLon;
-  const trkOut = Math.round(((Math.atan2(dLonTotal, dLatTotal) * 180 / Math.PI) + 360) % 360);
+  const flightAngle = Math.atan2(dLonTotal, dLatTotal);
+  const trkOut = Math.round(((flightAngle * 180 / Math.PI) + 360) % 360);
   const trkRet = (trkOut + 180) % 360;
+
+  // Perpendicular unit vector for lateral spread
+  const perpLat = -Math.sin(flightAngle);
+  const perpLon = Math.cos(flightAngle);
+
+  // Each round trip gets a slight lateral offset (different return path)
+  const routeBias = (csRand() - 0.5) * 20;
+
   for (let p = 0; p < offsetPts; p++) {
-    points.push(Math.round(hubLat + (csRand()-0.5)*5), Math.round(hubLon + (csRand()-0.5)*5), droneAlt, 0, trkOut);
+    points.push(Math.round(hubLat + (csRand()-0.5)*8), Math.round(hubLon + (csRand()-0.5)*8), droneAlt, 0, trkOut);
   }
   for (let rt = 0; rt < roundTrips; rt++) {
+    // Each trip has its own lateral drift
+    const tripOffset = routeBias + (csRand() - 0.5) * 15;
     for (let i = 0; i < ptsPerLeg; i++) {
       const t = i / (ptsPerLeg - 1);
-      const jitter = (csRand() - 0.5) * 12;
-      const bc = 1 - Math.abs(2 * t - 1);
-      const lat = Math.round(hubLat + dLatTotal * t + jitter * bc);
-      const lon = Math.round(hubLon + dLonTotal * t + jitter * bc);
+      const bc = 1 - Math.abs(2 * t - 1); // bell curve: max jitter at midpoint
+      const lateralJitter = ((csRand() - 0.5) * 18 + tripOffset) * bc;
+      const lat = Math.round(hubLat + dLatTotal * t + perpLat * lateralJitter);
+      const lon = Math.round(hubLon + dLonTotal * t + perpLon * lateralJitter);
       if (csDistEnc(lat, lon, laxEnc) < CS_LAX_EXCLUSION) continue;
       points.push(lat, lon, droneAlt, droneGs, trkOut);
     }
+    const retOffset = routeBias + (csRand() - 0.5) * 15;
     for (let i = 0; i < ptsPerLeg; i++) {
       const t = i / (ptsPerLeg - 1);
-      const jitter = (csRand() - 0.5) * 12;
       const bc = 1 - Math.abs(2 * t - 1);
-      const lat = Math.round(tgtLat - dLatTotal * t + jitter * bc);
-      const lon = Math.round(tgtLon - dLonTotal * t + jitter * bc);
+      const lateralJitter = ((csRand() - 0.5) * 18 + retOffset) * bc;
+      const lat = Math.round(tgtLat - dLatTotal * t + perpLat * lateralJitter);
+      const lon = Math.round(tgtLon - dLonTotal * t + perpLon * lateralJitter);
       if (csDistEnc(lat, lon, laxEnc) < CS_LAX_EXCLUSION) continue;
       points.push(lat, lon, droneAlt, droneGs, trkRet);
     }
