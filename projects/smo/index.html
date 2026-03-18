@@ -376,7 +376,6 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
       <option value="viewer_data_2029.json">2029 — SMO Closed</option>
       <option value="viewer_data_2031.json">2031 — eVTOL Air Taxis Launch</option>
       <option value="viewer_data_2033.json">2033 — Barker Hangar Turns Drone Hub</option>
-      <option value="viewer_data_2035.json">2035 — Emergency Drone Grid</option>
       <option value="viewer_data_2038.json">2038 — Drone Hubs Spring</option>
       <option value="viewer_data_2040.json">2040 — Autonomous Freight Corridors</option>
       <option value="viewer_data_2045.json">2045 — Full UAM Network</option>
@@ -392,7 +391,6 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
           <option value="viewer_data_2029.json">2029 — SMO Closed</option>
           <option value="viewer_data_2031.json">2031 — eVTOL Air Taxis Launch</option>
           <option value="viewer_data_2033.json">2033 — Barker Hangar Turns Drone Hub</option>
-          <option value="viewer_data_2035.json">2035 — Emergency Drone Grid</option>
           <option value="viewer_data_2038.json">2038 — Drone Hubs Spring</option>
           <option value="viewer_data_2040.json">2040 — Autonomous Freight Corridors</option>
           <option value="viewer_data_2045.json">2045 — Full UAM Network</option>
@@ -407,7 +405,6 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
           <option value="viewer_data_2029.json" selected>2029 — SMO Closed</option>
           <option value="viewer_data_2031.json">2031 — eVTOL Air Taxis Launch</option>
           <option value="viewer_data_2033.json">2033 — Barker Hangar Turns Drone Hub</option>
-          <option value="viewer_data_2035.json">2035 — Emergency Drone Grid</option>
           <option value="viewer_data_2038.json">2038 — Drone Hubs Spring</option>
           <option value="viewer_data_2040.json">2040 — Autonomous Freight Corridors</option>
           <option value="viewer_data_2045.json">2045 — Full UAM Network</option>
@@ -589,21 +586,6 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
           <label>Flights/route</label>
           <input type="range" id="cs-evtol-density" min="5" max="40" value="15">
           <span class="val" id="cs-evtol-density-val">15</span>
-        </div>
-      </div>
-
-      <!-- Emergency (auto-enabled by year) -->
-      <div id="cs-emergency-row" style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:4px; color:#5a7a9a;">
-        <span id="cs-emergency-icon" style="font-size:14px;">&#9675;</span>
-        <span>Emergency Drone Grid</span>
-        <span id="cs-emergency-year" style="font-size:10px; margin-left:auto;">2035+</span>
-      </div>
-      <input type="checkbox" id="cs-emergency" style="display:none;">
-      <div id="cs-emergency-opts" style="padding-left:20px; margin-bottom:6px; display:none;">
-        <div class="slider-row">
-          <label>Patrols/zone</label>
-          <input type="range" id="cs-emergency-patrols" min="2" max="10" value="5">
-          <span class="val" id="cs-emergency-patrols-val">5</span>
         </div>
       </div>
 
@@ -2333,32 +2315,6 @@ function csGenerateFreightFlight(fromLat, fromLon, toLat, toLon) {
   return points;
 }
 
-function csGeneratePatrolFlight(centerLat, centerLon, radiusLat, radiusLon) {
-  const laxEnc = csLaxEnc();
-  const points = [];
-  const numPts = 200 + Math.floor(csRand() * 200);
-  const alt = 500 + Math.round(csRand() * 300);
-  const gs = 40 + Math.round(csRand() * 20);
-  const startLat = centerLat - radiusLat + csRand() * radiusLat * 0.5;
-  const endLat = centerLat + radiusLat - csRand() * radiusLat * 0.5;
-  const dir = csRand() > 0.5 ? 1 : -1;
-  const sweeps = 2 + Math.floor(csRand() * 3);
-  for (let i = 0; i < numPts; i++) {
-    const t = i / (numPts - 1);
-    const lat = startLat + (endLat - startLat) * t;
-    const lonOff = Math.sin(t * Math.PI * sweeps) * radiusLon * 0.8;
-    const lon = centerLon + lonOff * dir;
-    const enc = csToEnc(lat, lon);
-    if (csDistEnc(enc[0], enc[1], laxEnc) < CS_LAX_EXCLUSION) continue;
-    const nextT = Math.min(t + 1/(numPts-1), 1);
-    const nextLat = startLat + (endLat - startLat) * nextT;
-    const nextLon = centerLon + Math.sin(nextT * Math.PI * sweeps) * radiusLon * 0.8 * dir;
-    const trk = Math.round(((Math.atan2(nextLon - lon, nextLat - lat) * 180 / Math.PI) + 360) % 360);
-    points.push(enc[0], enc[1], alt, gs, trk);
-  }
-  return points;
-}
-
 // Predefined locations
 const CS_VERTIPORTS_ALL = [
   { name: 'LAX Terminal', lat: 33.9460, lon: -118.3900 },
@@ -2405,16 +2361,6 @@ const CS_FREIGHT_DESTS = [
   { name: 'Commerce', lat: 33.9960, lon: -118.1590 },
   { name: 'City of Industry', lat: 34.0190, lon: -117.9590 },
   { name: 'Palmdale', lat: 34.5790, lon: -118.1160 },
-];
-
-const CS_PATROL_ZONES = [
-  { name: 'SM Mountains W', lat: 34.0550, lon: -118.5800, rLat: 0.025, rLon: 0.045 },
-  { name: 'SM Mountains E', lat: 34.0700, lon: -118.4800, rLat: 0.020, rLon: 0.040 },
-  { name: 'Hollywood Hills', lat: 34.1150, lon: -118.3400, rLat: 0.020, rLon: 0.040 },
-  { name: 'Griffith Park', lat: 34.1350, lon: -118.3000, rLat: 0.018, rLon: 0.025 },
-  { name: 'Verdugo Mtns', lat: 34.2100, lon: -118.2600, rLat: 0.020, rLon: 0.025 },
-  { name: 'Baldwin Hills', lat: 34.0050, lon: -118.3700, rLat: 0.010, rLon: 0.015 },
-  { name: 'Palos Verdes', lat: 33.7800, lon: -118.3600, rLat: 0.025, rLon: 0.030 },
 ];
 
 const HELI_REGEX = /^(EC35|AS50|B407|R44|H60|UH60|S76|A109|B06|EC45|EC30|B412|S70|EC55|EC75|AS55)/;
@@ -2521,13 +2467,12 @@ async function csGenerate() {
   status.textContent = 'Loading base traffic data...';
   await new Promise(r => setTimeout(r, 10));
   // Load the closest preconfigured scenario as base so existing traffic
-  // layers (drone hubs, eVTOL, emergency, cargo) carry forward naturally
+  // layers (drone hubs, eVTOL, cargo) carry forward naturally
   const BASE_SCENARIOS = [
     [2050, 'viewer_data_2050.json'],
     [2045, 'viewer_data_2045.json'],
     [2040, 'viewer_data_2040.json'],
     [2038, 'viewer_data_2038.json'],
-    [2035, 'viewer_data_2035.json'],
     [2033, 'viewer_data_2033.json'],
     [2031, 'viewer_data_2031.json'],
     [2029, 'viewer_data_2029.json'],
@@ -2741,20 +2686,6 @@ async function csGenerate() {
     if (!types.CARGO) types.CARGO = { count: 0, flights: 0, category: 'cargo' };
   }
 
-  // Generate emergency drones
-  if (document.getElementById('cs-emergency').checked) {
-    status.textContent = 'Generating emergency drone grid...';
-    await new Promise(r => setTimeout(r, 10));
-    const patrols = parseInt(document.getElementById('cs-emergency-patrols').value);
-    for (const zone of CS_PATROL_ZONES) {
-      for (let p = 0; p < patrols; p++) {
-        const pts = csGeneratePatrolFlight(zone.lat, zone.lon, zone.rLat, zone.rLon);
-        if (pts.length >= 10) flights.push({ t: 'FDRON', p: pts });
-      }
-    }
-    if (!types.FDRON) types.FDRON = { count: 0, flights: 0, category: 'drone' };
-  }
-
   // Update DATA in-place
   DATA.flights = flights;
   DATA.types = types;
@@ -2849,7 +2780,6 @@ async function csExportGif() {
 // --- Year-based layer auto-configuration ---
 const CS_LAYER_THRESHOLDS = {
   evtol: 2031,
-  emergency: 2035,
   cargo: 2040,
 };
 
@@ -2869,18 +2799,6 @@ function csUpdateLayersForYear(year) {
     document.getElementById('cs-evtol-vp-val').textContent = vp;
     document.getElementById('cs-evtol-density').value = density;
     document.getElementById('cs-evtol-density-val').textContent = density;
-  }
-
-  // Emergency: 2035+
-  const emergOn = year >= 2035;
-  document.getElementById('cs-emergency').checked = emergOn;
-  document.getElementById('cs-emergency-opts').style.display = emergOn ? '' : 'none';
-  document.getElementById('cs-emergency-row').style.color = emergOn ? '#c8d8e8' : '#5a7a9a';
-  document.getElementById('cs-emergency-icon').innerHTML = emergOn ? '&#9679;' : '&#9675;';
-  if (emergOn) {
-    const patrols = Math.min(10, 3 + Math.floor((year - 2035) / 3));
-    document.getElementById('cs-emergency-patrols').value = patrols;
-    document.getElementById('cs-emergency-patrols-val').textContent = patrols;
   }
 
   // Cargo: 2040+
@@ -2931,7 +2849,6 @@ function setupScenarioBuilder() {
     ['cs-evtol-vp', 'cs-evtol-vp-val', v => v],
     ['cs-evtol-density', 'cs-evtol-density-val', v => v],
     ['cs-cargo-count', 'cs-cargo-count-val', v => v],
-    ['cs-emergency-patrols', 'cs-emergency-patrols-val', v => v],
     ['cs-rm-heli', 'cs-rm-heli-val', v => v + '%'],
     ['cs-rm-ga', 'cs-rm-ga-val', v => v + '%'],
   ];
