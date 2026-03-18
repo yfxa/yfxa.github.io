@@ -647,7 +647,7 @@ initDrops();
 let waveCounter = 0;
 
 function drawMatrix() {
-  mCtx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+  mCtx.fillStyle = 'rgba(0, 0, 0, 0.12)';
   mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
   mCtx.font = fontSize + 'px monospace';
   waveTime += 0.02;
@@ -663,7 +663,7 @@ function drawMatrix() {
     const waveOffset = waveFn(i, columns, waveTime);
 
     // Speed varies slightly per column for organic feel
-    const speed = 0.5 + Math.sin(i * 0.3) * 0.15;
+    const speed = 0.25 + Math.sin(i * 0.3) * 0.08;
     drops[i] += speed;
 
     const x = i * colSpacing;
@@ -690,7 +690,7 @@ function drawMatrix() {
     }
   }
 }
-setInterval(drawMatrix, 45);
+setInterval(drawMatrix, 80);
 
 window.addEventListener('resize', () => {
   resizeMatrix();
