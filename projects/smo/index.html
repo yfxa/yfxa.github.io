@@ -2935,20 +2935,19 @@ function setupScenarioBuilder() {
       animPause();
       document.getElementById('cs-pause').textContent = 'Resume';
     } else if (anim.active) {
-      animPause(); // toggles to play
+      animStart(); // resume playback
       document.getElementById('cs-pause').textContent = 'Pause';
     }
   });
 
-  // Stop/Reset
+  // Stop/Reset — return to basemap
   document.getElementById('cs-stop').addEventListener('click', () => {
     animStop();
     document.getElementById('cs-pause').textContent = 'Pause';
     document.getElementById('cs-pause').disabled = true;
     document.getElementById('cs-stop').disabled = true;
-    // Redraw static render
-    if (DATA && DATA.flights.length > 0) render();
-    else csDrawBasemapWithHubs();
+    csState.generated = false;
+    csDrawBasemapWithHubs();
   });
 
   // Save PNG
