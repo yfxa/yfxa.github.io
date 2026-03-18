@@ -45,7 +45,7 @@ body {
   top: 0; left: 0;
   width: 100%; height: 100%;
   z-index: 0;
-  opacity: 0.12;
+  opacity: 0.22;
   pointer-events: none;
 }
 
@@ -603,30 +603,80 @@ function resizeMatrix() {
 resizeMatrix();
 window.addEventListener('resize', resizeMatrix);
 
-const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+const chars = 'yf(x)=sin cos tan log exp sqrt dx dy dt 0123456789+-*/^()[]{}|<>';
 const fontSize = 14;
 let columns = Math.floor(matrixCanvas.width / fontSize);
-let drops = new Array(columns).fill(1);
 
-function drawMatrix() {
-  mCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-  mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-  mCtx.fillStyle = '#0f0';
-  mCtx.font = fontSize + 'px monospace';
-  for (let i = 0; i < drops.length; i++) {
-    const char = chars[Math.floor(Math.random() * chars.length)];
-    mCtx.fillText(char, i * fontSize, drops[i] * fontSize);
-    if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
-      drops[i] = 0;
-    }
-    drops[i]++;
+// Each column follows a y=f(x) curve path instead of falling straight down
+// Different math functions: sin, parabola, exponential, cubic
+const curveFns = [
+  (t, col) => Math.sin(t * 0.03 + col * 0.5) * 30,           // sine wave
+  (t, col) => Math.cos(t * 0.02 + col * 0.3) * 25,           // cosine
+  (t, col) => Math.sin(t * 0.04) * Math.cos(col * 0.2) * 20, // interference
+  (t, col) => (Math.sin(t * 0.015 + col) ** 2) * 35,          // squared sine
+  (t, col) => Math.tan(t * 0.008 + col * 0.1) * 5 % 40,      // tangent (clamped)
+];
+
+let streams = [];
+function initStreams() {
+  columns = Math.floor(matrixCanvas.width / fontSize);
+  streams = [];
+  for (let i = 0; i < columns; i++) {
+    streams.push({
+      y: Math.random() * matrixCanvas.height / fontSize,
+      speed: 0.4 + Math.random() * 0.8,
+      curve: curveFns[Math.floor(Math.random() * curveFns.length)],
+      col: i,
+      len: 8 + Math.floor(Math.random() * 18), // trail length
+      phase: Math.random() * 100,
+    });
   }
 }
-setInterval(drawMatrix, 50);
+initStreams();
+
+let tick = 0;
+function drawMatrix() {
+  mCtx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+  mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+  mCtx.font = fontSize + 'px monospace';
+  tick++;
+
+  for (const s of streams) {
+    s.y += s.speed;
+    const baseX = s.col * fontSize;
+    const curveOffset = s.curve(s.y + s.phase, s.col);
+    const x = baseX + curveOffset;
+    const y = s.y * fontSize;
+
+    // Draw head (bright)
+    const char = chars[Math.floor(Math.random() * chars.length)];
+    mCtx.fillStyle = '#66ff66';
+    mCtx.fillText(char, x, y);
+
+    // Draw a few trailing chars with dimming
+    for (let t = 1; t < Math.min(4, s.len); t++) {
+      const trailY = (s.y - t) * fontSize;
+      const trailOffset = s.curve(s.y - t + s.phase, s.col);
+      const trailX = baseX + trailOffset;
+      const alpha = 1 - t / s.len;
+      mCtx.fillStyle = `rgba(0, 255, 0, ${(alpha * 0.5).toFixed(2)})`;
+      mCtx.fillText(chars[Math.floor(Math.random() * chars.length)], trailX, trailY);
+    }
+
+    // Reset when off screen
+    if (y > matrixCanvas.height + 100 && Math.random() > 0.95) {
+      s.y = -Math.random() * 20;
+      s.phase = Math.random() * 100;
+      s.curve = curveFns[Math.floor(Math.random() * curveFns.length)];
+      s.speed = 0.4 + Math.random() * 0.8;
+    }
+  }
+}
+setInterval(drawMatrix, 45);
 
 window.addEventListener('resize', () => {
-  columns = Math.floor(matrixCanvas.width / fontSize);
-  drops = new Array(columns).fill(1);
+  resizeMatrix();
+  initStreams();
 });
 
 // Fade in on scroll
