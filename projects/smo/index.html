@@ -540,15 +540,14 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
       <h3 style="margin:0;">Create Scenario</h3>
       <button class="preset-btn" id="cs-exit-btn" style="padding:3px 8px; font-size:11px;">Exit</button>
     </div>
-    <div style="display:flex; gap:6px; margin-bottom:6px;">
-      <div style="flex:0 0 60px;">
-        <label style="font-size:10px; color:#5a7a9a;">Year</label>
-        <input type="number" id="cs-year" min="2026" max="2100" value="2037" style="width:100%; padding:4px; background:#1a2535; color:#c8d8e8; border:1px solid #2a3a50; border-radius:4px; font-size:12px;">
-      </div>
-      <div style="flex:1;">
-        <label style="font-size:10px; color:#5a7a9a;">Title</label>
-        <input type="text" id="cs-title" value="My Future LA" placeholder="Scenario name..." style="width:100%; padding:4px; background:#1a2535; color:#c8d8e8; border:1px solid #2a3a50; border-radius:4px; font-size:12px;">
-      </div>
+    <div style="margin-bottom:6px;">
+      <label style="font-size:10px; color:#5a7a9a;">Year</label>
+      <select id="cs-year" style="width:100%; padding:5px; background:#1a2535; color:#c8d8e8; border:1px solid #2a3a50; border-radius:4px; font-size:13px; cursor:pointer;">
+      </select>
+    </div>
+    <div style="margin-bottom:6px;">
+      <label style="font-size:10px; color:#5a7a9a;">Title</label>
+      <input type="text" id="cs-title" value="My Future LA" placeholder="Scenario name..." style="width:100%; padding:4px; background:#1a2535; color:#c8d8e8; border:1px solid #2a3a50; border-radius:4px; font-size:12px;">
     </div>
 
     <div class="type-group-header" id="cs-layers-toggle" style="margin-bottom:6px;">
@@ -573,10 +572,13 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
         </div>
       </div>
 
-      <!-- eVTOL -->
-      <label style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer; margin-bottom:4px;">
-        <input type="checkbox" id="cs-evtol"> eVTOL Air Taxi Network
-      </label>
+      <!-- eVTOL (auto-enabled by year) -->
+      <div id="cs-evtol-row" style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:4px; color:#5a7a9a;">
+        <span id="cs-evtol-icon" style="font-size:14px;">&#9675;</span>
+        <span>eVTOL Air Taxi Network</span>
+        <span id="cs-evtol-year" style="font-size:10px; margin-left:auto;">2031+</span>
+      </div>
+      <input type="checkbox" id="cs-evtol" style="display:none;">
       <div id="cs-evtol-opts" style="padding-left:20px; margin-bottom:6px; display:none;">
         <div class="slider-row">
           <label>Vertiports</label>
@@ -590,27 +592,33 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
         </div>
       </div>
 
-      <!-- Cargo -->
-      <label style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer; margin-bottom:4px;">
-        <input type="checkbox" id="cs-cargo"> Autonomous Cargo Corridors
-      </label>
-      <div id="cs-cargo-opts" style="padding-left:20px; margin-bottom:6px; display:none;">
-        <div class="slider-row">
-          <label>Flights/route</label>
-          <input type="range" id="cs-cargo-count" min="5" max="40" value="20">
-          <span class="val" id="cs-cargo-count-val">20</span>
-        </div>
+      <!-- Emergency (auto-enabled by year) -->
+      <div id="cs-emergency-row" style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:4px; color:#5a7a9a;">
+        <span id="cs-emergency-icon" style="font-size:14px;">&#9675;</span>
+        <span>Emergency Drone Grid</span>
+        <span id="cs-emergency-year" style="font-size:10px; margin-left:auto;">2035+</span>
       </div>
-
-      <!-- Emergency -->
-      <label style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer; margin-bottom:4px;">
-        <input type="checkbox" id="cs-emergency"> Emergency Drone Grid
-      </label>
+      <input type="checkbox" id="cs-emergency" style="display:none;">
       <div id="cs-emergency-opts" style="padding-left:20px; margin-bottom:6px; display:none;">
         <div class="slider-row">
           <label>Patrols/zone</label>
           <input type="range" id="cs-emergency-patrols" min="2" max="10" value="5">
           <span class="val" id="cs-emergency-patrols-val">5</span>
+        </div>
+      </div>
+
+      <!-- Cargo (auto-enabled by year) -->
+      <div id="cs-cargo-row" style="display:flex; align-items:center; gap:6px; font-size:12px; margin-bottom:4px; color:#5a7a9a;">
+        <span id="cs-cargo-icon" style="font-size:14px;">&#9675;</span>
+        <span>Autonomous Cargo Corridors</span>
+        <span id="cs-cargo-year" style="font-size:10px; margin-left:auto;">2040+</span>
+      </div>
+      <input type="checkbox" id="cs-cargo" style="display:none;">
+      <div id="cs-cargo-opts" style="padding-left:20px; margin-bottom:6px; display:none;">
+        <div class="slider-row">
+          <label>Flights/route</label>
+          <input type="range" id="cs-cargo-count" min="5" max="40" value="20">
+          <span class="val" id="cs-cargo-count-val">20</span>
         </div>
       </div>
 
@@ -2770,18 +2778,84 @@ async function csExportGif() {
   csGifFrameData = [];
 }
 
+// --- Year-based layer auto-configuration ---
+const CS_LAYER_THRESHOLDS = {
+  evtol: 2031,
+  emergency: 2035,
+  cargo: 2040,
+};
+
+// Auto-set layer parameters based on year
+function csUpdateLayersForYear(year) {
+  // eVTOL: 2031+ with scaling vertiports and density
+  const evtolOn = year >= 2031;
+  document.getElementById('cs-evtol').checked = evtolOn;
+  document.getElementById('cs-evtol-opts').style.display = evtolOn ? '' : 'none';
+  document.getElementById('cs-evtol-row').style.color = evtolOn ? '#c8d8e8' : '#5a7a9a';
+  document.getElementById('cs-evtol-icon').innerHTML = evtolOn ? '&#9679;' : '&#9675;';
+  if (evtolOn) {
+    const yrs = year - 2031;
+    const vp = Math.min(32, 4 + Math.floor(yrs / 3) * 4);
+    const density = Math.min(40, 8 + Math.floor(yrs * 1.5));
+    document.getElementById('cs-evtol-vp').value = vp;
+    document.getElementById('cs-evtol-vp-val').textContent = vp;
+    document.getElementById('cs-evtol-density').value = density;
+    document.getElementById('cs-evtol-density-val').textContent = density;
+  }
+
+  // Emergency: 2035+
+  const emergOn = year >= 2035;
+  document.getElementById('cs-emergency').checked = emergOn;
+  document.getElementById('cs-emergency-opts').style.display = emergOn ? '' : 'none';
+  document.getElementById('cs-emergency-row').style.color = emergOn ? '#c8d8e8' : '#5a7a9a';
+  document.getElementById('cs-emergency-icon').innerHTML = emergOn ? '&#9679;' : '&#9675;';
+  if (emergOn) {
+    const patrols = Math.min(10, 3 + Math.floor((year - 2035) / 3));
+    document.getElementById('cs-emergency-patrols').value = patrols;
+    document.getElementById('cs-emergency-patrols-val').textContent = patrols;
+  }
+
+  // Cargo: 2040+
+  const cargoOn = year >= 2040;
+  document.getElementById('cs-cargo').checked = cargoOn;
+  document.getElementById('cs-cargo-opts').style.display = cargoOn ? '' : 'none';
+  document.getElementById('cs-cargo-row').style.color = cargoOn ? '#c8d8e8' : '#5a7a9a';
+  document.getElementById('cs-cargo-icon').innerHTML = cargoOn ? '&#9679;' : '&#9675;';
+  if (cargoOn) {
+    const cargoN = Math.min(40, 10 + Math.floor((year - 2040) * 2));
+    document.getElementById('cs-cargo-count').value = cargoN;
+    document.getElementById('cs-cargo-count-val').textContent = cargoN;
+  }
+
+  // Drone hubs: 2033+ (user still places them, but auto-enable the checkbox)
+  const droneOn = year >= 2033;
+  document.getElementById('cs-drones').checked = droneOn;
+  document.getElementById('cs-drones-opts').style.display = droneOn ? '' : 'none';
+  if (droneOn) {
+    const droneCount = Math.min(2000, 400 + Math.floor((year - 2033) * 80));
+    document.getElementById('cs-drone-count').value = droneCount;
+    document.getElementById('cs-drone-count-val').textContent = droneCount;
+  }
+}
+
 // --- Setup UI interactions ---
 function setupScenarioBuilder() {
-  // Layer toggle visibility
-  ['drones', 'evtol', 'cargo', 'emergency'].forEach(id => {
-    const cb = document.getElementById(`cs-${id}`);
-    const opts = document.getElementById(`cs-${id}-opts`);
-    if (cb && opts) {
-      cb.addEventListener('change', () => { opts.style.display = cb.checked ? '' : 'none'; });
-      // Set initial state
-      opts.style.display = cb.checked ? '' : 'none';
-    }
+  // Populate year dropdown
+  const yearSelect = document.getElementById('cs-year');
+  for (let y = 2026; y <= 2066; y++) {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    if (y === 2037) opt.selected = true;
+    yearSelect.appendChild(opt);
+  }
+
+  // Year change → update layers
+  yearSelect.addEventListener('change', () => {
+    csUpdateLayersForYear(parseInt(yearSelect.value));
   });
+  // Set initial state
+  csUpdateLayersForYear(2037);
 
   // Slider value displays
   const sliderDisplays = [
