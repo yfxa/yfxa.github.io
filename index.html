@@ -14,38 +14,70 @@
   gtag('config', 'G-LQF8403XDW');
 </script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --bg: #0a0e14;
-  --bg-card: #111822;
-  --border: #1e2a3a;
-  --text: #c8d0dc;
-  --text-dim: #5a7a9a;
-  --text-bright: #e8eef4;
-  --accent: #4a9eff;
-  --accent-dim: #2a5a8a;
+  --bg: #000000;
+  --bg-card: #0a0f0a;
+  --border: #0a3a0a;
+  --text: #33ff33;
+  --text-dim: #1a8a1a;
+  --text-bright: #66ff66;
+  --accent: #00ff41;
+  --accent-dim: #0a5a1a;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Matrix rain canvas */
+#matrix-rain {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 999;
 }
 
 a { color: var(--accent); text-decoration: none; }
-a:hover { color: var(--text-bright); }
+a:hover { color: var(--text-bright); text-shadow: 0 0 8px var(--accent); }
 
-/* Layout */
 .container {
   max-width: 960px;
   margin: 0 auto;
   padding: 0 24px;
+  position: relative;
+  z-index: 1;
 }
 
-/* Header — title + about on one row */
+/* Header */
 .header {
   padding: 32px 0 24px;
   border-bottom: 1px solid var(--border);
@@ -55,15 +87,20 @@ a:hover { color: var(--text-bright); }
   gap: 24px;
 }
 .header-left h1 {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-bright);
-  letter-spacing: -0.5px;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 20px rgba(0, 255, 65, 0.2);
 }
 .header-left .tagline {
   font-size: 12px;
   color: var(--text-dim);
   font-weight: 400;
+}
+.header-left .tagline::before {
+  content: '> ';
+  color: var(--accent);
 }
 .header-right {
   text-align: right;
@@ -72,13 +109,39 @@ a:hover { color: var(--text-bright); }
 .header-right .about-label {
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   color: var(--text-dim);
   margin-bottom: 2px;
 }
 .header-right .about-text {
-  font-size: 13px;
-  color: var(--text);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* Glitch effect for title */
+@keyframes glitch {
+  0%, 90%, 100% { text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 20px rgba(0, 255, 65, 0.2); }
+  92% { text-shadow: -2px 0 #ff0000, 2px 0 #00ffff, 0 0 10px rgba(0, 255, 65, 0.5); }
+  94% { text-shadow: 2px 0 #ff0000, -2px 0 #00ffff, 0 0 10px rgba(0, 255, 65, 0.5); }
+  96% { text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 20px rgba(0, 255, 65, 0.2); }
+}
+.header-left h1 {
+  animation: glitch 8s infinite;
+}
+
+/* Cursor blink */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--accent);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 1s infinite;
 }
 
 /* Projects */
@@ -88,9 +151,17 @@ a:hover { color: var(--text-bright); }
 .projects h2 {
   font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   color: var(--text-dim);
   margin-bottom: 24px;
+}
+.projects h2::before {
+  content: '[';
+  color: var(--accent);
+}
+.projects h2::after {
+  content: ']';
+  color: var(--accent);
 }
 .project-grid {
   display: grid;
@@ -102,15 +173,25 @@ a:hover { color: var(--text-bright); }
   border: 1px solid var(--border);
   border-radius: 0;
   overflow: hidden;
-  transition: border-color 0.2s, transform 0.2s;
+  transition: border-color 0.3s, box-shadow 0.3s;
   cursor: pointer;
   text-decoration: none;
   color: inherit;
   display: block;
+  position: relative;
+}
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, transparent 50%, rgba(0, 255, 65, 0.03) 100%);
+  pointer-events: none;
+  z-index: 1;
 }
 .project-card:hover {
-  border-color: var(--accent-dim);
-  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.15), inset 0 0 15px rgba(0, 255, 65, 0.05);
   color: inherit;
 }
 .project-thumb {
@@ -119,20 +200,28 @@ a:hover { color: var(--text-bright); }
   object-fit: cover;
   display: block;
   border-bottom: 1px solid var(--border);
+  filter: saturate(0.3) brightness(0.8);
+  transition: filter 0.3s;
+}
+.project-card:hover .project-thumb {
+  filter: saturate(0.5) brightness(1);
 }
 .project-info {
   padding: 20px 24px;
+  position: relative;
+  z-index: 2;
 }
 .project-info h3 {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-bright);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--accent);
   margin-bottom: 8px;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.3);
 }
 .project-info .project-desc {
-  font-size: 15px;
+  font-size: 13px;
   color: var(--text-dim);
-  line-height: 1.6;
+  line-height: 1.7;
 }
 .project-info .project-tags {
   margin-top: 14px;
@@ -141,13 +230,14 @@ a:hover { color: var(--text-bright); }
   gap: 8px;
 }
 .project-tag {
-  font-size: 11px;
+  font-size: 10px;
   padding: 3px 10px;
-  border-radius: 20px;
-  background: rgba(74, 158, 255, 0.08);
+  border-radius: 0;
+  background: rgba(0, 255, 65, 0.06);
   color: var(--accent);
-  border: 1px solid rgba(74, 158, 255, 0.15);
-  letter-spacing: 0.3px;
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 /* Services */
@@ -157,10 +247,12 @@ a:hover { color: var(--text-bright); }
 .services h2 {
   font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   color: var(--text-dim);
   margin-bottom: 24px;
 }
+.services h2::before { content: '['; color: var(--accent); }
+.services h2::after { content: ']'; color: var(--accent); }
 .service-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -178,18 +270,19 @@ a:hover { color: var(--text-bright); }
   height: 200px;
   object-fit: cover;
   flex-shrink: 0;
+  filter: saturate(0.2) brightness(0.7);
 }
 .service-info {
   padding: 24px;
 }
 .service-info h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-bright);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--accent);
   margin-bottom: 8px;
 }
 .service-info p {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--text-dim);
   line-height: 1.7;
   max-width: 600px;
@@ -197,15 +290,15 @@ a:hover { color: var(--text-bright); }
 .fleet-table {
   margin-top: 16px;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 11px;
   width: 100%;
   max-width: 480px;
 }
 .fleet-table th {
   text-align: left;
   color: var(--text-dim);
-  font-weight: 600;
-  font-size: 11px;
+  font-weight: 400;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 6px 12px 6px 0;
@@ -214,7 +307,7 @@ a:hover { color: var(--text-bright); }
 .fleet-table td {
   padding: 6px 12px 6px 0;
   color: var(--text);
-  border-bottom: 1px solid rgba(30, 42, 58, 0.5);
+  border-bottom: 1px solid rgba(10, 58, 10, 0.5);
 }
 
 /* Footer */
@@ -226,7 +319,7 @@ a:hover { color: var(--text-bright); }
   align-items: center;
 }
 .footer .copy {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-dim);
 }
 .footer-links {
@@ -234,17 +327,17 @@ a:hover { color: var(--text-bright); }
   gap: 20px;
 }
 .footer-links a {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-dim);
-  transition: color 0.2s;
+  transition: color 0.2s, text-shadow 0.2s;
 }
-.footer-links a:hover { color: var(--text-bright); }
+.footer-links a:hover { color: var(--accent); text-shadow: 0 0 8px var(--accent); }
 
 /* Fade-in animation */
 .fade-in {
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 .fade-in.visible {
   opacity: 1;
@@ -256,7 +349,7 @@ a:hover { color: var(--text-bright); }
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.85);
   z-index: 100;
   align-items: center;
   justify-content: center;
@@ -264,23 +357,27 @@ a:hover { color: var(--text-bright); }
 .modal-overlay.active { display: flex; }
 .modal {
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
   padding: 32px;
   width: 100%;
   max-width: 440px;
   margin: 24px;
 }
 .modal h3 {
-  font-size: 18px;
-  color: var(--text-bright);
+  font-size: 16px;
+  color: var(--accent);
   margin-bottom: 16px;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.3);
 }
 .modal label {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-dim);
   margin-bottom: 4px;
   margin-top: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 .modal input, .modal textarea {
   width: 100%;
@@ -288,11 +385,14 @@ a:hover { color: var(--text-bright); }
   background: var(--bg);
   color: var(--text);
   border: 1px solid var(--border);
-  font-family: inherit;
-  font-size: 14px;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-size: 13px;
   outline: none;
 }
-.modal input:focus, .modal textarea:focus { border-color: var(--accent); }
+.modal input:focus, .modal textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 6px rgba(0, 255, 65, 0.2);
+}
 .modal textarea { height: 100px; resize: vertical; }
 .modal-actions {
   margin-top: 20px;
@@ -305,20 +405,22 @@ a:hover { color: var(--text-bright); }
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--text);
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
-  font-family: inherit;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 .modal-actions button.primary {
-  background: var(--accent);
-  color: #fff;
+  background: rgba(0, 255, 65, 0.1);
+  color: var(--accent);
   border-color: var(--accent);
 }
-.modal-actions button:hover { opacity: 0.85; }
+.modal-actions button:hover { text-shadow: 0 0 6px var(--accent); }
 
 /* Dropzone */
 .dropzone {
-  border: 2px dashed var(--border);
+  border: 1px dashed var(--border);
   padding: 40px 20px;
   text-align: center;
   cursor: pointer;
@@ -327,11 +429,11 @@ a:hover { color: var(--text-bright); }
 }
 .dropzone:hover, .dropzone.dragover {
   border-color: var(--accent);
-  background: rgba(74, 158, 255, 0.05);
+  background: rgba(0, 255, 65, 0.03);
 }
 .dropzone p {
   color: var(--text-dim) !important;
-  font-size: 14px !important;
+  font-size: 12px !important;
   pointer-events: none;
 }
 .dropzone .drop-icon {
@@ -340,11 +442,10 @@ a:hover { color: var(--text-bright); }
 }
 .dropzone .file-name {
   color: var(--accent) !important;
-  font-weight: 600;
   margin-top: 8px;
 }
 .dropzone .file-hint {
-  font-size: 12px !important;
+  font-size: 10px !important;
   margin-top: 4px;
 }
 
@@ -358,28 +459,30 @@ a:hover { color: var(--text-bright); }
   .service-grid { grid-template-columns: 1fr; }
   .service-card { flex-direction: column; }
   .service-thumb { width: 100%; height: 150px; }
-  .header-left h1 { font-size: 16px; }
+  .header-left h1 { font-size: 18px; }
   .header-left .tagline { font-size: 10px; }
-  .header-right .about-text { font-size: 11px; }
+  .header-right .about-text { font-size: 10px; }
   .header-right .about-label { font-size: 9px; }
-  .project-info h3 { font-size: 16px; }
-  .project-info .project-desc { font-size: 12px; }
+  .project-info h3 { font-size: 14px; }
+  .project-info .project-desc { font-size: 11px; }
   .projects h2 { font-size: 11px; }
 }
 </style>
 </head>
 <body>
 
+<canvas id="matrix-rain"></canvas>
+
 <div class="container">
 
   <header class="header fade-in">
     <div class="header-left">
       <h1>yf(x).studio</h1>
-      <p class="tagline">run by Uncle Fred X.</p>
+      <p class="tagline">run by Uncle Fred X.<span class="cursor"></span></p>
     </div>
     <div class="header-right">
-      <p class="about-label">About</p>
-      <p class="about-text">I am just here to have fun.<br><br>reach me through my 🦞:<br>fredsclawninja@gmail.com</p>
+      <p class="about-label">// about</p>
+      <p class="about-text">I am just here to have fun.<br><br>reach me through my &#129438;:<br>fredsclawninja@gmail.com</p>
     </div>
   </header>
 
@@ -455,7 +558,7 @@ a:hover { color: var(--text-bright); }
     <label for="pr-email">Email</label>
     <input type="email" id="pr-email" placeholder="you@example.com">
     <div class="dropzone" id="pr-dropzone">
-      <p class="drop-icon">📦</p>
+      <p class="drop-icon">&#128230;</p>
       <p>Drag & drop your file here or click to browse</p>
       <p class="file-hint">Supported formats: .stl, .obj</p>
       <p class="file-name" id="pr-file-name"></p>
@@ -490,6 +593,42 @@ a:hover { color: var(--text-bright); }
 </div>
 
 <script>
+// Matrix rain effect
+const matrixCanvas = document.getElementById('matrix-rain');
+const mCtx = matrixCanvas.getContext('2d');
+function resizeMatrix() {
+  matrixCanvas.width = window.innerWidth;
+  matrixCanvas.height = window.innerHeight;
+}
+resizeMatrix();
+window.addEventListener('resize', resizeMatrix);
+
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+const fontSize = 14;
+let columns = Math.floor(matrixCanvas.width / fontSize);
+let drops = new Array(columns).fill(1);
+
+function drawMatrix() {
+  mCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+  mCtx.fillStyle = '#0f0';
+  mCtx.font = fontSize + 'px monospace';
+  for (let i = 0; i < drops.length; i++) {
+    const char = chars[Math.floor(Math.random() * chars.length)];
+    mCtx.fillText(char, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 50);
+
+window.addEventListener('resize', () => {
+  columns = Math.floor(matrixCanvas.width / fontSize);
+  drops = new Array(columns).fill(1);
+});
+
 // Fade in on scroll
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
