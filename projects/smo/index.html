@@ -2402,26 +2402,65 @@ function csScreenToLatLon(clientX, clientY) {
   const latToMercY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
   const mercNorth = latToMercY(bounds.north);
   const mercSouth = latToMercY(bounds.south);
-  const rect = canvas.getBoundingClientRect();
-  const isMob = window.innerWidth <= 768;
+  const cRect = container.getBoundingClientRect();
+  const cw = cRect.width, ch = cRect.height;
   let canvasX, canvasY;
-  if (isMob) {
-    // Rotated -90deg: screen X → canvas Y inverted, screen Y → canvas X
-    const sx = (clientX - rect.left) / rect.width;
-    const sy = (clientY - rect.top) / rect.height;
-    canvasX = sy * W;
-    canvasY = (1 - sx) * H;
+  if (mobileRotated) {
+    const baseScale = Math.max(ch / W, cw / H);
+    const totalScale = baseScale * zoom;
+    const cx = (cw - H * baseScale) / 2;
+    const cy = (ch - W * baseScale) / 2;
+    // After -90deg rotation: screen coords → canvas coords
+    // screenX maps to canvas Y (inverted), screenY maps to canvas X
+    const sx = clientX - cRect.left - cx - panX;
+    const sy = clientY - cRect.top - cy - panY;
+    canvasX = (sy - W * totalScale) / -totalScale * -1;
+    // Simplified: inverse of the transform
+    canvasY = H - sx / totalScale;
+    canvasX = (sy) / totalScale;
   } else {
-    const totalScale = zoom * Math.min(rect.width / W, rect.height / H);
-    const cx = (rect.width - W * totalScale) / 2;
-    const cy = (rect.height - H * totalScale) / 2;
-    canvasX = (clientX - rect.left - cx - panX) / totalScale;
-    canvasY = (clientY - rect.top - cy - panY) / totalScale;
+    const baseScale = Math.min(cw / W, ch / H);
+    const totalScale = baseScale * zoom;
+    const cx = (cw - W * baseScale) / 2;
+    const cy = (ch - H * baseScale) / 2;
+    canvasX = (clientX - cRect.left - cx - panX) / totalScale;
+    canvasY = (clientY - cRect.top - cy - panY) / totalScale;
   }
   const lon = bounds.west + (canvasX / W) * (bounds.east - bounds.west);
   const mercY = mercNorth - (canvasY / H) * (mercNorth - mercSouth);
   const lat = (2 * Math.atan(Math.exp(mercY)) - Math.PI / 2) * 180 / Math.PI;
   return { lat, lon };
+}
+
+// Draw basemap with hub markers only (no traffic) — for create mode
+function csDrawBasemapWithHubs() {
+  ctx.drawImage(basemapImg, 0, 0, W, H);
+  if (csState.hubs.length > 0) {
+    const bounds = { north: 34.1741, south: 33.8364, west: -118.884, east: -118.0277 };
+    const latToMercY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
+    const mN = latToMercY(bounds.north), mS = latToMercY(bounds.south);
+    ctx.save();
+    for (const hub of csState.hubs) {
+      const hx = ((hub.lon - bounds.west) / (bounds.east - bounds.west)) * W;
+      const hy = ((mN - latToMercY(hub.lat)) / (mN - mS)) * H;
+      ctx.beginPath();
+      ctx.arc(hx, hy, 12, 0, Math.PI * 2);
+      ctx.strokeStyle = '#8ab4ff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(hx, hy, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#8ab4ff';
+      ctx.fill();
+      // Label
+      ctx.fillStyle = '#8ab4ff';
+      ctx.font = '14px sans-serif';
+      ctx.fillText(hub.name, hx + 16, hy + 5);
+    }
+    ctx.restore();
+  }
+  fitCanvas();
+  document.getElementById('status').textContent = `Create mode — ${csState.hubs.length} hub${csState.hubs.length !== 1 ? 's' : ''} placed`;
 }
 
 function csAddHub(lat, lon) {
@@ -2751,8 +2790,8 @@ function setupScenarioBuilder() {
     btn.textContent = '+ Place Hub on Map';
     btn.style.background = '';
     canvas.style.cursor = '';
-    // Draw marker on canvas
-    render();
+    // Redraw basemap with hub markers (don't call render() which restores traffic)
+    csDrawBasemapWithHubs();
   });
 
   // Generate button — always generates fresh from empty
@@ -2796,10 +2835,9 @@ function csEnterCreateMode() {
 
   // Show basemap only (clear traffic)
   csState.originalData = DATA;
-  // Render basemap without flights
-  ctx.drawImage(basemapImg, 0, 0, W, H);
-  fitCanvas();
-  document.getElementById('status').textContent = 'Create mode — select layers and generate';
+  // Reset zoom/pan for clean create mode
+  zoom = 1; panX = 0; panY = 0;
+  csDrawBasemapWithHubs();
 }
 
 function csExitCreateMode() {
