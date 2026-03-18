@@ -641,6 +641,10 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
       <button class="preset-btn" id="cs-generate" style="flex:1; padding:6px; font-size:13px; background:#2a5a3a; border-color:#3a7a4a;">Generate & Animate</button>
     </div>
     <div style="display:flex; gap:6px; margin-top:6px;">
+      <button class="preset-btn" id="cs-pause" style="flex:1; padding:4px; font-size:11px;" disabled>Pause</button>
+      <button class="preset-btn" id="cs-stop" style="flex:1; padding:4px; font-size:11px;" disabled>Reset</button>
+    </div>
+    <div style="display:flex; gap:6px; margin-top:6px;">
       <button class="preset-btn" id="cs-save-png" style="flex:1; padding:4px; font-size:11px;" disabled>Save PNG</button>
       <button class="preset-btn" id="cs-record-gif" style="flex:1; padding:4px; font-size:11px;" disabled>Record GIF</button>
     </div>
@@ -2701,6 +2705,9 @@ async function csGenerate() {
   csState.generated = true;
   document.getElementById('cs-save-png').disabled = false;
   document.getElementById('cs-record-gif').disabled = false;
+  document.getElementById('cs-pause').disabled = false;
+  document.getElementById('cs-pause').textContent = 'Pause';
+  document.getElementById('cs-stop').disabled = false;
 
   status.textContent = `Generated ${flights.length} flights. Starting animation...`;
 
@@ -2920,6 +2927,28 @@ function setupScenarioBuilder() {
   // Generate button — always generates fresh from empty
   document.getElementById('cs-generate').addEventListener('click', () => {
     csGenerate();
+  });
+
+  // Pause/Resume
+  document.getElementById('cs-pause').addEventListener('click', () => {
+    if (anim.playing) {
+      animPause();
+      document.getElementById('cs-pause').textContent = 'Resume';
+    } else if (anim.active) {
+      animPause(); // toggles to play
+      document.getElementById('cs-pause').textContent = 'Pause';
+    }
+  });
+
+  // Stop/Reset
+  document.getElementById('cs-stop').addEventListener('click', () => {
+    animStop();
+    document.getElementById('cs-pause').textContent = 'Pause';
+    document.getElementById('cs-pause').disabled = true;
+    document.getElementById('cs-stop').disabled = true;
+    // Redraw static render
+    if (DATA && DATA.flights.length > 0) render();
+    else csDrawBasemapWithHubs();
   });
 
   // Save PNG
