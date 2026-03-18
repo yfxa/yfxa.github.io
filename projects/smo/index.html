@@ -2451,16 +2451,15 @@ function csScreenToLatLon(clientX, clientY) {
   if (mobileRotated) {
     const baseScale = Math.max(ch / W, cw / H);
     const totalScale = baseScale * zoom;
-    const cx = (cw - H * baseScale) / 2;
-    const cy = (ch - W * baseScale) / 2;
-    // After -90deg rotation: screen coords → canvas coords
-    // screenX maps to canvas Y (inverted), screenY maps to canvas X
-    const sx = clientX - cRect.left - cx - panX;
-    const sy = clientY - cRect.top - cy - panY;
-    canvasX = (sy - W * totalScale) / -totalScale * -1;
-    // Simplified: inverse of the transform
-    canvasY = H - sx / totalScale;
-    canvasX = (sy) / totalScale;
+    const tx = (cw - H * baseScale) / 2 + panX;
+    const ty = (ch - W * baseScale) / 2 + panY + W * totalScale;
+    // Inverse of: translate(tx, ty) scale(s) rotate(-90deg)
+    // screen = (canvasY*s + tx, -canvasX*s + ty)
+    // so: canvasY = (screenX - tx) / s, canvasX = (ty - screenY) / s
+    const screenX = clientX - cRect.left;
+    const screenY = clientY - cRect.top;
+    canvasX = (ty - screenY) / totalScale;
+    canvasY = (screenX - tx) / totalScale;
   } else {
     const baseScale = Math.min(cw / W, ch / H);
     const totalScale = baseScale * zoom;
