@@ -639,27 +639,34 @@ function initStreams() {
   }
 }
 
-// Track which non-English language is currently active (only 1 at a time)
-let foreignLangCol = -1;
+// Track which non-English languages are active — each language can only appear in one column at a time
+// Key: language index, Value: column number
+const activeForeignLangs = {};
+const FOREIGN_INDICES = [0,1,3,4,5,6,7,8]; // all except index 2 (English)
 
 function createStream(col, randomStart) {
-  const len = 20 + Math.floor(Math.random() * 25); // longer columns (20-44)
+  const len = 20 + Math.floor(Math.random() * 25);
 
-  // Most columns use English (index 2). Only one column at a time gets a foreign language.
+  // Most columns use English. Each foreign language can appear in at most one column.
   let langSet;
-  if (foreignLangCol === col) {
-    // This column was foreign — pick a new random foreign language
-    const foreignIdx = [0,1,3,4,5,6,7,8][Math.floor(Math.random() * 8)]; // skip index 2 (English)
-    langSet = LANG_SETS[foreignIdx];
-  } else if (foreignLangCol === -1 && Math.random() < 0.08) {
-    // No foreign column active — small chance this one becomes it
-    foreignLangCol = col;
-    const foreignIdx = [0,1,3,4,5,6,7,8][Math.floor(Math.random() * 8)];
-    langSet = LANG_SETS[foreignIdx];
-  } else {
-    langSet = LANG_SETS[2]; // English
+  let langIdx = 2; // default English
+
+  // Release this column's language if it had one
+  for (const [idx, c] of Object.entries(activeForeignLangs)) {
+    if (c === col) { delete activeForeignLangs[idx]; break; }
   }
 
+  // Small chance to pick a foreign language (if available)
+  if (Math.random() < 0.12) {
+    // Find available foreign languages (not currently in use)
+    const available = FOREIGN_INDICES.filter(i => !(i in activeForeignLangs));
+    if (available.length > 0) {
+      langIdx = available[Math.floor(Math.random() * available.length)];
+      activeForeignLangs[langIdx] = col;
+    }
+  }
+
+  langSet = LANG_SETS[langIdx];
   const cells = [];
   for (let j = 0; j < len; j++) {
     cells.push(langSet[Math.floor(Math.random() * langSet.length)]);
@@ -671,6 +678,7 @@ function createStream(col, randomStart) {
     len,
     cells,
     langSet,
+    langIdx,
   };
 }
 
@@ -723,8 +731,6 @@ function drawMatrix() {
     // Reset when stream fully off screen
     const bottomY = Math.floor(s.y) * fontSize;
     if (bottomY - s.len * fontSize > matrixCanvas.height) {
-      // Release foreign language slot if this column had it
-      if (foreignLangCol === s.col) foreignLangCol = -1;
       Object.assign(s, createStream(s.col, false));
     }
   }
