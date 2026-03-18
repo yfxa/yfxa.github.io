@@ -2404,12 +2404,116 @@ function csScreenToLatLon(clientX, clientY) {
 }
 
 // Draw basemap with hub markers only (no traffic) — for create mode
+// Draw placement overlay showing valid/invalid zones
+async function csDrawPlacementOverlay() {
+  // Load grid if not cached
+  if (!csState.gridData) {
+    try {
+      const resp = await fetch('data/la_residential_basin_grid.json');
+      csState.gridData = await resp.json();
+    } catch(e) {
+      csState.gridData = { cells: [] };
+    }
+  }
+
+  const bounds = { north: 34.1741, south: 33.8364, west: -118.884, east: -118.0277 };
+  const latToMercY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
+  const mN = latToMercY(bounds.north), mS = latToMercY(bounds.south);
+  const HUB_RADIUS = 0.06; // service radius in degrees
+
+  ctx.save();
+
+  // 1. Dark semi-transparent mask over entire canvas
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+  ctx.fillRect(0, 0, W, H);
+
+  // 2. Paint green cells where residential grid has data (valid placement areas)
+  if (csState.gridData.cells && csState.gridData.cells.length > 0) {
+    const cellSize = 0.004; // grid cell size in degrees
+    const half = cellSize / 2;
+    for (const cell of csState.gridData.cells) {
+      const x0 = ((cell.lon - half - bounds.west) / (bounds.east - bounds.west)) * W;
+      const x1 = ((cell.lon + half - bounds.west) / (bounds.east - bounds.west)) * W;
+      const y0 = ((mN - latToMercY(cell.lat + half)) / (mN - mS)) * H;
+      const y1 = ((mN - latToMercY(cell.lat - half)) / (mN - mS)) * H;
+
+      // Check if too close to existing hub
+      let nearHub = false;
+      for (const hub of csState.hubs) {
+        const dlat = cell.lat - hub.lat, dlon = cell.lon - hub.lon;
+        if (Math.sqrt(dlat * dlat + dlon * dlon) < HUB_RADIUS) { nearHub = true; break; }
+      }
+
+      // Check LAX exclusion
+      const dlLax = cell.lat - LAX_ENC_CACHE.lat, dnLax = cell.lon - LAX_ENC_CACHE.lon;
+      const nearLax = Math.sqrt(dlLax * dlLax + dnLax * dnLax) < 0.045;
+
+      if (nearLax) {
+        continue; // don't paint over LAX zone — it gets its own red circle
+      } else if (nearHub) {
+        // Already served — show as dim orange
+        const alpha = 0.08 + (cell.i || 0.1) * 0.15;
+        ctx.fillStyle = `rgba(255, 180, 60, ${alpha.toFixed(2)})`;
+      } else {
+        // Valid placement — green, brighter for denser areas
+        const alpha = 0.12 + (cell.i || 0.1) * 0.35;
+        ctx.fillStyle = `rgba(80, 220, 100, ${alpha.toFixed(2)})`;
+      }
+      ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    }
+  }
+
+  // 3. LAX exclusion zone — red circle
+  const laxX = ((LAX_ENC_CACHE.lon - bounds.west) / (bounds.east - bounds.west)) * W;
+  const laxY = ((mN - latToMercY(LAX_ENC_CACHE.lat)) / (mN - mS)) * H;
+  const laxRadiusPx = (0.045 / (bounds.east - bounds.west)) * W;
+  ctx.beginPath();
+  ctx.arc(laxX, laxY, laxRadiusPx, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255, 60, 60, 0.3)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 60, 60, 0.6)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // Label
+  ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
+  ctx.font = 'bold 16px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('No Fly Zone', laxX, laxY - 5);
+  ctx.font = '12px sans-serif';
+  ctx.fillText('LAX', laxX, laxY + 12);
+  ctx.textAlign = 'start';
+
+  // 4. Existing hub service radius circles
+  for (const hub of csState.hubs) {
+    const hx = ((hub.lon - bounds.west) / (bounds.east - bounds.west)) * W;
+    const hy = ((mN - latToMercY(hub.lat)) / (mN - mS)) * H;
+    const rPx = (HUB_RADIUS / (bounds.east - bounds.west)) * W;
+    ctx.beginPath();
+    ctx.arc(hx, hy, rPx, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 180, 60, 0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.restore();
+}
+
 function csDrawBasemapWithHubs() {
   ctx.drawImage(basemapImg, 0, 0, W, H);
+
+  // Draw placement overlay if in placement mode
+  if (csState.placingHub) {
+    csDrawPlacementOverlay();
+  }
+
+  const bounds = { north: 34.1741, south: 33.8364, west: -118.884, east: -118.0277 };
+  const latToMercY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
+  const mN = latToMercY(bounds.north), mS = latToMercY(bounds.south);
+
+  // Draw hub markers on top
   if (csState.hubs.length > 0) {
-    const bounds = { north: 34.1741, south: 33.8364, west: -118.884, east: -118.0277 };
-    const latToMercY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
-    const mN = latToMercY(bounds.north), mS = latToMercY(bounds.south);
     ctx.save();
     for (const hub of csState.hubs) {
       const hx = ((hub.lon - bounds.west) / (bounds.east - bounds.west)) * W;
@@ -2423,7 +2527,6 @@ function csDrawBasemapWithHubs() {
       ctx.arc(hx, hy, 4, 0, Math.PI * 2);
       ctx.fillStyle = '#8ab4ff';
       ctx.fill();
-      // Label
       ctx.fillStyle = '#8ab4ff';
       ctx.font = '14px sans-serif';
       ctx.fillText(hub.name, hx + 16, hy + 5);
@@ -2431,7 +2534,9 @@ function csDrawBasemapWithHubs() {
     ctx.restore();
   }
   fitCanvas();
-  document.getElementById('status').textContent = `Create mode — ${csState.hubs.length} hub${csState.hubs.length !== 1 ? 's' : ''} placed`;
+  document.getElementById('status').textContent = csState.placingHub
+    ? `Click on a green zone to place hub`
+    : `Create mode — ${csState.hubs.length} hub${csState.hubs.length !== 1 ? 's' : ''} placed`;
 }
 
 function csAddHub(lat, lon) {
@@ -2997,6 +3102,7 @@ function setupScenarioBuilder() {
       btn.style.background = '';
       canvas.style.cursor = '';
     }
+    csDrawBasemapWithHubs(); // redraw with/without overlay
   });
 
   // Canvas click for hub placement
@@ -3005,6 +3111,12 @@ function setupScenarioBuilder() {
     const pos = csScreenToLatLon(e.clientX, e.clientY);
     // Validate within bounds
     if (pos.lat < 33.5 || pos.lat > 34.5 || pos.lon < -119 || pos.lon > -117) return;
+    // Validate not in LAX exclusion zone
+    const dlLax = pos.lat - LAX_ENC_CACHE.lat, dnLax = pos.lon - LAX_ENC_CACHE.lon;
+    if (Math.sqrt(dlLax * dlLax + dnLax * dnLax) < 0.045) {
+      document.getElementById('cs-status').textContent = 'Cannot place hub in LAX no-fly zone';
+      return;
+    }
     csAddHub(pos.lat, pos.lon);
     // Exit placement mode
     csState.placingHub = false;
