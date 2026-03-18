@@ -2711,9 +2711,8 @@ async function csGenerate() {
 
   status.textContent = `Generated ${flights.length} flights. Starting animation...`;
 
-  // Auto-play animation
-  render();
-  setTimeout(() => { animStart(); }, 300);
+  // Start animation directly — don't render static map first to avoid flash
+  animStart();
 }
 
 // --- Save PNG ---
@@ -2949,6 +2948,8 @@ function setupScenarioBuilder() {
     csState.generated = false;
     csState.hubs = [];
     csUpdateHubList();
+    // Clear flight data so basemap draws clean
+    if (DATA) { DATA.flights = []; DATA.types = {}; }
     csDrawBasemapWithHubs();
   });
 
