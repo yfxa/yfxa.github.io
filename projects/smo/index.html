@@ -1215,6 +1215,13 @@ function requestRender() {
 // Wake (persistent) + Trail (active heads) dual-layer render
 // ============================================================
 
+function animTimeStr(progress) {
+  const totalMinutes = Math.floor(progress * 1440);
+  const hh = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+  const mm = String(totalMinutes % 60).padStart(2, '0');
+  return hh + ':' + mm;
+}
+
 function animCachePaths() {
   if (!DATA || !basemapImg) return;
 
@@ -1534,7 +1541,7 @@ function animLoop(timestamp) {
 
   // Update UI
   document.getElementById('anim-progress').value = Math.round(anim.progress * 1000);
-  document.getElementById('anim-time').textContent = Math.round(anim.progress * 100) + '%';
+  document.getElementById('anim-time').textContent = animTimeStr(anim.progress);
 
   // Render
   animRenderFrame();
@@ -1586,7 +1593,7 @@ function animStop() {
   anim.active = false;
 
   document.getElementById('anim-progress').value = 0;
-  document.getElementById('anim-time').textContent = '0%';
+  document.getElementById('anim-time').textContent = '00:00';
 
   // Re-enable compare button
   document.getElementById('compare-btn').disabled = false;
@@ -1617,7 +1624,7 @@ function animSeek(progress) {
 
   animRenderFrame();
 
-  document.getElementById('anim-time').textContent = Math.round(anim.progress * 100) + '%';
+  document.getElementById('anim-time').textContent = animTimeStr(anim.progress);
 }
 
 function setupAnimation() {
@@ -2222,6 +2229,30 @@ function csNearAirport(lat, lon) {
   return null;
 }
 
+// --- Time-of-day traffic distribution ---
+const CS_TRAFFIC_CURVE = [
+  { from: 0.00, to: 0.25, weight: 0.5 },  // 00-06: sleep
+  { from: 0.25, to: 0.29, weight: 2 },     // 06-07: wakeup
+  { from: 0.29, to: 0.38, weight: 5 },     // 07-09: BREAKFAST PEAK
+  { from: 0.38, to: 0.46, weight: 2 },     // 09-11: morning
+  { from: 0.46, to: 0.54, weight: 5 },     // 11-13: LUNCH PEAK
+  { from: 0.54, to: 0.71, weight: 2 },     // 13-17: afternoon
+  { from: 0.71, to: 0.83, weight: 5 },     // 17-20: DINNER PEAK
+  { from: 0.83, to: 0.92, weight: 2 },     // 20-22: evening
+  { from: 0.92, to: 1.00, weight: 0.5 },   // 22-24: late night
+];
+const CS_CURVE_TOTAL = CS_TRAFFIC_CURVE.reduce((s, c) => s + c.weight * (c.to - c.from), 0);
+
+function csDroneStartTime() {
+  let r = csRand() * CS_CURVE_TOTAL;
+  for (const c of CS_TRAFFIC_CURVE) {
+    const w = c.weight * (c.to - c.from);
+    if (r < w) return c.from + (r / c.weight);
+    r -= w;
+  }
+  return csRand();
+}
+
 // --- Flight generators ---
 
 function csGenerateDroneFlight(hubEnc, targetEnc) {
@@ -2234,7 +2265,10 @@ function csGenerateDroneFlight(hubEnc, targetEnc) {
   const droneGs = 60 + Math.round(csRand() * 20);
   const ptsPerLeg = 30 + Math.floor(csRand() * 20);
   const roundTrips = 3 + Math.floor(csRand() * 4);
-  const offsetPts = Math.floor(csRand() * ptsPerLeg * 2);
+  // Time-of-day weighted start: more flights during meal peaks, fewer at night
+  const startTime = csDroneStartTime();
+  const totalFlightPts = ptsPerLeg * roundTrips * 2;
+  const offsetPts = Math.floor(startTime * totalFlightPts * 0.5);
   const points = [];
   const dLatTotal = tgtLat - hubLat, dLonTotal = tgtLon - hubLon;
   const flightAngle = Math.atan2(dLonTotal, dLatTotal);
@@ -2775,6 +2809,31 @@ async function csGenerate() {
       }
     }
     if (!types.WING) types.WING = { count: 0, flights: 0, category: 'drone' };
+
+    // Cargo resupply flights from nearest airport to drone hubs (3x daily)
+    const RESUPPLY_TIMES = [0.208, 0.458, 0.75]; // 5am, 11am, 6pm
+    for (const hub of csState.hubs) {
+      let nearestAp = null, nearestDist = Infinity;
+      for (const ap of csGetActiveAirports()) {
+        const d = Math.sqrt((hub.lat - ap.lat) ** 2 + (hub.lon - ap.lon) ** 2);
+        if (d < nearestDist && d < 0.15) { nearestDist = d; nearestAp = ap; }
+      }
+      if (!nearestAp) continue;
+      for (const time of RESUPPLY_TIMES) {
+        const pts = csGenerateFreightFlight(nearestAp.lat, nearestAp.lon, hub.lat, hub.lon);
+        if (pts.length < 10) continue;
+        // Prepend offset points so cargo arrives at the right time of day
+        const cargoOffset = Math.floor(time * pts.length / 5 * 3);
+        const padded = [];
+        const startLat = pts[0], startLon = pts[1], startAlt = pts[2];
+        for (let p = 0; p < cargoOffset; p++) {
+          padded.push(startLat + Math.round((csRand()-0.5)*5), startLon + Math.round((csRand()-0.5)*5), startAlt, 0, 0);
+        }
+        padded.push(...pts);
+        flights.push({ t: 'CARGO', p: padded });
+      }
+    }
+    if (!types.CARGO) types.CARGO = { count: 0, flights: 0, category: 'cargo' };
   }
 
   // Generate eVTOL flights
