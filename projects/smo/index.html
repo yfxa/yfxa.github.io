@@ -2718,76 +2718,174 @@ function csSavePNG() {
   link.click();
 }
 
-// --- Save GIF (records animation as WebM video) ---
+// --- Minimal GIF89a Encoder ---
+const GifEncoder = {
+  // LZW compress indexed pixel data
+  lzwEncode(pixels, minCodeSize) {
+    const clearCode = 1 << minCodeSize;
+    const eoiCode = clearCode + 1;
+    let codeSize = minCodeSize + 1;
+    let nextCode = eoiCode + 1;
+    const out = [];
+    let buf = 0, bufLen = 0;
+    const emit = (code) => {
+      buf |= code << bufLen;
+      bufLen += codeSize;
+      while (bufLen >= 8) { out.push(buf & 0xff); buf >>= 8; bufLen -= 8; }
+    };
+    // Build initial table
+    let table = new Map();
+    for (let i = 0; i < clearCode; i++) table.set(String(i), i);
+    emit(clearCode);
+    let prev = String(pixels[0]);
+    for (let i = 1; i < pixels.length; i++) {
+      const cur = String(pixels[i]);
+      const key = prev + ',' + cur;
+      if (table.has(key)) {
+        prev = key;
+      } else {
+        emit(table.get(prev));
+        if (nextCode < 4096) {
+          table.set(key, nextCode++);
+          if (nextCode > (1 << codeSize) && codeSize < 12) codeSize++;
+        } else {
+          emit(clearCode);
+          table = new Map();
+          for (let j = 0; j < clearCode; j++) table.set(String(j), j);
+          nextCode = eoiCode + 1;
+          codeSize = minCodeSize + 1;
+        }
+        prev = cur;
+      }
+    }
+    emit(table.get(prev));
+    emit(eoiCode);
+    if (bufLen > 0) out.push(buf & 0xff);
+    return out;
+  },
+
+  // Build 216-color web-safe palette (6x6x6 cube)
+  buildPalette() {
+    const pal = [];
+    for (let r = 0; r < 6; r++)
+      for (let g = 0; g < 6; g++)
+        for (let b = 0; b < 6; b++)
+          pal.push(Math.round(r * 51), Math.round(g * 51), Math.round(b * 51));
+    // Pad to 256
+    while (pal.length < 768) pal.push(0, 0, 0);
+    return new Uint8Array(pal);
+  },
+
+  // Map RGBA pixel to nearest palette index
+  quantize(r, g, b) {
+    return Math.round(r / 51) * 36 + Math.round(g / 51) * 6 + Math.round(b / 51);
+  },
+
+  // Encode full animated GIF
+  encode(frames, w, h, delay) {
+    const pal = this.buildPalette();
+    const parts = [];
+    const write = (...bytes) => parts.push(new Uint8Array(bytes));
+    const writeStr = (s) => parts.push(new Uint8Array([...s].map(c => c.charCodeAt(0))));
+    const writeU16 = (v) => write(v & 0xff, (v >> 8) & 0xff);
+
+    // Header
+    writeStr('GIF89a');
+    writeU16(w); writeU16(h);
+    write(0xf7, 0, 0); // GCT flag, 256 colors, bg=0, aspect=0
+    parts.push(pal); // Global Color Table
+
+    // Netscape extension (loop forever)
+    write(0x21, 0xff, 0x0b);
+    writeStr('NETSCAPE2.0');
+    write(3, 1); writeU16(0); write(0);
+
+    for (const frame of frames) {
+      // Graphics Control Extension
+      write(0x21, 0xf9, 4, 0x00, delay & 0xff, (delay >> 8) & 0xff, 0, 0);
+      // Image Descriptor
+      write(0x2c); writeU16(0); writeU16(0); writeU16(w); writeU16(h);
+      write(0); // no local color table
+
+      // Quantize frame pixels to palette indices
+      const indexed = new Uint8Array(w * h);
+      for (let i = 0; i < w * h; i++) {
+        indexed[i] = this.quantize(frame[i * 4], frame[i * 4 + 1], frame[i * 4 + 2]);
+      }
+
+      // LZW encode
+      const minCodeSize = 8;
+      write(minCodeSize);
+      const lzw = this.lzwEncode(indexed, minCodeSize);
+      // Sub-blocks (max 255 bytes each)
+      let pos = 0;
+      while (pos < lzw.length) {
+        const chunk = Math.min(255, lzw.length - pos);
+        write(chunk);
+        parts.push(new Uint8Array(lzw.slice(pos, pos + chunk)));
+        pos += chunk;
+      }
+      write(0); // block terminator
+    }
+
+    write(0x3b); // trailer
+    return new Blob(parts, { type: 'image/gif' });
+  }
+};
+
+// --- Save GIF ---
 function csSaveGif() {
   const btn = document.getElementById('cs-record-gif');
   const status = document.getElementById('cs-status');
-
   if (!csState.generated) return;
 
   btn.disabled = true;
   btn.textContent = 'Recording...';
-  status.textContent = 'Recording animation...';
+  status.textContent = 'Capturing animation frames...';
 
-  // Use a capture canvas at smaller resolution
-  const capW = 640, capH = 360;
+  const capW = 480, capH = 270;
   const capCanvas = document.createElement('canvas');
   capCanvas.width = capW;
   capCanvas.height = capH;
   const capCtx = capCanvas.getContext('2d');
+  const capturedFrames = [];
 
-  // Try MediaRecorder for WebM, fallback to frame capture
-  const stream = capCanvas.captureStream(15); // 15 fps
-  const chunks = [];
-  let recorder;
-  try {
-    recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
-  } catch(e) {
-    try {
-      recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-    } catch(e2) {
-      status.textContent = 'Video recording not supported in this browser';
-      btn.disabled = false;
-      btn.textContent = 'Save GIF';
-      return;
-    }
-  }
-
-  recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
-  recorder.onstop = () => {
-    const blob = new Blob(chunks, { type: 'video/webm' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    const year = document.getElementById('cs-year').value;
-    const title = document.getElementById('cs-title').value.replace(/[^a-zA-Z0-9]/g, '_');
-    link.download = `smo_${year}_${title}.webm`;
-    link.href = url;
-    link.click();
-    URL.revokeObjectURL(url);
-    btn.disabled = false;
-    btn.textContent = 'Save GIF';
-    status.textContent = 'Video saved!';
-  };
-
-  // Capture frames: draw main canvas onto capture canvas each frame
+  // Capture frames during animation replay
   const captureId = setInterval(() => {
+    if (!anim.playing) return;
     capCtx.drawImage(canvas, 0, 0, capW, capH);
-  }, 1000 / 15);
+    const imgData = capCtx.getImageData(0, 0, capW, capH);
+    capturedFrames.push(imgData.data);
+    status.textContent = `Capturing... ${capturedFrames.length} frames`;
+  }, 100); // 10 fps
 
-  recorder.start();
-
-  // Reset and replay animation from the beginning
+  // Reset and replay
   animStop();
   animStart();
 
-  // Watch for animation to complete
   const watchId = setInterval(() => {
     if (!anim.playing) {
       clearInterval(captureId);
       clearInterval(watchId);
       // Capture final frame
       capCtx.drawImage(canvas, 0, 0, capW, capH);
-      setTimeout(() => recorder.stop(), 200);
+      capturedFrames.push(capCtx.getImageData(0, 0, capW, capH).data);
+
+      status.textContent = `Encoding GIF (${capturedFrames.length} frames)...`;
+      setTimeout(() => {
+        const blob = GifEncoder.encode(capturedFrames, capW, capH, 10); // 10 = 100ms delay
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const year = document.getElementById('cs-year').value;
+        const title = document.getElementById('cs-title').value.replace(/[^a-zA-Z0-9]/g, '_');
+        link.download = `smo_${year}_${title}.gif`;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+        btn.disabled = false;
+        btn.textContent = 'Save GIF';
+        status.textContent = `GIF saved! (${capturedFrames.length} frames)`;
+      }, 50);
     }
   }, 200);
 }
