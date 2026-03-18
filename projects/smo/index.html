@@ -2758,35 +2758,29 @@ async function csGenerate() {
     types[k] = { ...v };
   }
 
-  // Year-based auto-scaling: progressively remove helicopters and GA
-  const yearsFromNow = Math.max(0, year - 2029);
-  const heliRemovePct = Math.min(1, yearsFromNow / 20); // 100% by 2049
-  const gaRemovePct = Math.min(0.9, yearsFromNow * 0.04); // 90% by 2051
-  const laxAmp = Math.min(0.30, yearsFromNow * 0.012); // up to 30% LAX growth
+  // The base scenario already has year-appropriate traffic reductions.
+  // Only apply minor scaling for years BETWEEN preconfigured scenarios
+  // (e.g., year 2036 loads 2033 base — needs slight additional reduction).
+  const BASE_YEARS = [2026, 2028, 2029, 2031, 2033, 2038, 2040, 2045, 2050];
+  const baseYear = BASE_YEARS.filter(y => year >= y).pop() || 2026;
+  const gapYears = year - baseYear; // 0 if exact match, small if close
 
-  if (heliRemovePct > 0) {
-    flights = flights.filter(f => {
-      if (HELI_REGEX.test(f.t)) return csRand() > heliRemovePct;
-      return true;
-    });
-  }
-  if (gaRemovePct > 0) {
-    flights = flights.filter(f => {
-      if (GA_TYPES.test(f.t)) return csRand() > gaRemovePct;
-      return true;
-    });
-  }
+  if (gapYears > 0) {
+    // Light scaling for the gap — base already did heavy lifting
+    const heliRemovePct = Math.min(0.3, gapYears * 0.05);
+    const gaRemovePct = Math.min(0.2, gapYears * 0.03);
 
-  // LAX commercial amplification (duplicate some commercial flights)
-  if (laxAmp > 0) {
-    const commercial = flights.filter(f => {
-      const cat = types[f.t]?.category;
-      return cat === 'commercial' || cat === 'transport';
-    });
-    const numExtra = Math.round(commercial.length * laxAmp);
-    for (let i = 0; i < numExtra; i++) {
-      const src = commercial[Math.floor(csRand() * commercial.length)];
-      if (src) flights.push({ t: src.t, p: src.p });
+    if (heliRemovePct > 0) {
+      flights = flights.filter(f => {
+        if (HELI_REGEX.test(f.t)) return csRand() > heliRemovePct;
+        return true;
+      });
+    }
+    if (gaRemovePct > 0) {
+      flights = flights.filter(f => {
+        if (GA_TYPES.test(f.t)) return csRand() > gaRemovePct;
+        return true;
+      });
     }
   }
 
