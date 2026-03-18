@@ -2196,6 +2196,24 @@ const LAX_ENC_CACHE = { lat: 33.9425, lon: -118.4081 };
 function csLaxEnc() { return csToEnc(LAX_ENC_CACHE.lat, LAX_ENC_CACHE.lon); }
 const CS_LAX_EXCLUSION = 450;
 
+// All airports on the map — no-fly zones for hub placement
+const CS_AIRPORTS = [
+  { name: 'LAX', lat: 33.9425, lon: -118.4081, r: 0.045 },
+  { name: 'SMO', lat: 34.0158, lon: -118.4513, r: 0.02 },
+  { name: 'HHR', lat: 33.9228, lon: -118.3350, r: 0.02 },
+  { name: 'LGB', lat: 33.8177, lon: -118.1516, r: 0.03 },
+  { name: 'TOA', lat: 33.8034, lon: -118.3396, r: 0.02 },
+  { name: 'EMT', lat: 34.0861, lon: -118.0347, r: 0.02 },
+];
+
+function csNearAirport(lat, lon) {
+  for (const ap of CS_AIRPORTS) {
+    const dl = lat - ap.lat, dn = lon - ap.lon;
+    if (Math.sqrt(dl * dl + dn * dn) < ap.r) return ap;
+  }
+  return null;
+}
+
 // --- Flight generators ---
 
 function csGenerateDroneFlight(hubEnc, targetEnc) {
@@ -2444,13 +2462,12 @@ async function csDrawPlacementOverlay() {
         if (Math.sqrt(dlat * dlat + dlon * dlon) < HUB_RADIUS) { nearHub = true; break; }
       }
 
-      // Check LAX exclusion
-      const dlLax = cell.lat - LAX_ENC_CACHE.lat, dnLax = cell.lon - LAX_ENC_CACHE.lon;
-      const nearLax = Math.sqrt(dlLax * dlLax + dnLax * dnLax) < 0.045;
+      // Check airport exclusion zones
+      if (csNearAirport(cell.lat, cell.lon)) {
+        continue; // don't paint over airport zones — they get red circles
+      }
 
-      if (nearLax) {
-        continue; // don't paint over LAX zone — it gets its own red circle
-      } else if (nearHub) {
+      if (nearHub) {
         // Already served — show as dim orange
         const alpha = 0.08 + (cell.i || 0.1) * 0.15;
         ctx.fillStyle = `rgba(255, 180, 60, ${alpha.toFixed(2)})`;
@@ -2463,25 +2480,24 @@ async function csDrawPlacementOverlay() {
     }
   }
 
-  // 3. LAX exclusion zone — red circle
-  const laxX = ((LAX_ENC_CACHE.lon - bounds.west) / (bounds.east - bounds.west)) * W;
-  const laxY = ((mN - latToMercY(LAX_ENC_CACHE.lat)) / (mN - mS)) * H;
-  const laxRadiusPx = (0.045 / (bounds.east - bounds.west)) * W;
-  ctx.beginPath();
-  ctx.arc(laxX, laxY, laxRadiusPx, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255, 60, 60, 0.3)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255, 60, 60, 0.6)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  // Label
-  ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
-  ctx.font = 'bold 16px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('No Fly Zone', laxX, laxY - 5);
-  ctx.font = '12px sans-serif';
-  ctx.fillText('LAX', laxX, laxY + 12);
-  ctx.textAlign = 'start';
+  // 3. Airport no-fly zones — red circles
+  for (const ap of CS_AIRPORTS) {
+    const ax = ((ap.lon - bounds.west) / (bounds.east - bounds.west)) * W;
+    const ay = ((mN - latToMercY(ap.lat)) / (mN - mS)) * H;
+    const rPx = (ap.r / (bounds.east - bounds.west)) * W;
+    ctx.beginPath();
+    ctx.arc(ax, ay, rPx, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 60, 60, 0.3)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 60, 60, 0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
+    ctx.font = ap.name === 'LAX' ? 'bold 14px sans-serif' : 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(ap.name, ax, ay + 4);
+    ctx.textAlign = 'start';
+  }
 
   // 4. Existing hub service radius circles
   for (const hub of csState.hubs) {
@@ -3111,10 +3127,10 @@ function setupScenarioBuilder() {
     const pos = csScreenToLatLon(e.clientX, e.clientY);
     // Validate within bounds
     if (pos.lat < 33.5 || pos.lat > 34.5 || pos.lon < -119 || pos.lon > -117) return;
-    // Validate not in LAX exclusion zone
-    const dlLax = pos.lat - LAX_ENC_CACHE.lat, dnLax = pos.lon - LAX_ENC_CACHE.lon;
-    if (Math.sqrt(dlLax * dlLax + dnLax * dnLax) < 0.045) {
-      document.getElementById('cs-status').textContent = 'Cannot place hub in LAX no-fly zone';
+    // Validate not in any airport exclusion zone
+    const nearAp = csNearAirport(pos.lat, pos.lon);
+    if (nearAp) {
+      document.getElementById('cs-status').textContent = `Cannot place hub in ${nearAp.name} no-fly zone`;
       return;
     }
     csAddHub(pos.lat, pos.lon);
