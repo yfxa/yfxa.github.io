@@ -2575,7 +2575,7 @@ async function csGenerate() {
     await new Promise(r => setTimeout(r, 10));
     const flightsPerHub = parseInt(document.getElementById('cs-drone-count').value);
     const laxEnc = csLaxEnc();
-    const MAX_DIST = 0.08;
+    const MAX_DIST = 0.06; // ~6.7km delivery radius (matches preconfigured scenarios)
 
     // Load grid if not cached
     if (!csState.gridData) {
@@ -2616,7 +2616,7 @@ async function csGenerate() {
         const distDecay = 1 - (bestDist / MAX_DIST) * 0.4;
         const densityMult = DENSITY_MULT[cell.d] || 1.0;
         const w = (cell.i || 1) * densityMult * distDecay;
-        if (w < 0.05) continue;
+        if (w < 0.03) continue;
 
         hubAssignments[bestHub].targets.push({ enc: cellEnc, w });
         hubAssignments[bestHub].totalWeight += w;
@@ -2633,7 +2633,7 @@ async function csGenerate() {
       if (assignment.targets.length === 0) {
         for (let i = 0; i < 100; i++) {
           const angle = csRand() * Math.PI * 2;
-          const dist = 0.01 + csRand() * 0.06;
+          const dist = 0.01 + csRand() * 0.04;
           const tLat = hub.lat + Math.cos(angle) * dist;
           const tLon = hub.lon + Math.sin(angle) * dist;
           // Check not closer to another hub
