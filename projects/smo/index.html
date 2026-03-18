@@ -568,6 +568,10 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
           <span id="cs-hub-count" style="font-size:11px; color:#5a7a9a;">0 hubs</span>
         </div>
         <div id="cs-hub-list" style="font-size:11px; max-height:80px; overflow-y:auto;"></div>
+        <div id="cs-pre-hub-section" style="margin-top:6px; border-top:1px solid #243044; padding-top:4px;">
+          <div style="font-size:10px; color:#5a7a9a; margin-bottom:3px;">Existing Hubs</div>
+          <div id="cs-pre-hub-list" style="font-size:11px; max-height:100px; overflow-y:auto;"></div>
+        </div>
         <div class="slider-row" style="margin-top:4px;">
           <label>Flights/hub</label>
           <input type="range" id="cs-drone-count" min="100" max="2000" value="800" step="100">
@@ -2197,7 +2201,53 @@ const csState = {
   recording: false,
   createMode: false, // whether in create mode
   originalData: null, // stashed DATA before create mode
+  disabledPreHubs: new Set(), // names of disabled preconfigured hubs
 };
+
+// Preconfigured drone hubs by year
+const CS_PRECONFIGURED_HUBS = [
+  { name: 'Barker Hangar', lat: 34.0158, lon: -118.4513, minYear: 2033 },
+  { name: 'Mid-City', lat: 34.0017, lon: -118.297, minYear: 2038 },
+  { name: 'East Hollywood', lat: 34.0864, lon: -118.2914, minYear: 2038 },
+  { name: 'West LA', lat: 34.0084, lon: -118.4333, minYear: 2038 },
+  { name: 'Highland Park', lat: 34.0936, lon: -118.2068, minYear: 2038 },
+  { name: 'Miracle Mile', lat: 34.0533, lon: -118.3536, minYear: 2038 },
+  { name: 'South LA', lat: 33.9402, lon: -118.2737, minYear: 2038 },
+  { name: 'Sherman Oaks', lat: 34.127, lon: -118.4067, minYear: 2038 },
+  { name: 'Brentwood', lat: 34.0716, lon: -118.5127, minYear: 2038 },
+  { name: 'South Bay', lat: 33.8500, lon: -118.3800, minYear: 2050 },
+  { name: 'East LA', lat: 34.0300, lon: -118.1500, minYear: 2050 },
+  { name: 'West Valley', lat: 34.2400, lon: -118.5500, minYear: 2050 },
+  { name: 'Southeast', lat: 33.9000, lon: -118.1000, minYear: 2050 },
+];
+
+function csUpdatePreHubList() {
+  const year = parseInt(document.getElementById('cs-year')?.value) || 2037;
+  const list = document.getElementById('cs-pre-hub-list');
+  const section = document.getElementById('cs-pre-hub-section');
+  const available = CS_PRECONFIGURED_HUBS.filter(h => year >= h.minYear);
+  if (available.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+  list.innerHTML = available.map(h => {
+    const enabled = !csState.disabledPreHubs.has(h.name);
+    return `<label style="display:flex;align-items:center;gap:4px;padding:2px 0;cursor:pointer;">
+      <input type="checkbox" ${enabled ? 'checked' : ''} onchange="csTogglePreHub('${h.name}')">
+      <span style="color:${enabled ? '#8ad' : '#5a7a9a'}">${h.name}</span>
+    </label>`;
+  }).join('');
+}
+
+function csTogglePreHub(name) {
+  if (csState.disabledPreHubs.has(name)) {
+    csState.disabledPreHubs.delete(name);
+  } else {
+    csState.disabledPreHubs.add(name);
+  }
+  csDrawBasemapWithHubs();
+}
 
 // Seeded PRNG for generation (separate from other code)
 let csSeed = 12345;
@@ -2482,24 +2532,8 @@ async function csDrawPlacementOverlay() {
     }
   }
 
-  // Preconfigured drone hubs by year
-  const PRECONFIGURED_HUBS = [
-    { name: 'Barker Hangar', lat: 34.0158, lon: -118.4513, minYear: 2033 },
-    { name: 'Mid-City', lat: 34.0017, lon: -118.297, minYear: 2038 },
-    { name: 'East Hollywood', lat: 34.0864, lon: -118.2914, minYear: 2038 },
-    { name: 'West LA', lat: 34.0084, lon: -118.4333, minYear: 2038 },
-    { name: 'Highland Park', lat: 34.0936, lon: -118.2068, minYear: 2038 },
-    { name: 'Miracle Mile', lat: 34.0533, lon: -118.3536, minYear: 2038 },
-    { name: 'South LA', lat: 33.9402, lon: -118.2737, minYear: 2038 },
-    { name: 'Sherman Oaks', lat: 34.127, lon: -118.4067, minYear: 2038 },
-    { name: 'Brentwood', lat: 34.0716, lon: -118.5127, minYear: 2038 },
-    { name: 'South Bay', lat: 33.8500, lon: -118.3800, minYear: 2050 },
-    { name: 'East LA', lat: 34.0300, lon: -118.1500, minYear: 2050 },
-    { name: 'West Valley', lat: 34.2400, lon: -118.5500, minYear: 2050 },
-    { name: 'Southeast', lat: 33.9000, lon: -118.1000, minYear: 2050 },
-  ];
   const selectedYear = parseInt(document.getElementById('cs-year')?.value) || 2037;
-  const activePreHubs = PRECONFIGURED_HUBS.filter(h => selectedYear >= h.minYear);
+  const activePreHubs = CS_PRECONFIGURED_HUBS.filter(h => selectedYear >= h.minYear && !csState.disabledPreHubs.has(h.name));
 
   // Use basin grid for the overlay (covers the full LA basin, not just SMO area)
   const overlayGrid = csState.gridData;
@@ -3202,12 +3236,15 @@ function setupScenarioBuilder() {
     yearSelect.appendChild(opt);
   }
 
-  // Year change → update layers
+  // Year change → update layers and redraw overlay
   yearSelect.addEventListener('change', () => {
     csUpdateLayersForYear(parseInt(yearSelect.value));
+    csUpdatePreHubList();
+    if (csState.placingHub || csState.createMode) csDrawBasemapWithHubs();
   });
   // Set initial state
   csUpdateLayersForYear(2037);
+  csUpdatePreHubList();
 
   // Slider value displays
   const sliderDisplays = [
@@ -3358,6 +3395,7 @@ function csExitCreateMode() {
   csState.createMode = false;
   csState.generated = false;
   csState.hubs = [];
+  csState.disabledPreHubs.clear();
   csUpdateHubList();
   document.getElementById('cs-pause').disabled = true;
   document.getElementById('cs-stop').disabled = true;
