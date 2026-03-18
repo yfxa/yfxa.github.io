@@ -2520,7 +2520,23 @@ async function csGenerate() {
   // Load 2029 base data (SMO closed — foundation for all future scenarios)
   status.textContent = 'Loading base traffic data...';
   await new Promise(r => setTimeout(r, 10));
-  const baseFile = year < 2029 ? 'viewer_data.json' : 'viewer_data_2029.json';
+  // Load the closest preconfigured scenario as base so existing traffic
+  // layers (drone hubs, eVTOL, emergency, cargo) carry forward naturally
+  const BASE_SCENARIOS = [
+    [2050, 'viewer_data_2050.json'],
+    [2045, 'viewer_data_2045.json'],
+    [2040, 'viewer_data_2040.json'],
+    [2038, 'viewer_data_2038.json'],
+    [2035, 'viewer_data_2035.json'],
+    [2033, 'viewer_data_2033.json'],
+    [2031, 'viewer_data_2031.json'],
+    [2029, 'viewer_data_2029.json'],
+    [2028, 'viewer_data_2028.json'],
+  ];
+  let baseFile = 'viewer_data.json'; // default: 2026
+  for (const [minYear, file] of BASE_SCENARIOS) {
+    if (year >= minYear) { baseFile = file; break; }
+  }
   let baseData;
   if (DATA_CACHE[baseFile]) {
     baseData = DATA_CACHE[baseFile];
