@@ -2432,7 +2432,8 @@ function csScreenToLatLon(clientX, clientY) {
 // Draw basemap with hub markers only (no traffic) — for create mode
 // Draw placement overlay showing valid/invalid zones
 async function csDrawPlacementOverlay() {
-  // Load grid if not cached
+  // Load both grids: SMO grid for visual overlay, basin grid for drone generation
+  if (!ZONE_GRID) await loadZoneGrid();
   if (!csState.gridData) {
     try {
       const resp = await fetch('data/la_residential_basin_grid.json');
@@ -2441,6 +2442,9 @@ async function csDrawPlacementOverlay() {
       csState.gridData = { cells: [] };
     }
   }
+
+  // Use SMO grid for the overlay (matches the original page's residential zones)
+  const overlayGrid = ZONE_GRID || csState.gridData;
 
   const bounds = { north: 34.1741, south: 33.8364, west: -118.884, east: -118.0277 };
   const latToMercY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
@@ -2454,10 +2458,10 @@ async function csDrawPlacementOverlay() {
   ctx.fillRect(0, 0, W, H);
 
   // 2. Paint green cells where residential grid has data (valid placement areas)
-  if (csState.gridData.cells && csState.gridData.cells.length > 0) {
-    const cellSize = 0.002; // grid cell size in degrees (matches ZIMAS grid)
+  if (overlayGrid.cells && overlayGrid.cells.length > 0) {
+    const cellSize = overlayGrid.cellSize || 0.002;
     const half = cellSize / 2;
-    for (const cell of csState.gridData.cells) {
+    for (const cell of overlayGrid.cells) {
       const x0 = ((cell.lon - half - bounds.west) / (bounds.east - bounds.west)) * W;
       const x1 = ((cell.lon + half - bounds.west) / (bounds.east - bounds.west)) * W;
       const y0 = ((mN - latToMercY(cell.lat + half)) / (mN - mS)) * H;
