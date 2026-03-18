@@ -382,6 +382,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
       <option value="viewer_data_2045.json">2045 — Full UAM Network</option>
       <option value="viewer_data_2050.json">2050 — Autonomous Airspace</option>    </select>
     <button id="compare-btn" class="preset-btn" style="width:100%; padding:6px;">Compare</button>
+    <button id="cs-enter-btn" class="preset-btn" style="width:100%; padding:6px; margin-top:4px; background:#2a5a3a; border-color:#3a7a4a;">Create Your Own Scenario</button>
     <div id="compare-controls" style="display:none; margin-top:6px;">
       <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
         <span style="font-size:11px; color:#8ab4ff; min-width:12px;">A</span>
@@ -534,8 +535,11 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
     </div>
   </div>
 
-  <div class="panel" id="create-panel">
-    <h3>Create Scenario</h3>
+  <div class="panel" id="create-panel" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+      <h3 style="margin:0;">Create Scenario</h3>
+      <button class="preset-btn" id="cs-exit-btn" style="padding:3px 8px; font-size:11px;">Exit</button>
+    </div>
     <div style="display:flex; gap:6px; margin-bottom:6px;">
       <div style="flex:0 0 60px;">
         <label style="font-size:10px; color:#5a7a9a;">Year</label>
@@ -610,8 +614,8 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
         </div>
       </div>
 
-      <!-- Remove layers -->
-      <div style="margin-top:6px; border-top:1px solid #243044; padding-top:6px;">
+      <!-- Remove layers (hidden — create starts from blank) -->
+      <div id="cs-remove-layers" style="display:none;">
         <div class="slider-row">
           <label>Remove Helicopters</label>
           <input type="range" id="cs-rm-heli" min="0" max="100" value="0" step="10">
@@ -2171,6 +2175,8 @@ const csState = {
   generated: false,  // whether a custom scenario has been generated
   gifFrames: [],     // for GIF recording
   recording: false,
+  createMode: false, // whether in create mode
+  originalData: null, // stashed DATA before create mode
 };
 
 // Seeded PRNG for generation (separate from other code)
@@ -2443,32 +2449,25 @@ function csUpdateHubList() {
 
 // --- Main generate function ---
 async function csGenerate() {
-  if (!DATA) return;
+  if (!DATA && !csState.originalData) return;
   const status = document.getElementById('cs-status');
   status.textContent = 'Generating...';
   csSeed = parseInt(document.getElementById('cs-year').value) || 12345;
 
-  // Start from current DATA as base (make a shallow copy of flights)
-  let flights = [...DATA.flights];
-  const types = { ...DATA.types };
-
-  // Remove helicopters
-  const rmHeli = parseInt(document.getElementById('cs-rm-heli').value) / 100;
-  if (rmHeli > 0) {
-    flights = flights.filter(f => {
-      if (HELI_REGEX.test(f.t)) return csRand() > rmHeli;
-      return true;
-    });
+  // Ensure DATA has origin/bounds from original
+  if (csState.originalData) {
+    DATA = JSON.parse(JSON.stringify({
+      origin: csState.originalData.origin,
+      bounds: csState.originalData.bounds,
+      stride: csState.originalData.stride || 5,
+      types: {},
+      flights: [],
+    }));
   }
 
-  // Remove GA
-  const rmGA = parseInt(document.getElementById('cs-rm-ga').value) / 100;
-  if (rmGA > 0) {
-    flights = flights.filter(f => {
-      if (GA_TYPES.test(f.t)) return csRand() > rmGA;
-      return true;
-    });
-  }
+  // Start empty — user builds from scratch
+  let flights = [];
+  const types = {};
 
   // Generate drone hub flights
   if (document.getElementById('cs-drones').checked && csState.hubs.length > 0) {
@@ -2756,15 +2755,9 @@ function setupScenarioBuilder() {
     render();
   });
 
-  // Generate button
+  // Generate button — always generates fresh from empty
   document.getElementById('cs-generate').addEventListener('click', () => {
-    // Need to reload base data first if we previously generated
-    if (csState.generated) {
-      const select = document.getElementById('scenario-select');
-      loadScenario(select.value).then(() => csGenerate());
-    } else {
-      csGenerate();
-    }
+    csGenerate();
   });
 
   // Save PNG
@@ -2772,6 +2765,62 @@ function setupScenarioBuilder() {
 
   // Record GIF
   document.getElementById('cs-record-gif').addEventListener('click', csToggleGifRecording);
+
+  // Enter create mode
+  document.getElementById('cs-enter-btn').addEventListener('click', csEnterCreateMode);
+
+  // Exit create mode
+  document.getElementById('cs-exit-btn').addEventListener('click', csExitCreateMode);
+}
+
+// IDs of sidebar panels to hide/show during create mode
+const CS_NORMAL_PANELS = [];
+
+function csEnterCreateMode() {
+  csState.createMode = true;
+
+  // Stop any animation or compare
+  if (anim.active) animStop();
+  if (compareMode) exitCompareMode();
+
+  // Hide all other panels except create-panel
+  const panels = document.querySelectorAll('#sidebar .panel');
+  panels.forEach(p => {
+    if (p.id === 'create-panel') {
+      p.style.display = '';
+    } else {
+      p.dataset.csWasVisible = p.style.display;
+      p.style.display = 'none';
+    }
+  });
+
+  // Show basemap only (clear traffic)
+  csState.originalData = DATA;
+  // Render basemap without flights
+  ctx.drawImage(basemapImg, 0, 0, W, H);
+  fitCanvas();
+  document.getElementById('status').textContent = 'Create mode — select layers and generate';
+}
+
+function csExitCreateMode() {
+  csState.createMode = false;
+  csState.generated = false;
+  csState.hubs = [];
+  csUpdateHubList();
+
+  // Restore all panels
+  const panels = document.querySelectorAll('#sidebar .panel');
+  panels.forEach(p => {
+    if (p.id === 'create-panel') {
+      p.style.display = 'none';
+    } else {
+      p.style.display = p.dataset.csWasVisible || '';
+    }
+  });
+
+  // Reload original scenario
+  const select = document.getElementById('scenario-select');
+  loadScenario(select.value);
 }
 
 // ============================================================
