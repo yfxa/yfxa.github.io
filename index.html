@@ -701,7 +701,9 @@ function drawMatrix() {
         mCtx.shadowBlur = 0;
       }
 
-      mCtx.fillText(s.cells[j], x, cellY);
+      // Head always gets a fresh random character
+      const ch = j === 0 ? chars[Math.floor(Math.random() * chars.length)] : s.cells[j];
+      mCtx.fillText(ch, x, cellY);
     }
     mCtx.shadowBlur = 0;
 
