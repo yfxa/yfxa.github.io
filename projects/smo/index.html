@@ -628,7 +628,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
     </div>
     <div style="display:flex; gap:6px; margin-top:6px;">
       <button class="preset-btn" id="cs-save-png" style="flex:1; padding:4px; font-size:11px;" disabled>Save PNG</button>
-      <button class="preset-btn" id="cs-record-gif" style="flex:1; padding:4px; font-size:11px;" disabled>Record GIF</button>
+      <button class="preset-btn" id="cs-record-gif" style="flex:1; padding:4px; font-size:11px;" disabled>Save GIF</button>
     </div>
     <div id="cs-status" style="font-size:11px; color:#5a7a9a; margin-top:4px;"></div>
   </div>
@@ -2718,63 +2718,78 @@ function csSavePNG() {
   link.click();
 }
 
-// --- GIF Recording ---
-let csGifRecording = false;
-let csGifFrameData = [];
-let csGifCaptureId = null;
-
-function csToggleGifRecording() {
+// --- Save GIF (records animation as WebM video) ---
+function csSaveGif() {
   const btn = document.getElementById('cs-record-gif');
-  if (!csGifRecording) {
-    csGifRecording = true;
-    csGifFrameData = [];
-    btn.textContent = 'Stop Recording';
-    btn.style.background = '#5a2a2a';
-    btn.style.borderColor = '#7a3a3a';
-    // Capture frames during animation
-    csGifCaptureId = setInterval(() => {
-      if (!anim.playing) return;
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = 480; // smaller for GIF
-      tempCanvas.height = 270;
-      const tCtx = tempCanvas.getContext('2d');
-      tCtx.drawImage(canvas, 0, 0, 480, 270);
-      csGifFrameData.push(tCtx.getImageData(0, 0, 480, 270));
-    }, 100); // 10 fps
-  } else {
-    csGifRecording = false;
-    clearInterval(csGifCaptureId);
-    btn.textContent = 'Record GIF';
-    btn.style.background = '';
-    btn.style.borderColor = '';
-    if (csGifFrameData.length > 0) {
-      csExportGif();
+  const status = document.getElementById('cs-status');
+
+  if (!csState.generated) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Recording...';
+  status.textContent = 'Recording animation...';
+
+  // Use a capture canvas at smaller resolution
+  const capW = 640, capH = 360;
+  const capCanvas = document.createElement('canvas');
+  capCanvas.width = capW;
+  capCanvas.height = capH;
+  const capCtx = capCanvas.getContext('2d');
+
+  // Try MediaRecorder for WebM, fallback to frame capture
+  const stream = capCanvas.captureStream(15); // 15 fps
+  const chunks = [];
+  let recorder;
+  try {
+    recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+  } catch(e) {
+    try {
+      recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+    } catch(e2) {
+      status.textContent = 'Video recording not supported in this browser';
+      btn.disabled = false;
+      btn.textContent = 'Save GIF';
+      return;
     }
   }
-}
 
-async function csExportGif() {
-  const status = document.getElementById('cs-status');
-  status.textContent = `Encoding GIF (${csGifFrameData.length} frames)...`;
+  recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const year = document.getElementById('cs-year').value;
+    const title = document.getElementById('cs-title').value.replace(/[^a-zA-Z0-9]/g, '_');
+    link.download = `smo_${year}_${title}.webm`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+    btn.disabled = false;
+    btn.textContent = 'Save GIF';
+    status.textContent = 'Video saved!';
+  };
 
-  // Use simple GIF encoder (inline minimal implementation)
-  // For a real implementation, load gif.js library
-  // Fallback: download as individual PNGs or use canvas recording
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = 480;
-  tempCanvas.height = 270;
-  const tCtx = tempCanvas.getContext('2d');
+  // Capture frames: draw main canvas onto capture canvas each frame
+  const captureId = setInterval(() => {
+    capCtx.drawImage(canvas, 0, 0, capW, capH);
+  }, 1000 / 15);
 
-  // Simple approach: create an animated WebP or download the last frame as PNG
-  // For now, save the final state as PNG since browser GIF encoding is complex
-  tCtx.putImageData(csGifFrameData[csGifFrameData.length - 1], 0, 0);
-  const link = document.createElement('a');
-  const year = document.getElementById('cs-year').value;
-  link.download = `smo_${year}_animation.png`;
-  link.href = tempCanvas.toDataURL('image/png');
-  link.click();
-  status.textContent = `Saved final frame as PNG (${csGifFrameData.length} frames captured)`;
-  csGifFrameData = [];
+  recorder.start();
+
+  // Reset and replay animation from the beginning
+  animStop();
+  animStart();
+
+  // Watch for animation to complete
+  const watchId = setInterval(() => {
+    if (!anim.playing) {
+      clearInterval(captureId);
+      clearInterval(watchId);
+      // Capture final frame
+      capCtx.drawImage(canvas, 0, 0, capW, capH);
+      setTimeout(() => recorder.stop(), 200);
+    }
+  }, 200);
 }
 
 // --- Year-based layer auto-configuration ---
@@ -2935,8 +2950,8 @@ function setupScenarioBuilder() {
   // Save PNG
   document.getElementById('cs-save-png').addEventListener('click', csSavePNG);
 
-  // Record GIF
-  document.getElementById('cs-record-gif').addEventListener('click', csToggleGifRecording);
+  // Save GIF
+  document.getElementById('cs-record-gif').addEventListener('click', csSaveGif);
 
   // Enter create mode
   document.getElementById('cs-enter-btn').addEventListener('click', csEnterCreateMode);
