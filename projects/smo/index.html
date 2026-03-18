@@ -2576,6 +2576,7 @@ function csAddHub(lat, lon) {
 function csRemoveHub(idx) {
   csState.hubs.splice(idx, 1);
   csUpdateHubList();
+  csDrawBasemapWithHubs();
 }
 
 function csUpdateHubList() {
