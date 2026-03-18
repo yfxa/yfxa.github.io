@@ -45,7 +45,7 @@ body {
   top: 0; left: 0;
   width: 100%; height: 100%;
   z-index: 0;
-  opacity: 0.22;
+  opacity: 0.28;
   pointer-events: none;
 }
 
@@ -603,98 +603,121 @@ function resizeMatrix() {
 resizeMatrix();
 window.addEventListener('resize', resizeMatrix);
 
-// Chinese + Japanese (katakana/hiragana) + English + math + Korean + Thai + Arabic + Hebrew + Cyrillic + Greek
-const chars = '\u4e16\u754c\u672a\u6765\u5929\u7a7a\u98de\u884c\u57ce\u5e02\u6570\u636e\u53ef\u89c6\u5316\u5730\u56fe\u6d41\u91cf\u5bc6\u5ea6\u7a7a\u95f4\u65f6\u95f4\u8f68\u8ff9\u7f51\u7edc\u8282\u70b9\u6a21\u578b\u8ba1\u7b97\u667a\u80fd\u81ea\u52a8\u5316\u673a\u5668\u5b66\u4e60\u6df1\u5ea6\u795e\u7ecf\u7f51\u7edc'
+// Multilingual character set: Chinese, Japanese katakana, English, Korean, Greek, Cyrillic, Arabic, Hebrew, Thai
+const chars = '\u4e16\u754c\u672a\u6765\u5929\u7a7a\u98de\u884c\u57ce\u5e02\u6570\u636e\u53ef\u89c6\u5316\u5730\u56fe\u6d41\u91cf\u5bc6\u5ea6\u8ba1\u7b97\u667a\u80fd\u81ea\u52a8\u5316\u673a\u5668\u5b66\u4e60\u6df1\u5ea6\u795e\u7ecf'
   + '\u30a2\u30a4\u30a6\u30a8\u30aa\u30ab\u30ad\u30af\u30b1\u30b3\u30b5\u30b7\u30b9\u30bb\u30bd\u30bf\u30c1\u30c4\u30c6\u30c8\u30ca\u30cb\u30cc\u30cd\u30ce\u30cf\u30d2\u30d5\u30d8\u30db\u30de\u30df\u30e0\u30e1\u30e2\u30e4\u30e6\u30e8\u30e9\u30ea\u30eb\u30ec\u30ed\u30ef\u30f2\u30f3'
-  + '\u3042\u3044\u3046\u3048\u304a\u304b\u304d\u304f\u3051\u3053\u3055\u3057\u3059\u305b\u305d\u305f\u3061\u3064\u3066\u3068'
-  + 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjklmnpqrstuvwxyz0123456789'
-  + '+-*/=()[]{}|<>^~'
-  + '\u0410\u0411\u0412\u0413\u0414\u0416\u0417\u041a\u041b\u041c\u041d\u041f\u0420\u0421\u0422\u0424\u0425\u0426\u0428\u042f'
-  + '\u03b1\u03b2\u03b3\u03b4\u03b5\u03b6\u03b7\u03b8\u03bb\u03bc\u03c0\u03c3\u03c6\u03c8\u03c9'
-  + '\uac00\ub098\ub2e4\ub77c\ub9c8\ubc14\uc0ac\uc544\uc790\ucc28\uce74\ud0c0\ud30c\ud558'
-  + '\u0e01\u0e02\u0e04\u0e07\u0e08\u0e0a\u0e0d\u0e14\u0e17\u0e19\u0e1a\u0e1e\u0e21\u0e22\u0e23\u0e25\u0e27\u0e2a\u0e2b\u0e2d'
-  + '\u05d0\u05d1\u05d2\u05d3\u05d4\u05d5\u05d6\u05d7\u05d8\u05d9\u05db\u05dc\u05de\u05e0\u05e1\u05e2\u05e4\u05e6\u05e7\u05e8\u05e9\u05ea'
-  + '\u0627\u0628\u062a\u062b\u062c\u062d\u062e\u062f\u0631\u0632\u0633\u0634\u0635\u0636\u0637\u0639\u0641\u0642\u0643\u0644\u0645\u0646\u0647\u0648\u064a';
-const fontSize = 16;
-const colSpacing = 28; // wider column spacing
-let columns = Math.floor(matrixCanvas.width / colSpacing);
+  + 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789'
+  + '\uac00\ub098\ub2e4\ub77c\ub9c8\ubc14\uc0ac\uc544\uc790\ucc28'
+  + '\u03b1\u03b2\u03b3\u03b4\u03b8\u03bb\u03c0\u03c3\u03c9'
+  + '\u0410\u0411\u0412\u0413\u0414\u041a\u041c\u041d\u0420\u0421'
+  + '\u0627\u0628\u062a\u062c\u062d\u0633\u0639\u0641\u0644\u0646'
+  + '\u05d0\u05d1\u05d2\u05d3\u05d4\u05d9\u05dc\u05de\u05e9\u05ea'
+  + '\u0e01\u0e04\u0e07\u0e14\u0e17\u0e19\u0e1e\u0e23\u0e2a\u0e2d';
 
-// Wavefront functions: the leading edge across columns traces y=f(x)
-// Each wave has a function that offsets the Y position per column
+const fontSize = 18;
+const colWidth = 22;
+let columns, streams;
+
+// Wavefront: leading edges trace y=f(x) curves
 const waveFns = [
-  (col, cols, t) => Math.sin(col / cols * Math.PI * 3 + t) * 8,          // sine
-  (col, cols, t) => Math.cos(col / cols * Math.PI * 2 + t) * 10,         // cosine
-  (col, cols, t) => ((col/cols - 0.5) ** 2) * 30 * Math.sin(t * 0.5),    // parabola
-  (col, cols, t) => Math.sin(col / cols * Math.PI * 5 + t) * 5,          // high freq sine
-  (col, cols, t) => Math.abs(Math.sin(col / cols * Math.PI * 2 + t)) * 8,// abs sine
+  (col, cols, t) => Math.sin(col / cols * Math.PI * 3 + t) * 6,
+  (col, cols, t) => Math.cos(col / cols * Math.PI * 2 + t) * 8,
+  (col, cols, t) => ((col/cols - 0.5) ** 2) * 25 * Math.sin(t * 0.5),
+  (col, cols, t) => Math.sin(col / cols * Math.PI * 5 + t) * 4,
 ];
 
-let drops, trailLens, waveFn, waveTime = 0;
+let waveFn, waveTime = 0, waveCounter = 0;
 
-function initDrops() {
-  columns = Math.floor(matrixCanvas.width / colSpacing);
-  drops = new Array(columns);
-  trailLens = new Array(columns);
+function initStreams() {
+  columns = Math.floor(matrixCanvas.width / colWidth);
+  streams = [];
   for (let i = 0; i < columns; i++) {
-    drops[i] = Math.random() * matrixCanvas.height / fontSize;
-    trailLens[i] = 10 + Math.floor(Math.random() * 16);
+    streams.push(createStream(i, true));
   }
   waveFn = waveFns[Math.floor(Math.random() * waveFns.length)];
 }
-initDrops();
 
-// Switch wave function periodically
-let waveCounter = 0;
+function createStream(col, randomStart) {
+  const len = 8 + Math.floor(Math.random() * 20);
+  // Each cell in the stream holds a fixed character (changes randomly over time)
+  const cells = [];
+  for (let j = 0; j < len; j++) {
+    cells.push(chars[Math.floor(Math.random() * chars.length)]);
+  }
+  return {
+    col,
+    y: randomStart ? -Math.floor(Math.random() * 40) : -Math.floor(Math.random() * 20),
+    speed: 0.3 + Math.random() * 0.4,
+    len,
+    cells,
+  };
+}
+
+initStreams();
 
 function drawMatrix() {
-  mCtx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+  // Clear with black overlay for trailing fade
+  mCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
   mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-  mCtx.font = fontSize + 'px monospace';
-  waveTime += 0.02;
+  mCtx.font = 'bold ' + fontSize + 'px monospace';
+  waveTime += 0.015;
   waveCounter++;
 
-  // Switch wave function every ~15 seconds
-  if (waveCounter % 300 === 0) {
+  if (waveCounter % 400 === 0) {
     waveFn = waveFns[Math.floor(Math.random() * waveFns.length)];
   }
 
-  for (let i = 0; i < columns; i++) {
-    // Y offset from wavefront function — creates the f(x) curve illusion
-    const waveOffset = waveFn(i, columns, waveTime);
+  for (const s of streams) {
+    s.y += s.speed;
+    const waveOffset = waveFn(s.col, columns, waveTime);
+    const x = s.col * colWidth;
 
-    // Speed varies slightly per column for organic feel
-    const speed = 0.25 + Math.sin(i * 0.3) * 0.08;
-    drops[i] += speed;
-
-    const x = i * colSpacing;
-    const rowHeight = fontSize * 1.4; // more vertical spacing between chars
-    const headY = (drops[i] + waveOffset) * rowHeight;
-
-    // Draw head char (bright green)
-    const char = chars[Math.floor(Math.random() * chars.length)];
-    mCtx.fillStyle = '#66ff66';
-    mCtx.fillText(char, x, headY);
-
-    // Draw trail (falls straight down from head)
-    for (let t = 1; t < trailLens[i]; t++) {
-      const trailY = headY - t * rowHeight;
-      if (trailY < 0) break;
-      const alpha = (1 - t / trailLens[i]) * 0.5;
-      mCtx.fillStyle = `rgba(0, 255, 0, ${alpha.toFixed(2)})`;
-      mCtx.fillText(chars[Math.floor(Math.random() * chars.length)], x, trailY);
+    // Randomly mutate 1-2 characters in the stream (shimmer effect)
+    if (Math.random() < 0.15) {
+      const idx = Math.floor(Math.random() * s.cells.length);
+      s.cells[idx] = chars[Math.floor(Math.random() * chars.length)];
     }
 
-    // Reset when off screen
-    if (headY > matrixCanvas.height + 100 && Math.random() > 0.975) {
-      drops[i] = -waveOffset - Math.random() * 10;
+    // Draw each cell in the stream
+    for (let j = 0; j < s.len; j++) {
+      const cellY = Math.floor(s.y + waveOffset - j) * fontSize;
+      if (cellY < -fontSize || cellY > matrixCanvas.height + fontSize) continue;
+
+      if (j === 0) {
+        // Head: bright white-green glow
+        mCtx.fillStyle = '#ccffcc';
+        mCtx.shadowColor = '#00ff41';
+        mCtx.shadowBlur = 12;
+      } else if (j === 1) {
+        // Second char: bright green
+        mCtx.fillStyle = '#00ff41';
+        mCtx.shadowColor = '#00ff41';
+        mCtx.shadowBlur = 6;
+      } else {
+        // Trail: fade from green to dark green
+        const fade = 1 - (j - 1) / (s.len - 1);
+        const g = Math.floor(80 + fade * 175);
+        mCtx.fillStyle = `rgb(0, ${g}, 0)`;
+        mCtx.shadowBlur = 0;
+      }
+
+      mCtx.fillText(s.cells[j], x, cellY);
+    }
+    mCtx.shadowBlur = 0;
+
+    // Reset when stream fully off screen
+    const bottomY = Math.floor(s.y + waveOffset) * fontSize;
+    if (bottomY - s.len * fontSize > matrixCanvas.height) {
+      Object.assign(s, createStream(s.col, false));
     }
   }
 }
-setInterval(drawMatrix, 80);
+
+setInterval(drawMatrix, 50);
 
 window.addEventListener('resize', () => {
   resizeMatrix();
-  initDrops();
+  initStreams();
 });
 
 // Fade in on scroll
