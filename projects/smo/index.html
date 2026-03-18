@@ -2199,15 +2199,20 @@ const CS_LAX_EXCLUSION = 450;
 // All airports on the map — no-fly zones for hub placement
 const CS_AIRPORTS = [
   { name: 'LAX', lat: 33.9425, lon: -118.4081, r: 0.045 },
-  { name: 'SMO', lat: 34.0158, lon: -118.4513, r: 0.02 },
+  { name: 'SMO', lat: 34.0158, lon: -118.4513, r: 0.02, closedYear: 2029 },
   { name: 'HHR', lat: 33.9228, lon: -118.3350, r: 0.02 },
   { name: 'LGB', lat: 33.8177, lon: -118.1516, r: 0.03 },
   { name: 'TOA', lat: 33.8034, lon: -118.3396, r: 0.02 },
   { name: 'EMT', lat: 34.0861, lon: -118.0347, r: 0.02 },
 ];
 
+function csGetActiveAirports() {
+  const year = parseInt(document.getElementById('cs-year')?.value) || 2037;
+  return CS_AIRPORTS.filter(ap => !ap.closedYear || year < ap.closedYear);
+}
+
 function csNearAirport(lat, lon) {
-  for (const ap of CS_AIRPORTS) {
+  for (const ap of csGetActiveAirports()) {
     const dl = lat - ap.lat, dn = lon - ap.lon;
     if (Math.sqrt(dl * dl + dn * dn) < ap.r) return ap;
   }
@@ -2480,8 +2485,8 @@ async function csDrawPlacementOverlay() {
     }
   }
 
-  // 3. Airport no-fly zones — red circles
-  for (const ap of CS_AIRPORTS) {
+  // 3. Airport no-fly zones — red circles (only active airports)
+  for (const ap of csGetActiveAirports()) {
     const ax = ((ap.lon - bounds.west) / (bounds.east - bounds.west)) * W;
     const ay = ((mN - latToMercY(ap.lat)) / (mN - mS)) * H;
     const rPx = (ap.r / (bounds.east - bounds.west)) * W;
