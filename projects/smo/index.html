@@ -2940,13 +2940,15 @@ function setupScenarioBuilder() {
     }
   });
 
-  // Stop/Reset — return to basemap
+  // Stop/Reset — return to clean basemap
   document.getElementById('cs-stop').addEventListener('click', () => {
     animStop();
     document.getElementById('cs-pause').textContent = 'Pause';
     document.getElementById('cs-pause').disabled = true;
     document.getElementById('cs-stop').disabled = true;
     csState.generated = false;
+    csState.hubs = [];
+    csUpdateHubList();
     csDrawBasemapWithHubs();
   });
 
