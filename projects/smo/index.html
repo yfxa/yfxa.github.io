@@ -2591,6 +2591,9 @@ async function csGenerate() {
     // No overlapping coverage — each address gets deliveries from one hub only
     const hubAssignments = csState.hubs.map(() => ({ targets: [], totalWeight: 0 }));
 
+    // Density type multipliers: SF=0.6, mixed=1.0, MF=1.5
+    const DENSITY_MULT = [0.6, 1.0, 1.5];
+
     if (csState.gridData.cells && csState.gridData.cells.length > 0) {
       for (const cell of csState.gridData.cells) {
         // Find nearest hub within range
@@ -2609,8 +2612,10 @@ async function csGenerate() {
         const cellEnc = csToEnc(cell.lat, cell.lon);
         if (csDistEnc(cellEnc[0], cellEnc[1], laxEnc) < CS_LAX_EXCLUSION) continue;
 
-        const decay = 1 - (bestDist / MAX_DIST) * 0.4;
-        const w = (cell.i || 1) * decay;
+        // Weight: parcel intensity * density type multiplier * distance decay
+        const distDecay = 1 - (bestDist / MAX_DIST) * 0.4;
+        const densityMult = DENSITY_MULT[cell.d] || 1.0;
+        const w = (cell.i || 1) * densityMult * distDecay;
         if (w < 0.05) continue;
 
         hubAssignments[bestHub].targets.push({ enc: cellEnc, w });
