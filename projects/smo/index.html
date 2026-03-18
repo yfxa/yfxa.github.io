@@ -906,9 +906,9 @@ let ZONE_GRID = null; // loaded on demand
 
 async function loadZoneGrid() {
   if (ZONE_GRID) return;
-  const resp = await fetch('data/la_residential_grid.json');
+  const resp = await fetch('data/la_residential_basin_grid.json');
   ZONE_GRID = await resp.json();
-  console.log(`Loaded zoning grid: ${ZONE_GRID.cells.length} cells, ${ZONE_GRID.stats.totalParcels} parcels`);
+  console.log(`Loaded zoning grid: ${ZONE_GRID.cells.length} cells`);
 }
 
 // Colors: 0=SF (blue), 1=mixed (orange), 2=MF (red)
@@ -2443,8 +2443,8 @@ async function csDrawPlacementOverlay() {
     }
   }
 
-  // Use SMO grid for the overlay (matches the original page's residential zones)
-  const overlayGrid = ZONE_GRID || csState.gridData;
+  // Use basin grid for the overlay (covers the full LA basin, not just SMO area)
+  const overlayGrid = csState.gridData;
 
   const bounds = { north: 34.1741, south: 33.8364, west: -118.884, east: -118.0277 };
   const latToMercY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
