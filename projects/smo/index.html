@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SMO Future Histories</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LQF8403XDW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-LQF8403XDW');
+</script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; }
@@ -2601,6 +2609,7 @@ async function csDrawBasemapWithHubs() {
 function csAddHub(lat, lon) {
   const name = `Hub ${csState.hubs.length + 1}`;
   csState.hubs.push({ lat, lon, name });
+  if (typeof gtag === 'function') gtag('event', 'create_scenario_place_hub', { hub_number: csState.hubs.length });
   csUpdateHubList();
 }
 
@@ -2627,6 +2636,7 @@ async function csGenerate() {
   if (!DATA && !csState.originalData) return;
   const status = document.getElementById('cs-status');
   const year = parseInt(document.getElementById('cs-year').value) || 2037;
+  if (typeof gtag === 'function') gtag('event', 'create_scenario_generate', { year: year, hubs: csState.hubs.length });
   csSeed = year;
 
   // Load 2029 base data (SMO closed — foundation for all future scenarios)
@@ -2901,6 +2911,7 @@ async function csGenerate() {
 
 // --- Save PNG ---
 function csSavePNG() {
+  if (typeof gtag === 'function') gtag('event', 'create_scenario_save_png');
   const link = document.createElement('a');
   const year = document.getElementById('cs-year').value;
   const title = document.getElementById('cs-title').value.replace(/[^a-zA-Z0-9]/g, '_');
@@ -3026,6 +3037,7 @@ const GifEncoder = {
 
 // --- Save GIF ---
 function csSaveGif() {
+  if (typeof gtag === 'function') gtag('event', 'create_scenario_save_gif');
   const btn = document.getElementById('cs-record-gif');
   const status = document.getElementById('cs-status');
   if (!csState.generated) return;
@@ -3265,6 +3277,7 @@ function setupScenarioBuilder() {
 const CS_NORMAL_PANELS = [];
 
 function csEnterCreateMode() {
+  if (typeof gtag === 'function') gtag('event', 'create_scenario_enter');
   csState.createMode = true;
 
   // Stop any animation or compare
