@@ -2445,29 +2445,17 @@ function csScreenToLatLon(clientX, clientY) {
   const latToMercY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
   const mercNorth = latToMercY(bounds.north);
   const mercSouth = latToMercY(bounds.south);
+
+  // Use DOMMatrix to invert the exact CSS transform applied to the canvas
   const cRect = container.getBoundingClientRect();
-  const cw = cRect.width, ch = cRect.height;
-  let canvasX, canvasY;
-  if (mobileRotated) {
-    const baseScale = Math.max(ch / W, cw / H);
-    const totalScale = baseScale * zoom;
-    const tx = (cw - H * baseScale) / 2 + panX;
-    const ty = (ch - W * baseScale) / 2 + panY + W * totalScale;
-    // Inverse of: translate(tx, ty) scale(s) rotate(-90deg)
-    // screen = (canvasY*s + tx, -canvasX*s + ty)
-    // so: canvasY = (screenX - tx) / s, canvasX = (ty - screenY) / s
-    const screenX = clientX - cRect.left;
-    const screenY = clientY - cRect.top;
-    canvasX = (ty - screenY) / totalScale;
-    canvasY = (screenX - tx) / totalScale;
-  } else {
-    const baseScale = Math.min(cw / W, ch / H);
-    const totalScale = baseScale * zoom;
-    const cx = (cw - W * baseScale) / 2;
-    const cy = (ch - H * baseScale) / 2;
-    canvasX = (clientX - cRect.left - cx - panX) / totalScale;
-    canvasY = (clientY - cRect.top - cy - panY) / totalScale;
-  }
+  const matrix = new DOMMatrix(getComputedStyle(canvas).transform);
+  const inv = matrix.inverse();
+  // Convert screen point to container-relative, then apply inverse transform
+  const sx = clientX - cRect.left;
+  const sy = clientY - cRect.top;
+  const pt = inv.transformPoint(new DOMPoint(sx, sy));
+  const canvasX = pt.x;
+  const canvasY = pt.y;
   const lon = bounds.west + (canvasX / W) * (bounds.east - bounds.west);
   const mercY = mercNorth - (canvasY / H) * (mercNorth - mercSouth);
   const lat = (2 * Math.atan(Math.exp(mercY)) - Math.PI / 2) * 180 / Math.PI;
