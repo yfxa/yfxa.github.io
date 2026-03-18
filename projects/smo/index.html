@@ -2490,23 +2490,72 @@ function csUpdateHubList() {
 async function csGenerate() {
   if (!DATA && !csState.originalData) return;
   const status = document.getElementById('cs-status');
-  status.textContent = 'Generating...';
-  csSeed = parseInt(document.getElementById('cs-year').value) || 12345;
+  const year = parseInt(document.getElementById('cs-year').value) || 2037;
+  csSeed = year;
 
-  // Ensure DATA has origin/bounds from original
-  if (csState.originalData) {
-    DATA = JSON.parse(JSON.stringify({
-      origin: csState.originalData.origin,
-      bounds: csState.originalData.bounds,
-      stride: csState.originalData.stride || 5,
-      types: {},
-      flights: [],
-    }));
+  // Load 2029 base data (SMO closed — foundation for all future scenarios)
+  status.textContent = 'Loading base traffic data...';
+  await new Promise(r => setTimeout(r, 10));
+  const baseFile = year < 2029 ? 'viewer_data.json' : 'viewer_data_2029.json';
+  let baseData;
+  if (DATA_CACHE[baseFile]) {
+    baseData = DATA_CACHE[baseFile];
+  } else {
+    const resp = await fetch('data/' + baseFile);
+    baseData = await resp.json();
+    DATA_CACHE[baseFile] = baseData;
   }
 
-  // Start empty — user builds from scratch
-  let flights = [];
+  // Copy base flights and types
+  let flights = baseData.flights.map(f => ({ t: f.t, p: f.p }));
   const types = {};
+  for (const [k, v] of Object.entries(baseData.types)) {
+    types[k] = { ...v };
+  }
+
+  // Year-based auto-scaling: progressively remove helicopters and GA
+  const yearsFromNow = Math.max(0, year - 2029);
+  const heliRemovePct = Math.min(1, yearsFromNow / 20); // 100% by 2049
+  const gaRemovePct = Math.min(0.9, yearsFromNow * 0.04); // 90% by 2051
+  const laxAmp = Math.min(0.30, yearsFromNow * 0.012); // up to 30% LAX growth
+
+  if (heliRemovePct > 0) {
+    flights = flights.filter(f => {
+      if (HELI_REGEX.test(f.t)) return csRand() > heliRemovePct;
+      return true;
+    });
+  }
+  if (gaRemovePct > 0) {
+    flights = flights.filter(f => {
+      if (GA_TYPES.test(f.t)) return csRand() > gaRemovePct;
+      return true;
+    });
+  }
+
+  // LAX commercial amplification (duplicate some commercial flights)
+  if (laxAmp > 0) {
+    const commercial = flights.filter(f => {
+      const cat = types[f.t]?.category;
+      return cat === 'commercial' || cat === 'transport';
+    });
+    const numExtra = Math.round(commercial.length * laxAmp);
+    for (let i = 0; i < numExtra; i++) {
+      const src = commercial[Math.floor(csRand() * commercial.length)];
+      if (src) flights.push({ t: src.t, p: src.p });
+    }
+  }
+
+  status.textContent = `Base: ${flights.length} flights (${year < 2029 ? '2026' : '2029'}). Adding layers...`;
+  await new Promise(r => setTimeout(r, 10));
+
+  // Ensure DATA has origin/bounds for coordinate encoding
+  DATA = {
+    origin: baseData.origin,
+    bounds: baseData.bounds,
+    stride: baseData.stride || 5,
+    types: {},
+    flights: [],
+  };
 
   // Generate drone hub flights
   if (document.getElementById('cs-drones').checked && csState.hubs.length > 0) {
