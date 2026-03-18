@@ -603,16 +603,18 @@ function resizeMatrix() {
 resizeMatrix();
 window.addEventListener('resize', resizeMatrix);
 
-// Multilingual character set: Chinese, Japanese katakana, English, Korean, Greek, Cyrillic, Arabic, Hebrew, Thai
-const chars = '\u4e16\u754c\u672a\u6765\u5929\u7a7a\u98de\u884c\u57ce\u5e02\u6570\u636e\u53ef\u89c6\u5316\u5730\u56fe\u6d41\u91cf\u5bc6\u5ea6\u8ba1\u7b97\u667a\u80fd\u81ea\u52a8\u5316\u673a\u5668\u5b66\u4e60\u6df1\u5ea6\u795e\u7ecf'
-  + '\u30a2\u30a4\u30a6\u30a8\u30aa\u30ab\u30ad\u30af\u30b1\u30b3\u30b5\u30b7\u30b9\u30bb\u30bd\u30bf\u30c1\u30c4\u30c6\u30c8\u30ca\u30cb\u30cc\u30cd\u30ce\u30cf\u30d2\u30d5\u30d8\u30db\u30de\u30df\u30e0\u30e1\u30e2\u30e4\u30e6\u30e8\u30e9\u30ea\u30eb\u30ec\u30ed\u30ef\u30f2\u30f3'
-  + 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789'
-  + '\uac00\ub098\ub2e4\ub77c\ub9c8\ubc14\uc0ac\uc544\uc790\ucc28'
-  + '\u03b1\u03b2\u03b3\u03b4\u03b8\u03bb\u03c0\u03c3\u03c9'
-  + '\u0410\u0411\u0412\u0413\u0414\u041a\u041c\u041d\u0420\u0421'
-  + '\u0627\u0628\u062a\u062c\u062d\u0633\u0639\u0641\u0644\u0646'
-  + '\u05d0\u05d1\u05d2\u05d3\u05d4\u05d9\u05dc\u05de\u05e9\u05ea'
-  + '\u0e01\u0e04\u0e07\u0e14\u0e17\u0e19\u0e1e\u0e23\u0e2a\u0e2d';
+// Per-language character sets — each column picks one language
+const LANG_SETS = [
+  '\u4e16\u754c\u672a\u6765\u5929\u7a7a\u98de\u884c\u57ce\u5e02\u6570\u636e\u53ef\u89c6\u5316\u5730\u56fe\u6d41\u91cf\u5bc6\u5ea6\u8ba1\u7b97\u667a\u80fd\u81ea\u52a8\u5316\u673a\u5668\u5b66\u4e60\u6df1\u5ea6\u795e\u7ecf', // Chinese
+  '\u30a2\u30a4\u30a6\u30a8\u30aa\u30ab\u30ad\u30af\u30b1\u30b3\u30b5\u30b7\u30b9\u30bb\u30bd\u30bf\u30c1\u30c4\u30c6\u30c8\u30ca\u30cb\u30cc\u30cd\u30ce\u30cf\u30d2\u30d5\u30d8\u30db\u30de\u30df\u30e0\u30e1\u30e2\u30e4\u30e6\u30e8\u30e9\u30ea\u30eb\u30ec\u30ed\u30ef\u30f2\u30f3', // Japanese katakana
+  'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789', // English
+  '\uac00\ub098\ub2e4\ub77c\ub9c8\ubc14\uc0ac\uc544\uc790\ucc28\uce74\ud0c0\ud30c\ud558', // Korean
+  '\u03b1\u03b2\u03b3\u03b4\u03b5\u03b6\u03b7\u03b8\u03bb\u03bc\u03c0\u03c3\u03c6\u03c8\u03c9', // Greek
+  '\u0410\u0411\u0412\u0413\u0414\u0416\u0417\u041a\u041b\u041c\u041d\u041f\u0420\u0421\u0422\u0424', // Cyrillic
+  '\u0627\u0628\u062a\u062b\u062c\u062d\u062e\u062f\u0631\u0632\u0633\u0634\u0635\u0639\u0641\u0642\u0643\u0644\u0645\u0646', // Arabic
+  '\u05d0\u05d1\u05d2\u05d3\u05d4\u05d5\u05d6\u05d7\u05d8\u05d9\u05db\u05dc\u05de\u05e0\u05e2\u05e4\u05e7\u05e8\u05e9\u05ea', // Hebrew
+  '\u0e01\u0e02\u0e04\u0e07\u0e08\u0e0a\u0e14\u0e17\u0e19\u0e1a\u0e1e\u0e21\u0e22\u0e23\u0e25\u0e27\u0e2a\u0e2b\u0e2d', // Thai
+];
 
 const fontSize = 18;
 const colWidth = 22;
@@ -639,10 +641,11 @@ function initStreams() {
 
 function createStream(col, randomStart) {
   const len = 8 + Math.floor(Math.random() * 20);
-  // Each cell in the stream holds a fixed character (changes randomly over time)
+  // Each column uses one consistent language
+  const langSet = LANG_SETS[Math.floor(Math.random() * LANG_SETS.length)];
   const cells = [];
   for (let j = 0; j < len; j++) {
-    cells.push(chars[Math.floor(Math.random() * chars.length)]);
+    cells.push(langSet[Math.floor(Math.random() * langSet.length)]);
   }
   return {
     col,
@@ -650,6 +653,7 @@ function createStream(col, randomStart) {
     speed: 0.3 + Math.random() * 0.4,
     len,
     cells,
+    langSet, // keep reference for consistent shimmer
   };
 }
 
@@ -672,10 +676,13 @@ function drawMatrix() {
     const waveOffset = waveFn(s.col, columns, waveTime);
     const x = s.col * colWidth;
 
-    // Randomly mutate 1-2 characters in the stream (shimmer effect)
-    if (Math.random() < 0.15) {
-      const idx = Math.floor(Math.random() * s.cells.length);
-      s.cells[idx] = chars[Math.floor(Math.random() * chars.length)];
+    // Shimmer: trail chars change at different rates (same language)
+    // Head changes every frame, near-head chars change often, tail chars change rarely
+    for (let j = 0; j < s.len; j++) {
+      const shimmerChance = j === 0 ? 1.0 : j <= 2 ? 0.3 : j <= 5 ? 0.08 : 0.02;
+      if (Math.random() < shimmerChance) {
+        s.cells[j] = s.langSet[Math.floor(Math.random() * s.langSet.length)];
+      }
     }
 
     // Draw each cell in the stream
@@ -701,9 +708,7 @@ function drawMatrix() {
         mCtx.shadowBlur = 0;
       }
 
-      // Head always gets a fresh random character
-      const ch = j === 0 ? chars[Math.floor(Math.random() * chars.length)] : s.cells[j];
-      mCtx.fillText(ch, x, cellY);
+      mCtx.fillText(s.cells[j], x, cellY);
     }
     mCtx.shadowBlur = 0;
 
