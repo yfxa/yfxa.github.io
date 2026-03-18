@@ -629,15 +629,7 @@ const fontSize = 18;
 const colWidth = 22;
 let columns, streams;
 
-// Wavefront: leading edges trace y=f(x) curves
-const waveFns = [
-  (col, cols, t) => Math.sin(col / cols * Math.PI * 3 + t) * 6,
-  (col, cols, t) => Math.cos(col / cols * Math.PI * 2 + t) * 8,
-  (col, cols, t) => ((col/cols - 0.5) ** 2) * 25 * Math.sin(t * 0.5),
-  (col, cols, t) => Math.sin(col / cols * Math.PI * 5 + t) * 4,
-];
-
-let waveFn, waveTime = 0, waveCounter = 0;
+let waveCounter = 0;
 
 function initStreams() {
   columns = Math.floor(matrixCanvas.width / colWidth);
@@ -645,7 +637,6 @@ function initStreams() {
   for (let i = 0; i < columns; i++) {
     streams.push(createStream(i, true));
   }
-  waveFn = waveFns[Math.floor(Math.random() * waveFns.length)];
 }
 
 function createStream(col, randomStart) {
@@ -672,16 +663,8 @@ function drawMatrix() {
   // Full clear each frame — no ghosting
   mCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
   mCtx.font = 'bold ' + fontSize + 'px monospace';
-  waveTime += 0.015;
-  waveCounter++;
-
-  if (waveCounter % 400 === 0) {
-    waveFn = waveFns[Math.floor(Math.random() * waveFns.length)];
-  }
-
   for (const s of streams) {
     s.y += s.speed;
-    const waveOffset = waveFn(s.col, columns, waveTime);
     const x = s.col * colWidth;
 
     // Shimmer: trail chars change at different rates (same language)
@@ -695,7 +678,7 @@ function drawMatrix() {
 
     // Draw each cell in the stream
     for (let j = 0; j < s.len; j++) {
-      const cellY = Math.floor(s.y + waveOffset - j) * fontSize;
+      const cellY = Math.floor(s.y - j) * fontSize;
       if (cellY < -fontSize || cellY > matrixCanvas.height + fontSize) continue;
 
       if (j === 0) {
@@ -721,7 +704,7 @@ function drawMatrix() {
     mCtx.shadowBlur = 0;
 
     // Reset when stream fully off screen
-    const bottomY = Math.floor(s.y + waveOffset) * fontSize;
+    const bottomY = Math.floor(s.y) * fontSize;
     if (bottomY - s.len * fontSize > matrixCanvas.height) {
       Object.assign(s, createStream(s.col, false));
     }
