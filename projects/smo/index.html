@@ -55,6 +55,23 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
 }
 #sidebar.collapsed { transform: translateX(100%); }
 
+#home-btn {
+  position: fixed;
+  top: 12px; right: 372px;
+  z-index: 11;
+  background: rgba(18, 23, 31, 0.85);
+  border: 1px solid #2e4060;
+  color: #8ab4ff;
+  width: 32px; height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  transition: right 0.3s ease;
+}
+#home-btn:hover { background: rgba(30, 40, 60, 0.95); }
+.sidebar-collapsed #home-btn { right: 52px; }
+
 #sidebar-toggle {
   position: fixed;
   top: 12px; right: 332px;
@@ -284,6 +301,13 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
     gap: 10px;
   }
   #sidebar.collapsed { transform: translateX(100%); }
+  #home-btn {
+    position: fixed;
+    right: 56px;
+    top: 10px;
+    width: 36px; height: 36px;
+  }
+  .sidebar-collapsed #home-btn { right: 56px; }
   #sidebar-toggle {
     position: fixed;
     right: 12px;
@@ -322,6 +346,11 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
   </div>
 </div>
 
+<a id="home-btn" href="https://yfx.studio" title="Home">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 12L12 3l9 9"/><path d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"/>
+  </svg>
+</a>
 <button id="sidebar-toggle" title="Toggle sidebar">&#9776;</button>
 
 <div id="zoom-controls">
@@ -2131,12 +2160,14 @@ async function init() {
 document.getElementById('sidebar-toggle').addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('collapsed');
   document.getElementById('sidebar-toggle').classList.toggle('collapsed');
+  document.body.classList.toggle('sidebar-collapsed');
 });
 
 // Auto-collapse sidebar on mobile
 if (window.innerWidth <= 768) {
   document.getElementById('sidebar').classList.add('collapsed');
   document.getElementById('sidebar-toggle').classList.add('collapsed');
+  document.body.classList.add('sidebar-collapsed');
 }
 
 init().catch(err => {
