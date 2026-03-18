@@ -701,6 +701,13 @@ function drawMatrix() {
       }
     }
 
+    // Set font per language — Chinese uses FangSong (仿宋)
+    if (s.langIdx === 0) {
+      mCtx.font = 'bold ' + fontSize + 'px FangSong, STFangsong, "Noto Serif CJK SC", serif';
+    } else {
+      mCtx.font = 'bold ' + fontSize + 'px monospace';
+    }
+
     // Draw each cell in the stream
     for (let j = 0; j < s.len; j++) {
       const cellY = Math.floor(s.y - j) * fontSize;
