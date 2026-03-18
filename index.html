@@ -669,9 +669,8 @@ function createStream(col, randomStart) {
 initStreams();
 
 function drawMatrix() {
-  // Clear with black overlay for trailing fade
-  mCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-  mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+  // Full clear each frame — no ghosting
+  mCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
   mCtx.font = 'bold ' + fontSize + 'px monospace';
   waveTime += 0.015;
   waveCounter++;
