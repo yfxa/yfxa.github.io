@@ -79,6 +79,8 @@ document.addEventListener('click', function(e) {
 <div class="lobster">&#129438;</div>
 <h1>DO NOT PET</h1>
 <p>Congratulations! You found the hidden society of ArchiClaws!<br>Here we bring creativity to anywhere and everywhere.</p>
+<button id="continue-btn" onclick="document.getElementById('main-content').style.display='';this.style.display='none';" style="color:#33ff33; background:none; border:1px solid #1a3a1a; padding:8px 32px; border-radius:4px; font-family:inherit; font-size:13px; cursor:pointer; margin-top:8px;">Continue</button>
+<div id="main-content" style="display:none;">
 <table style="margin: 32px 0; border-collapse: collapse; font-size: 13px; text-align: left; width: 100%; max-width: 580px;">
   <thead>
     <tr>
@@ -117,5 +119,6 @@ document.addEventListener('click', function(e) {
     </tr>
   </tbody>
 </table>
+</div>
 </body>
 </html>
