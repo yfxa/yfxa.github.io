@@ -57,6 +57,34 @@ a:hover {
 .arrow { display: inline-block; transition: transform 0.2s; font-size: 10px; }
 .workflow.open { display: block !important; }
 .workflow.open ~ .arrow, span:has(~ .workflow.open) .arrow { transform: rotate(90deg); }
+
+@media (max-width: 600px) {
+  body { padding: 20px 16px; }
+  .lobster { font-size: 80px; margin-bottom: 16px; }
+  h1 { font-size: 22px; letter-spacing: 4px; }
+  p { font-size: 13px; padding: 0 8px; }
+  #accept-btn { font-size: 13px !important; letter-spacing: 2px !important; padding: 10px 20px !important; }
+  table { font-size: 12px !important; }
+  table th { font-size: 13px !important; letter-spacing: 1px !important; padding: 8px 0 !important; }
+  table td { padding: 10px 8px 10px 0 !important; vertical-align: top; }
+  table thead { display: none; }
+  table, table tbody, table tr, table td { display: block; width: 100%; }
+  table tr {
+    border-bottom: 1px solid #1a3a1a;
+    padding: 12px 0;
+    margin-bottom: 8px;
+  }
+  table td::before {
+    content: attr(data-label);
+    display: block;
+    color: #33ff33;
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    font-weight: bold;
+  }
+  table td:empty { display: none; }
+}
 </style>
 <script>
 document.addEventListener('click', function(e) {
@@ -99,7 +127,7 @@ window.addEventListener('DOMContentLoaded', function() {
   </thead>
   <tbody>
     <tr>
-      <td style="color: #1a8a1a; padding: 12px 24px 12px 0;">
+      <td data-label="USE CASE" style="color: #1a8a1a; padding: 12px 24px 12px 0;">
         <span onclick="this.parentElement.querySelector('.workflow').classList.toggle('open')" style="cursor:pointer;">
           <span class="arrow">&#9656;</span> Autonomous Archiving
         </span>
@@ -112,11 +140,11 @@ window.addEventListener('DOMContentLoaded', function() {
           &emsp; &gt; categorizes them
         </div>
       </td>
-      <td style="color: #1a8a1a; padding: 12px 0;"><a href="https://clawhub.com/skills/ig-cropper" style="color: #1a8a1a; border: none; padding: 0; font-size: inherit; text-decoration: underline;">ig-cropper</a></td>
-      <td style="color: #1a8a1a; padding: 12px 0;"><a href="/donotpet/transcripts/Pei-Fred-2026-03-19_20-49-00/" style="color: #1a8a1a; border: none; padding: 0; font-size: inherit; text-decoration: underline;">Pei-Fred-2026-03-19_20-49-00</a></td>
+      <td data-label="SKILL" style="color: #1a8a1a; padding: 12px 0;"><a href="https://clawhub.com/skills/ig-cropper" style="color: #1a8a1a; border: none; padding: 0; font-size: inherit; text-decoration: underline;">ig-cropper</a></td>
+      <td data-label="TRANSCRIPT" style="color: #1a8a1a; padding: 12px 0;"><a href="/donotpet/transcripts/Pei-Fred-2026-03-19_20-49-00/" style="color: #1a8a1a; border: none; padding: 0; font-size: inherit; text-decoration: underline;">Pei-Fred-2026-03-19_20-49-00</a></td>
     </tr>
     <tr>
-      <td style="color: #1a8a1a; padding: 12px 0;">
+      <td data-label="USE CASE" style="color: #1a8a1a; padding: 12px 0;">
         <span onclick="this.parentElement.querySelector('.workflow').classList.toggle('open');var a=this.querySelector('.arrow');a.style.transform=a.style.transform?'':'rotate(90deg)';" style="cursor:pointer;">
           <span class="arrow">&#9656;</span> Competition Tracking
         </span>
@@ -124,11 +152,11 @@ window.addEventListener('DOMContentLoaded', function() {
           <span style="color:#1a8a1a;">complexity: &#x1F480;&#x1F99E;&#x1F99E;&#x1F99E;&#x1F99E;</span>
         </div>
       </td>
-      <td style="color: #1a8a1a; padding: 12px 0;">Heartbeat(built-in)</td>
-      <td style="color: #1a8a1a; padding: 12px 0;"></td>
+      <td data-label="SKILL" style="color: #1a8a1a; padding: 12px 0;">Heartbeat(built-in)</td>
+      <td data-label="TRANSCRIPT" style="color: #1a8a1a; padding: 12px 0;"></td>
     </tr>
     <tr>
-      <td style="color: #1a8a1a; padding: 12px 0;">
+      <td data-label="USE CASE" style="color: #1a8a1a; padding: 12px 0;">
         <span onclick="this.parentElement.querySelector('.workflow').classList.toggle('open');var a=this.querySelector('.arrow');a.style.transform=a.style.transform?'':'rotate(90deg)';" style="cursor:pointer;">
           <span class="arrow">&#9656;</span> Code Words
         </span>
@@ -136,8 +164,8 @@ window.addEventListener('DOMContentLoaded', function() {
           <span style="color:#1a8a1a;">complexity: &#x1F480;&#x1F480;&#x1F99E;&#x1F99E;&#x1F99E;</span>
         </div>
       </td>
-      <td style="color: #1a8a1a; padding: 12px 0;">-</td>
-      <td style="color: #1a8a1a; padding: 12px 0;"><a href="/donotpet/transcripts/Pei-Fred-2026-03-19_22-45-26/" style="color: #1a8a1a; border: none; padding: 0; font-size: inherit; text-decoration: underline;">Pei-Fred-2026-03-19_22-45-26</a></td>
+      <td data-label="SKILL" style="color: #1a8a1a; padding: 12px 0;">-</td>
+      <td data-label="TRANSCRIPT" style="color: #1a8a1a; padding: 12px 0;"><a href="/donotpet/transcripts/Pei-Fred-2026-03-19_22-45-26/" style="color: #1a8a1a; border: none; padding: 0; font-size: inherit; text-decoration: underline;">Pei-Fred-2026-03-19_22-45-26</a></td>
     </tr>
   </tbody>
 </table>
