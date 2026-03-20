@@ -54,7 +54,23 @@ a:hover {
   border-color: #33ff33;
   text-shadow: 0 0 8px rgba(0,255,65,0.5);
 }
+.arrow { display: inline-block; transition: transform 0.2s; font-size: 10px; }
+.workflow.open { display: block !important; }
+.workflow.open ~ .arrow, span:has(~ .workflow.open) .arrow { transform: rotate(90deg); }
 </style>
+<script>
+document.addEventListener('click', function(e) {
+  const span = e.target.closest('span[onclick]');
+  if (!span) return;
+  const arrow = span.querySelector('.arrow');
+  const wf = span.parentElement.querySelector('.workflow');
+  if (wf.classList.contains('open')) {
+    arrow.style.transform = '';
+  } else {
+    arrow.style.transform = 'rotate(90deg)';
+  }
+});
+</script>
 </head>
 <body>
 <a href="/" style="position:fixed; top:16px; right:16px; border:none; padding:0; font-size:20px; color:#33ff33; opacity:0.6; z-index:10;" title="Home">
@@ -73,7 +89,17 @@ a:hover {
   </thead>
   <tbody>
     <tr>
-      <td style="color: #1a8a1a; padding: 12px 0;">Autonomous Archiving</td>
+      <td style="color: #1a8a1a; padding: 12px 0;">
+        <span onclick="this.parentElement.querySelector('.workflow').classList.toggle('open')" style="cursor:pointer;">
+          <span class="arrow">&#9656;</span> Autonomous Archiving
+        </span>
+        <div class="workflow" style="display:none; padding: 6px 0 0 16px; font-size: 12px; color: #145a14; line-height: 2;">
+          &gt; send instagram screenshots to your lobster<br>
+          &gt; your lobster crops, identifies, and names<br>
+          &gt; save image in a folder<br>
+          &gt; categorize them
+        </div>
+      </td>
       <td style="color: #1a8a1a; padding: 12px 0;"><a href="https://clawhub.com/skills/ig-cropper" style="color: #1a8a1a; border: none; padding: 0; font-size: inherit; text-decoration: underline;">ig-cropper</a></td>
       <td style="color: #1a8a1a; padding: 12px 0;"><a href="/donotpet/transcripts/Pei-Fred-2026-03-19_20-49-00/" style="color: #1a8a1a; border: none; padding: 0; font-size: inherit; text-decoration: underline;">Pei-Fred-2026-03-19_20-49-00</a></td>
     </tr>
