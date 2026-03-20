@@ -70,12 +70,14 @@ document.addEventListener('click', function(e) {
     arrow.style.transform = 'rotate(90deg)';
   }
 });
-if (window.location.hash === '#accepted') {
-  document.getElementById('main-content').style.display = '';
-  document.getElementById('main-title').style.display = '';
-  document.getElementById('accept-btn').style.display = 'none';
-  document.getElementById('welcome-msg').textContent = 'We share OpenClaw use cases for architects and designers.';
-}
+window.addEventListener('DOMContentLoaded', function() {
+  if (window.location.hash === '#accepted') {
+    document.getElementById('main-content').style.display = '';
+    document.getElementById('main-title').style.display = '';
+    document.getElementById('accept-btn').style.display = 'none';
+    document.getElementById('welcome-msg').textContent = 'We share OpenClaw use cases for architects and designers.';
+  }
+});
 </script>
 </head>
 <body>
