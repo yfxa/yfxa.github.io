@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#000 Building BB-8 | yf(x).studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=SF+Mono&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  color: #c8d8c8;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+  min-height: 100vh;
+  line-height: 1.7;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+/* Top nav */
+.topnav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #1a3a1a;
+}
+.topnav a.home {
+  color: #ff8eb4;
+  text-decoration: none;
+  font-size: 18px;
+}
+.topnav a.home:hover { color: #ffb0c8; }
+.topnav .crumbs {
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 2px;
+}
+.topnav .crumbs a {
+  color: #1a8a1a;
+  text-decoration: none;
+}
+.topnav .crumbs a:hover { color: #33ff33; }
+.topnav .crumbs span { color: #33ff33; }
+
+/* Post header */
+.post-meta {
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+.post-meta .num { color: #33ff33; margin-right: 12px; }
+.post-meta .date { color: #888; }
+.post-meta .status {
+  display: inline-block;
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  background: #2a2a0a;
+  color: #ffaa33;
+  border: 1px solid #4a4a0a;
+  margin-left: 12px;
+}
+
+h1 {
+  font-size: 28px;
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 18px;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+}
+
+.tag-row {
+  margin-bottom: 32px;
+}
+.tag {
+  display: inline-block;
+  font-size: 10px;
+  padding: 3px 10px;
+  background: #0a1f0a;
+  color: #66cc66;
+  border: 1px solid #1a3a1a;
+  border-radius: 2px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+/* Body content */
+.content p {
+  margin-bottom: 18px;
+  font-size: 14px;
+  color: #c8d8c8;
+}
+.content em { color: #ffaa33; font-style: normal; }
+.content strong { color: #fff; }
+
+.content h2 {
+  color: #33ff33;
+  font-size: 16px;
+  letter-spacing: 3px;
+  font-weight: 700;
+  margin: 40px 0 16px;
+  border-bottom: 1px solid #1a3a1a;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.content h3 {
+  color: #66ff66;
+  font-size: 14px;
+  margin: 24px 0 10px;
+  font-weight: 700;
+}
+
+.content hr {
+  border: none;
+  border-top: 1px dashed #1a3a1a;
+  margin: 32px 0;
+}
+
+.content ul {
+  margin: 0 0 18px 20px;
+  font-size: 14px;
+}
+.content ul li {
+  margin-bottom: 6px;
+  color: #c8d8c8;
+}
+.content ul li::marker {
+  color: #1a8a1a;
+}
+
+.content a {
+  color: #66ff66;
+  text-decoration: none;
+  border-bottom: 1px dotted #1a8a1a;
+}
+.content a:hover {
+  color: #fff;
+  border-color: #33ff33;
+}
+
+/* Series list */
+.series-list {
+  list-style: none;
+  margin: 0 0 18px 0 !important;
+}
+.series-list li {
+  padding: 12px 0;
+  border-bottom: 1px dashed #143014;
+  margin-bottom: 0 !important;
+}
+.series-list li::marker { content: none; }
+.series-list .label {
+  color: #1a8a1a;
+  font-size: 11px;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 4px;
+}
+.series-list .desc {
+  color: #888;
+  font-size: 13px;
+}
+
+/* Parts table */
+.parts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 24px;
+}
+.parts-table th, .parts-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px dashed #143014;
+}
+.parts-table th {
+  color: #33ff33;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 10px;
+  border-bottom: 1px solid #1a3a1a;
+}
+.parts-table td:nth-child(3) {
+  text-align: right;
+  color: #66ff66;
+}
+.parts-table tr.total td {
+  border-top: 1px solid #1a3a1a;
+  border-bottom: none;
+  color: #fff;
+  font-weight: 700;
+  padding-top: 12px;
+}
+.parts-table tr.total td:nth-child(3) { color: #33ff33; }
+
+/* Sign off */
+.signoff {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #1a3a1a;
+  color: #888;
+  font-size: 13px;
+  font-style: normal;
+}
+
+/* Post navigation */
+.post-nav {
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.post-nav a {
+  color: #66ff66;
+  text-decoration: none;
+  border: 1px solid #1a3a1a;
+  padding: 10px 18px;
+  border-radius: 3px;
+}
+.post-nav a:hover {
+  border-color: #33ff33;
+  color: #fff;
+}
+.post-nav .disabled {
+  color: #333;
+  border-color: #1a1a1a;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid #1a3a1a;
+  font-size: 11px;
+  color: #555;
+  text-align: center;
+}
+.footer a { color: #1a8a1a; text-decoration: none; }
+.footer a:hover { color: #33ff33; }
+
+@media (max-width: 600px) {
+  body { padding: 20px 14px; }
+  h1 { font-size: 22px; }
+  .content p, .content ul { font-size: 13px; }
+  .parts-table { font-size: 11px; }
+  .parts-table th, .parts-table td { padding: 6px 4px; }
+  .post-nav { flex-direction: column; gap: 10px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="topnav">
+    <div class="crumbs">YF(X).STUDIO / <a href="/projects/bb8/">BB-8</a> / <span>#000</span></div>
+    <a class="home" href="/" title="Home">⌂</a>
+  </div>
+
+  <div class="post-meta">
+    <span class="num">BUILD LOG #000</span>
+    <span class="date">2026-04-07</span>
+    <span class="status">DRAFT</span>
+  </div>
+
+  <h1>Building BB-8: An AI-Powered Delivery Robot From Scratch</h1>
+
+  <div class="tag-row">
+    <span class="tag">ROBOTICS</span>
+    <span class="tag">JETSON</span>
+    <span class="tag">ESP32</span>
+    <span class="tag">AI</span>
+    <span class="tag">COMPUTER-VISION</span>
+    <span class="tag">3D-PRINTING</span>
+  </div>
+
+  <div class="content">
+
+    <p>When I first saw BB-8 roll across the screen in <em>The Force Awakens</em>, I knew I wanted to build one. Not a toy — a functional robot that could actually do something useful. Fast forward to 2026, and that idea has evolved into something more ambitious: a BB-8-shaped indoor delivery robot that can recognize my face, understand hand gestures like "come here" and "stop," and navigate rooms on its own.</p>
+
+    <p>This series documents the entire build — from choosing components to writing the AI pipeline — so you can follow along or build your own.</p>
+
+    <h2>What This Robot Does</h2>
+
+    <p>The goal is simple in concept, complex in execution:</p>
+
+    <ul>
+      <li><strong>Rolls up to me</strong> when called (via app or autonomous patrol)</li>
+      <li><strong>Recognizes my face</strong> using a 12MP camera and on-device ML</li>
+      <li><strong>Understands gestures</strong> — open palm means stop, beckoning means come here</li>
+      <li><strong>Avoids obstacles</strong> using Time-of-Flight sensors mounted inside the sphere</li>
+      <li><strong>Looks like BB-8</strong> — because if you're going to build a delivery robot, it should have personality</li>
+    </ul>
+
+    <p>The head stays upright through magnetic coupling while the body rolls beneath it, just like the real thing.</p>
+
+    <h2>The Architecture: Three Brains</h2>
+
+    <p>The robot runs on a three-tier system, each layer handling different responsibilities:</p>
+
+    <h3>NVIDIA Jetson Orin Nano Super</h3>
+    <p>The central brain. Running at 67 TOPS, it handles the heavy ML workloads: face recognition (InsightFace), gesture classification (MediaPipe), and high-level navigation decisions. It processes the camera feed and sends drive commands downstream.</p>
+
+    <h3>ESP32-S3 #1 (Body)</h3>
+    <p>Inside the rolling sphere. This handles the real-time PID control loop for the drive motors, reads the BNO055 IMU for body orientation, and polls the ToF distance sensors for obstacle data. It receives simple velocity commands from the Jetson and translates them into motor signals.</p>
+
+    <h3>ESP32-S3 #2 (Head)</h3>
+    <p>Controls the head pan/tilt servos so the head can track a person, drives status LEDs and the speaker for BB-8-style sound effects, and coordinates with the body ESP32 via ESP-NOW so the head knows which direction the body is rolling.</p>
+
+    <p>The Jetson talks to the body ESP32 over serial (UART). The two ESP32s talk to each other via ESP-NOW — Espressif's low-latency wireless protocol that doesn't need a Wi-Fi network. The camera on the head connects directly to the Jetson via CSI.</p>
+
+    <h2>The Series</h2>
+
+    <p>I'm breaking this into focused posts, each covering one major phase of the build. I'll update the links below as each post goes live.</p>
+
+    <ul class="series-list">
+      <li><span class="label">PART 1 · ARCHITECTURE & PARTS SELECTION</span><span class="desc">The full system design, why I chose each component, and the complete shopping list. Covers Jetson Orin Nano, Arducam IMX477 (B0274 with IR-cut), ESP32-S3, BNO055 IMU, VL53L1X ToF sensors, drive motors, and power. Budget breakdown included.</span></li>
+      <li><span class="label">PART 2 · 3D PRINTING THE SHELL</span><span class="desc">Using the BB-8 Builders Club STL files to print the body panels and head dome. Hemisphere selection, panel assembly, sanding, painting with screen-accurate orange, and weathering tips.</span></li>
+      <li><span class="label">PART 3 · THE INTERNAL DRIVE UNIT</span><span class="desc">Designing and building the hamster-drive chassis that lives inside the sphere. Motor mounting, counterweight placement, wheel selection, and getting the thing to roll without tipping over.</span></li>
+      <li><span class="label">PART 4 · THE MAGNETIC HEAD</span><span class="desc">N52 neodymium magnets, PTFE bearings, and the dark art of making a head float on top of a rolling ball. Camera mounting, servo-driven pan/tilt, and cable management across the magnetic gap.</span></li>
+      <li><span class="label">PART 5 · ELECTRONICS & WIRING</span><span class="desc">The full wiring diagram. LiPo power distribution, buck converters, ESP32 pin assignments, motor driver hookup, UART between Jetson and body ESP32, ESP-NOW configuration, and how everything fits inside the sphere.</span></li>
+      <li><span class="label">PART 6 · FACE RECOGNITION & GESTURE CONTROL</span><span class="desc">The AI pipeline on the Jetson. Setting up InsightFace for face recognition, MediaPipe Hands for gesture detection, training a simple gesture classifier, and making BB-8 respond to "come here," "stop," and "go away."</span></li>
+      <li><span class="label">PART 7 · INDOOR NAVIGATION</span><span class="desc">Using VL53L1X ToF sensors for obstacle avoidance, basic indoor path planning, and the control loop that ties the Jetson's decisions to the ESP32's motor commands. Plus thoughts on upgrading to a RealSense D435i for full SLAM later.</span></li>
+      <li><span class="label">PART 8 · FINAL ASSEMBLY & LESSONS LEARNED</span><span class="desc">Putting it all together, first test rolls, what broke, what I'd do differently, and a demo video of BB-8 delivering a coffee to my desk.</span></li>
+    </ul>
+
+    <h2>Key Components at a Glance</h2>
+
+    <table class="parts-table">
+      <thead>
+        <tr><th>COMPONENT</th><th>ROLE</th><th>PRICE</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jetson Orin Nano Super</td><td>AI brain (face/gesture/nav)</td><td>$249</td></tr>
+        <tr><td>Arducam B0274 IMX477</td><td>12MP head camera (day/night)</td><td>$65</td></tr>
+        <tr><td>ESP32-S3 DevKitC ×2</td><td>Body + head microcontrollers</td><td>$20</td></tr>
+        <tr><td>Adafruit BNO055</td><td>Body orientation IMU</td><td>owned</td></tr>
+        <tr><td>VL53L1X ToF ×3</td><td>Obstacle avoidance</td><td>$36</td></tr>
+        <tr><td>12V Gear Motors ×2</td><td>Drive system</td><td>$40</td></tr>
+        <tr><td>Cytron MDD3A</td><td>Motor driver</td><td>$15</td></tr>
+        <tr><td>MG90S Servos ×2</td><td>Head pan/tilt</td><td>$10</td></tr>
+        <tr><td>N52 Magnets + PTFE Balls</td><td>Head coupling</td><td>$23</td></tr>
+        <tr><td>3S LiPo + Charger + Buck</td><td>Power system</td><td>$67</td></tr>
+        <tr><td>Acrylic Hemispheres + PLA</td><td>Shell and structure</td><td>$110</td></tr>
+        <tr class="total"><td>ESSENTIAL TOTAL</td><td></td><td>~$635</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Follow Along</h2>
+
+    <p>I'll be posting updates as the build progresses. The full source code for the Jetson AI pipeline, ESP32 firmware, and 3D-printable custom brackets will be published on GitHub as each post drops.</p>
+
+    <p>Questions, suggestions, or building your own? Reach out — I'd love to hear about it.</p>
+
+    <div class="signoff">— Fred</div>
+
+  </div>
+
+  <div class="post-nav">
+    <span class="disabled" style="padding: 10px 18px; border: 1px solid #1a1a1a; border-radius: 3px;">← prev</span>
+    <a href="/projects/bb8/">↑ index</a>
+    <span class="disabled" style="padding: 10px 18px; border: 1px solid #1a1a1a; border-radius: 3px;">next →</span>
+  </div>
+
+  <div class="footer">
+    yf(x).studio · <a href="/">home</a> · <a href="/donotpet">🦞</a>
+  </div>
+
+</div>
+</body>
+</html>

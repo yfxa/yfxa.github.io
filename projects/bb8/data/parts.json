@@ -1,0 +1,360 @@
+{
+  "project": "BB-8 AI Delivery Robot",
+  "last_updated": "2026-04-07",
+  "currency": "USD",
+  "choice_groups": {
+    "head-camera": {
+      "description": "Head-mounted camera — pick one",
+      "recommended": "arducam-b0274"
+    },
+    "motor-driver": {
+      "description": "Motor driver — pick one",
+      "recommended": "cytron-mdd3a"
+    }
+  },
+  "categories": [
+    {
+      "name": "Brain",
+      "icon": "🧠",
+      "items": [
+        {
+          "id": "jetson-orin-nano",
+          "name": "NVIDIA Jetson Orin Nano Super Dev Kit",
+          "description": "67 TOPS AI performance. Runs face recognition, gesture detection, SLAM, and navigation.",
+          "price": 249,
+          "quantity": 1,
+          "where": ["nvidia.com", "Amazon"],
+          "essential": true,
+          "owned": true,
+          "note": "Already owned"
+        }
+      ]
+    },
+    {
+      "name": "Camera",
+      "icon": "📷",
+      "items": [
+        {
+          "id": "arducam-b0274",
+          "name": "Arducam B0274 IMX477 IR-CUT (12.3MP)",
+          "description": "Day/night camera with auto-switching IR filter. Same 12MP IMX477 sensor but can see in low light.",
+          "price": 65,
+          "quantity": 1,
+          "where": ["arducam.com", "Amazon"],
+          "essential": true,
+          "owned": false,
+          "choice_group": "head-camera",
+          "note": "Recommended — day/night auto-switch"
+        },
+        {
+          "id": "arducam-b0249",
+          "name": "Arducam B0249 IMX477 HQ (12.3MP)",
+          "description": "Standard version with fixed IR-cut filter. Excellent daytime image quality.",
+          "price": 76,
+          "quantity": 1,
+          "where": ["arducam.com", "Amazon"],
+          "essential": true,
+          "owned": false,
+          "choice_group": "head-camera",
+          "note": "Alternative — daytime only"
+        }
+      ]
+    },
+    {
+      "name": "Microcontrollers",
+      "icon": "⚡",
+      "items": [
+        {
+          "id": "esp32-s3",
+          "name": "ESP32-S3-DevKitC-1 (N8R8)",
+          "description": "Dual-core 240MHz, Wi-Fi + BLE 5.0, 8MB Flash + 8MB PSRAM. One for body motor control, one for head servos & LEDs.",
+          "price": 10,
+          "quantity": 2,
+          "where": ["Espressif store", "Amazon", "DigiKey"],
+          "essential": true,
+          "owned": false,
+          "note": "Get N8R8 variant for extra PSRAM"
+        }
+      ]
+    },
+    {
+      "name": "Sensors",
+      "icon": "🔬",
+      "items": [
+        {
+          "id": "bno055",
+          "name": "Adafruit BNO055 IMU",
+          "description": "9-axis IMU with on-chip sensor fusion. Outputs quaternions directly. Recalibrates on power-on.",
+          "price": 0,
+          "quantity": 1,
+          "where": ["adafruit.com"],
+          "essential": true,
+          "owned": true,
+          "note": "Already owned"
+        },
+        {
+          "id": "vl53l1x",
+          "name": "VL53L1X ToF Distance Sensors",
+          "description": "Time-of-Flight laser ranging, 4m range, I2C. Mount 3-4 around drive unit for indoor obstacle avoidance.",
+          "price": 12,
+          "quantity": 3,
+          "where": ["adafruit.com", "Pololu", "Amazon"],
+          "essential": true,
+          "owned": false,
+          "note": "Replaces D435i for simple indoor nav"
+        }
+      ]
+    },
+    {
+      "name": "Motors & Drivers",
+      "icon": "⚙️",
+      "items": [
+        {
+          "id": "dc-motors",
+          "name": "12V DC Gear Motors with Encoders",
+          "description": "For the internal hamster-drive unit. Encoders give speed/position feedback for PID control.",
+          "price": 20,
+          "quantity": 2,
+          "where": ["Amazon", "Pololu", "AliExpress"],
+          "essential": true,
+          "owned": false,
+          "note": "~200-300 RPM, high torque"
+        },
+        {
+          "id": "cytron-mdd3a",
+          "name": "Cytron MDD3A Dual Motor Driver",
+          "description": "Dual channel, 3A continuous per channel. Clean PWM control.",
+          "price": 15,
+          "quantity": 1,
+          "where": ["cytron.io", "Amazon"],
+          "essential": true,
+          "owned": false,
+          "choice_group": "motor-driver",
+          "note": "Recommended"
+        },
+        {
+          "id": "tb6612fng",
+          "name": "TB6612FNG Dual Motor Driver",
+          "description": "Budget alternative. 1.2A continuous (3.2A peak) per channel.",
+          "price": 5,
+          "quantity": 1,
+          "where": ["Amazon", "AliExpress", "SparkFun"],
+          "essential": true,
+          "owned": false,
+          "choice_group": "motor-driver",
+          "note": "Alternative — budget option"
+        },
+        {
+          "id": "mg90s-servos",
+          "name": "MG90S Micro Servos",
+          "description": "Metal gear micro servos for head pan/tilt mechanism.",
+          "price": 5,
+          "quantity": 2,
+          "where": ["Amazon", "AliExpress"],
+          "essential": true,
+          "owned": false,
+          "note": "Metal gear = more reliable"
+        }
+      ]
+    },
+    {
+      "name": "Magnets & Bearings",
+      "icon": "🧲",
+      "items": [
+        {
+          "id": "n52-magnets",
+          "name": "N52 Neodymium Disc Magnets (25mm × 10mm)",
+          "description": "Ultra-strong rare earth magnets for head-to-body magnetic coupling.",
+          "price": 15,
+          "quantity": 1,
+          "where": ["Amazon", "K&J Magnetics"],
+          "essential": true,
+          "owned": false,
+          "note": "Pack of 4-6. Very strong!"
+        },
+        {
+          "id": "ptfe-balls",
+          "name": "Teflon / PTFE Balls (12mm)",
+          "description": "Low-friction balls between head mount and body for smooth gliding.",
+          "price": 8,
+          "quantity": 1,
+          "where": ["Amazon", "AliExpress"],
+          "essential": true,
+          "owned": false,
+          "note": "Pack of 3-4"
+        }
+      ]
+    },
+    {
+      "name": "Power",
+      "icon": "🔋",
+      "items": [
+        {
+          "id": "lipo-battery",
+          "name": "3S LiPo Battery (11.1V, 3000-5000mAh)",
+          "description": "Main power for motors. 3S gives 11.1V nominal.",
+          "price": 30,
+          "quantity": 1,
+          "where": ["Amazon", "hobby shops"],
+          "essential": true,
+          "owned": false,
+          "note": "Get XT60 connector type"
+        },
+        {
+          "id": "buck-converter",
+          "name": "5V/5A Buck Converter",
+          "description": "Steps down LiPo voltage to power the Jetson Orin Nano.",
+          "price": 12,
+          "quantity": 1,
+          "where": ["Amazon", "Pololu"],
+          "essential": true,
+          "owned": false,
+          "note": "Check Jetson power requirements"
+        },
+        {
+          "id": "lipo-charger",
+          "name": "LiPo Balance Charger (iMAX B6)",
+          "description": "Safely charge your 3S LiPo with cell balancing.",
+          "price": 25,
+          "quantity": 1,
+          "where": ["Amazon", "hobby shops"],
+          "essential": true,
+          "owned": false
+        }
+      ]
+    },
+    {
+      "name": "Sphere & Shell",
+      "icon": "⚪",
+      "items": [
+        {
+          "id": "acrylic-sphere",
+          "name": "Acrylic Hemisphere Pair (18in / 45cm)",
+          "description": "Two hemispheres form the body sphere. 3D printed panels go on top.",
+          "price": 60,
+          "quantity": 1,
+          "where": ["Amazon", "specialty plastics suppliers"],
+          "essential": true,
+          "owned": false,
+          "note": "BB-8 Builders Club recommends specific supplier"
+        },
+        {
+          "id": "pla-white",
+          "name": "PLA Filament — white (1kg)",
+          "description": "For BB-8 shell panels and internal brackets.",
+          "price": 25,
+          "quantity": 1,
+          "where": ["Amazon", "Micro Center"],
+          "essential": true,
+          "owned": false
+        },
+        {
+          "id": "pla-orange",
+          "name": "PLA Filament — orange (1kg)",
+          "description": "For BB-8 orange accent panels. H2D prints multicolor.",
+          "price": 25,
+          "quantity": 1,
+          "where": ["Amazon", "Micro Center"],
+          "essential": true,
+          "owned": false
+        }
+      ]
+    },
+    {
+      "name": "Audio & Comms",
+      "icon": "🔊",
+      "items": [
+        {
+          "id": "i2s-amp",
+          "name": "MAX98357A I2S Amplifier",
+          "description": "Tiny I2S DAC + amp. Play BB-8 chirps and audio feedback.",
+          "price": 5,
+          "quantity": 1,
+          "where": ["adafruit.com", "Amazon"],
+          "essential": false,
+          "owned": false,
+          "note": "Optional but adds personality"
+        },
+        {
+          "id": "speaker",
+          "name": "Small Speaker (3W, 4Ω, 40mm)",
+          "description": "Compact speaker inside the sphere for sound effects.",
+          "price": 3,
+          "quantity": 1,
+          "where": ["adafruit.com", "Amazon"],
+          "essential": false,
+          "owned": false
+        },
+        {
+          "id": "i2s-mic",
+          "name": "INMP441 I2S MEMS Microphone",
+          "description": "Digital mic for future voice commands.",
+          "price": 3,
+          "quantity": 1,
+          "where": ["Amazon", "AliExpress"],
+          "essential": false,
+          "owned": false,
+          "note": "Optional — for voice commands"
+        }
+      ]
+    },
+    {
+      "name": "Future Upgrades",
+      "icon": "✨",
+      "items": [
+        {
+          "id": "realsense-d435i",
+          "name": "RealSense D435i Depth Camera",
+          "description": "Stereo depth + IMU for full SLAM. Add for autonomous path planning beyond ToF sensors.",
+          "price": 334,
+          "quantity": 1,
+          "where": ["store.intelrealsense.com", "Amazon"],
+          "essential": false,
+          "owned": false,
+          "note": "Mount on head or inside body"
+        },
+        {
+          "id": "arducam-isx031",
+          "name": "Arducam ISX031 HDR Camera (3MP, 127° FOV)",
+          "description": "Automotive-grade 120dB HDR. Swap for IMX477 if BB-8 goes outdoors.",
+          "price": 120,
+          "quantity": 1,
+          "where": ["arducam.com", "Amazon"],
+          "essential": false,
+          "owned": false,
+          "note": "Outdoor upgrade from IMX477"
+        },
+        {
+          "id": "rplidar-a1",
+          "name": "RPLiDAR A1 (360° 2D LiDAR)",
+          "description": "360° laser scanner for robust SLAM mapping.",
+          "price": 100,
+          "quantity": 1,
+          "where": ["slamtec.com", "Amazon"],
+          "essential": false,
+          "owned": false
+        },
+        {
+          "id": "neopixel-ring",
+          "name": "NeoPixel LED Ring (16 or 24 LEDs)",
+          "description": "Addressable RGB LEDs for BB-8 eye glow and expressions.",
+          "price": 8,
+          "quantity": 1,
+          "where": ["adafruit.com", "Amazon"],
+          "essential": false,
+          "owned": false
+        },
+        {
+          "id": "battery-alarm",
+          "name": "Voltage Monitor / Battery Alarm",
+          "description": "Beeps when LiPo voltage drops too low.",
+          "price": 3,
+          "quantity": 1,
+          "where": ["Amazon", "hobby shops"],
+          "essential": false,
+          "owned": false
+        }
+      ]
+    }
+  ]
+}

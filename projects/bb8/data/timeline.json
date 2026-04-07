@@ -1,0 +1,88 @@
+{
+  "project": "BB-8 AI Delivery Robot",
+  "start_date": "2026-04-07",
+  "deadline": "2026-06-11",
+  "total_weeks": 9,
+  "hours_per_week": 30,
+  "strategy": "Rolling-first — prove the drive works before anything else",
+  "printer": "Bambu Lab H2D (multicolor, 600mm/s, 350x320x325mm)",
+  "stl_source": "Nachum Twersky — printables.com/model/104190-bb8-robot",
+  "milestones": [
+    { "name": "Ball rolls", "target_week": 2.5, "status": "not_started" },
+    { "name": "Drives + avoids walls", "target_week": 3.5, "status": "not_started" },
+    { "name": "Head mounted + tracks", "target_week": 4.7, "status": "not_started" },
+    { "name": "Gesture response works", "target_week": 6, "status": "not_started" },
+    { "name": "Feature complete", "target_week": 6.5, "status": "not_started" },
+    { "name": "Deadline", "target_week": 9.3, "status": "not_started" }
+  ],
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Drive system (priority 1)",
+      "color": "#D85A30",
+      "tasks": [
+        { "id": "order-parts", "name": "Order all parts", "start_week": 0, "duration_weeks": 0.5, "status": "not_started" },
+        { "id": "print-drive-brackets", "name": "Print drive brackets + wheels", "start_week": 0, "duration_weeks": 1, "status": "not_started" },
+        { "id": "assemble-drive", "name": "Assemble drive chassis", "start_week": 0.3, "duration_weeks": 1, "status": "not_started" },
+        { "id": "wire-motors", "name": "Wire motors + ESP32 + BNO055", "start_week": 1, "duration_weeks": 0.7, "status": "not_started" },
+        { "id": "pid-tuning", "name": "PID tuning in test sphere", "start_week": 1.5, "duration_weeks": 1, "status": "not_started" },
+        { "id": "tof-sensors", "name": "ToF sensors + obstacle avoidance", "start_week": 2.5, "duration_weeks": 1, "status": "not_started" }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "3D printing (H2D overnight)",
+      "color": "#534AB7",
+      "tasks": [
+        { "id": "print-body-panels", "name": "Print body panels (multicolor)", "start_week": 1, "duration_weeks": 2.5, "status": "not_started" },
+        { "id": "print-head", "name": "Print head dome + mounts", "start_week": 2, "duration_weeks": 1.5, "status": "not_started" }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Head + shell assembly",
+      "color": "#1D9E75",
+      "tasks": [
+        { "id": "assemble-shell", "name": "Assemble shell on sphere", "start_week": 3, "duration_weeks": 1, "status": "not_started" },
+        { "id": "head-magnets", "name": "Head magnets + servos", "start_week": 3.5, "duration_weeks": 1, "status": "not_started" },
+        { "id": "esp-now", "name": "ESP-NOW head-body comms", "start_week": 4, "duration_weeks": 0.7, "status": "not_started" }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "AI + software (parallel)",
+      "color": "#378ADD",
+      "tasks": [
+        { "id": "jetpack-setup", "name": "JetPack + camera setup", "start_week": 1, "duration_weeks": 0.7, "status": "not_started" },
+        { "id": "face-recognition", "name": "Face recognition (InsightFace)", "start_week": 1.5, "duration_weeks": 1, "status": "not_started" },
+        { "id": "gesture-detection", "name": "Gesture detection (MediaPipe)", "start_week": 2, "duration_weeks": 1, "status": "not_started" },
+        { "id": "jetson-esp32", "name": "Jetson-ESP32 integration", "start_week": 4.5, "duration_weeks": 1, "status": "not_started" },
+        { "id": "system-testing", "name": "Full system testing", "start_week": 5, "duration_weeks": 1.5, "status": "not_started" }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Buffer / blog / polish",
+      "color": "#97C459",
+      "tasks": [
+        { "id": "buffer", "name": "Buffer + blog writing + demo", "start_week": 6.5, "duration_weeks": 2.5, "status": "not_started" }
+      ]
+    }
+  ],
+  "blog_series": {
+    "title": "Building BB-8: An AI-Powered Delivery Robot From Scratch",
+    "site": "yfx.studio",
+    "hosted_on": "GitHub Pages",
+    "posts": [
+      { "slug": "bb8-intro", "title": "Building BB-8: An AI-Powered Delivery Robot From Scratch", "status": "draft" },
+      { "slug": "bb8-part1-architecture", "title": "Part 1: Architecture & Parts Selection", "status": "draft" },
+      { "slug": "bb8-part2-shell", "title": "Part 2: 3D Printing the Shell", "status": "planned" },
+      { "slug": "bb8-part3-drive", "title": "Part 3: The Internal Drive Unit", "status": "planned" },
+      { "slug": "bb8-part4-head", "title": "Part 4: The Magnetic Head", "status": "planned" },
+      { "slug": "bb8-part5-electronics", "title": "Part 5: Electronics & Wiring", "status": "planned" },
+      { "slug": "bb8-part6-ai-vision", "title": "Part 6: Face Recognition & Gesture Control", "status": "planned" },
+      { "slug": "bb8-part7-navigation", "title": "Part 7: Indoor Navigation", "status": "planned" },
+      { "slug": "bb8-part8-final", "title": "Part 8: Final Assembly & Lessons Learned", "status": "planned" }
+    ]
+  }
+}

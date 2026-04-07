@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Does BB-8 Dream of 9-to-5? | yf(x).studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=SF+Mono&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  color: #c8d8c8;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+  min-height: 100vh;
+  line-height: 1.6;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+/* Top nav */
+.topnav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 60px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #1a3a1a;
+}
+.topnav a {
+  color: #ff8eb4;
+  text-decoration: none;
+  font-size: 18px;
+}
+.topnav a:hover { color: #ffb0c8; }
+.topnav .crumbs {
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 2px;
+}
+.topnav .crumbs span { color: #33ff33; }
+
+/* Header */
+h1 {
+  font-size: 32px;
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.subtitle {
+  color: #777;
+  font-size: 13px;
+  margin-bottom: 32px;
+}
+
+/* Status block */
+.status-block {
+  background: #0a0f0a;
+  border: 1px solid #1a3a1a;
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 40px;
+}
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.status-row .label {
+  color: #555;
+  letter-spacing: 1.5px;
+}
+.status-row .val {
+  color: #33ff33;
+}
+.progress-bar {
+  margin-top: 14px;
+  height: 14px;
+  background: #0f1f0f;
+  border: 1px solid #1a3a1a;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+.progress-fill {
+  background: linear-gradient(90deg, #1a8a1a, #33ff33);
+  height: 100%;
+  width: 0%;
+  transition: width 0.6s ease;
+}
+.progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #fff;
+  text-shadow: 0 0 4px rgba(0,0,0,0.8);
+  letter-spacing: 1px;
+}
+
+/* Section headers */
+h2 {
+  color: #33ff33;
+  font-size: 14px;
+  letter-spacing: 4px;
+  font-weight: 700;
+  margin: 48px 0 16px;
+  border-bottom: 1px solid #1a3a1a;
+  padding-bottom: 8px;
+}
+
+/* Milestones */
+.milestones {
+  list-style: none;
+  font-size: 13px;
+}
+.milestones li {
+  display: flex;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #143014;
+}
+.milestones li:last-child { border-bottom: none; }
+.milestones .marker {
+  color: #555;
+  width: 18px;
+  flex-shrink: 0;
+}
+.milestones .marker.done { color: #33ff33; }
+.milestones .marker.active { color: #ffaa33; }
+.milestones .name {
+  flex: 1;
+  color: #c8d8c8;
+}
+.milestones .week {
+  color: #555;
+  font-size: 11px;
+}
+
+/* Post index */
+.post-list {
+  list-style: none;
+}
+.post-item {
+  display: flex;
+  align-items: baseline;
+  padding: 14px 0;
+  border-bottom: 1px dashed #143014;
+}
+.post-item .num {
+  color: #1a8a1a;
+  font-size: 11px;
+  width: 50px;
+  flex-shrink: 0;
+}
+.post-item .title {
+  flex: 1;
+  font-size: 14px;
+}
+.post-item.draft .title { color: #c8d8c8; }
+.post-item.draft .title a { color: #66ff66; text-decoration: none; border-bottom: 1px dotted #1a8a1a; }
+.post-item.draft .title a:hover { color: #fff; border-color: #33ff33; }
+.post-item.planned .title { color: #555; }
+.post-item.published .title { color: #fff; }
+.post-item.published .title a { color: #fff; text-decoration: none; border-bottom: 1px dotted #33ff33; }
+.post-item .badge {
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  margin-left: 12px;
+}
+.badge.draft { background: #2a2a0a; color: #ffaa33; border: 1px solid #4a4a0a; }
+.badge.planned { background: #0a0a1a; color: #4a6a8a; border: 1px solid #1a2a3a; }
+.badge.published { background: #0a2a0a; color: #33ff33; border: 1px solid #1a4a1a; }
+
+/* Architecture grid */
+.arch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  font-size: 12px;
+}
+.arch-item {
+  background: #0a0f0a;
+  border: 1px solid #1a3a1a;
+  padding: 12px 14px;
+  border-radius: 3px;
+}
+.arch-item .role {
+  color: #555;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+.arch-item .name {
+  color: #66ff66;
+  font-size: 13px;
+}
+
+/* Footer */
+.footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid #1a3a1a;
+  font-size: 11px;
+  color: #555;
+  text-align: center;
+}
+.footer a { color: #1a8a1a; text-decoration: none; }
+.footer a:hover { color: #33ff33; }
+
+@media (max-width: 600px) {
+  body { padding: 20px 14px; }
+  h1 { font-size: 24px; }
+  .arch-grid { grid-template-columns: 1fr; }
+  .status-block { padding: 14px 16px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="topnav">
+    <div class="crumbs">YF(X).STUDIO / PROJECTS / <span>BB-8</span></div>
+    <a href="/" title="Home">⌂</a>
+  </div>
+
+  <h1>Does BB-8 Dream of 9-to-5?</h1>
+  <div class="subtitle">An AI-powered delivery robot build log · 2026</div>
+
+  <div class="status-block">
+    <div class="status-row"><span class="label">START</span><span class="val">2026-04-07</span></div>
+    <div class="status-row"><span class="label">DEADLINE</span><span class="val">2026-06-11 (9 weeks)</span></div>
+    <div class="status-row"><span class="label">STRATEGY</span><span class="val">Rolling-first</span></div>
+    <div class="status-row"><span class="label">BUDGET (essential)</span><span class="val">~$635</span></div>
+    <div class="status-row"><span class="label">MILESTONE</span><span class="val">Order parts</span></div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 2%;"></div>
+      <div class="progress-text">2% — KICKOFF</div>
+    </div>
+  </div>
+
+  <h2>MILESTONES</h2>
+  <ul class="milestones">
+    <li><span class="marker active">▸</span><span class="name">Ball rolls</span><span class="week">week 2.5</span></li>
+    <li><span class="marker">○</span><span class="name">Drives + avoids walls</span><span class="week">week 3.5</span></li>
+    <li><span class="marker">○</span><span class="name">Head mounted + tracks</span><span class="week">week 4.7</span></li>
+    <li><span class="marker">○</span><span class="name">Gesture response works</span><span class="week">week 6</span></li>
+    <li><span class="marker">○</span><span class="name">Feature complete</span><span class="week">week 6.5</span></li>
+    <li><span class="marker">○</span><span class="name">Deadline</span><span class="week">week 9.3</span></li>
+  </ul>
+
+  <h2>BUILD LOG</h2>
+  <ul class="post-list">
+    <li class="post-item draft">
+      <span class="num">#000</span>
+      <span class="title"><a href="posts/intro/">Building BB-8: An AI-Powered Delivery Robot From Scratch</a></span>
+      <span class="badge draft">DRAFT</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#001</span>
+      <span class="title">Part 1: Architecture & Parts Selection</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#002</span>
+      <span class="title">Part 2: 3D Printing the Shell</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#003</span>
+      <span class="title">Part 3: The Internal Drive Unit</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#004</span>
+      <span class="title">Part 4: The Magnetic Head</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#005</span>
+      <span class="title">Part 5: Electronics & Wiring</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#006</span>
+      <span class="title">Part 6: Face Recognition & Gesture Control</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#007</span>
+      <span class="title">Part 7: Indoor Navigation</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#008</span>
+      <span class="title">Part 8: Final Assembly & Lessons Learned</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+  </ul>
+
+  <h2>ARCHITECTURE</h2>
+  <div class="arch-grid">
+    <div class="arch-item"><div class="role">BRAIN</div><div class="name">Jetson Orin Nano Super (67 TOPS)</div></div>
+    <div class="arch-item"><div class="role">CAMERA</div><div class="name">Arducam B0274 IMX477 (12.3MP)</div></div>
+    <div class="arch-item"><div class="role">BODY MCU</div><div class="name">ESP32-S3 (motors, IMU, ToF)</div></div>
+    <div class="arch-item"><div class="role">HEAD MCU</div><div class="name">ESP32-S3 (servos, LEDs, sound)</div></div>
+    <div class="arch-item"><div class="role">IMU</div><div class="name">Adafruit BNO055</div></div>
+    <div class="arch-item"><div class="role">OBSTACLE</div><div class="name">VL53L1X ToF ×3</div></div>
+    <div class="arch-item"><div class="role">AI STACK</div><div class="name">InsightFace + MediaPipe + ROS 2</div></div>
+    <div class="arch-item"><div class="role">SHELL</div><div class="name">Bambu H2D multicolor PLA</div></div>
+  </div>
+
+  <div class="footer">
+    yf(x).studio · <a href="/">home</a> · <a href="/donotpet">🦞</a>
+  </div>
+
+</div>
+</body>
+</html>
