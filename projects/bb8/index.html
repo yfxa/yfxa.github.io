@@ -339,6 +339,64 @@ h2 {
   word-break: break-word;
 }
 
+/* Parts ordered */
+.parts-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  color: #555;
+  margin-bottom: 14px;
+}
+.parts-meta .total {
+  color: #33ff33;
+  letter-spacing: 1px;
+}
+.parts-list {
+  list-style: none;
+  background: #0a0f0a;
+  border: 1px solid #1a3a1a;
+  border-radius: 3px;
+}
+.parts-list li {
+  display: grid;
+  grid-template-columns: 70px 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px dashed #143014;
+  font-size: 12px;
+}
+.parts-list li:last-child { border-bottom: none; }
+.parts-list .date {
+  color: #555;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.parts-list .item {
+  color: #c8d8c8;
+  line-height: 1.4;
+}
+.parts-list .price {
+  color: #66ff66;
+  font-size: 12px;
+  text-align: right;
+  white-space: nowrap;
+}
+.parts-list .status {
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-align: center;
+}
+.parts-list .status.delivered { background: #0a2a0a; color: #33ff33; border: 1px solid #1a4a1a; }
+.parts-list .status.transit   { background: #2a2a0a; color: #ffaa33; border: 1px solid #4a4a0a; }
+.parts-list .status.scheduled { background: #0a1a2a; color: #4a8acc; border: 1px solid #1a3a5a; }
+
 /* Footer */
 .footer {
   margin-top: 60px;
@@ -357,6 +415,14 @@ h2 {
   .arch-grid { grid-template-columns: 1fr; }
   .print-grid { grid-template-columns: 1fr; }
   .status-block { padding: 14px 16px; }
+  .parts-list li {
+    grid-template-columns: 1fr auto;
+    gap: 6px 12px;
+  }
+  .parts-list .date { grid-column: 1 / 3; font-size: 9px; }
+  .parts-list .item { grid-column: 1 / 3; }
+  .parts-list .price { grid-column: 1; text-align: left; }
+  .parts-list .status { grid-column: 2; }
 }
 </style>
 </head>
@@ -384,6 +450,74 @@ h2 {
   </div>
 
   <h2>BUILD LOG</h2>
+
+  <h2>PARTS ORDERED</h2>
+  <div class="parts-meta">
+    <span>10 orders · prices in USD (≈ 7.2 CN¥/USD)</span>
+    <span class="total">TOTAL: $482.91</span>
+  </div>
+  <ul class="parts-list">
+    <li>
+      <span class="date">Mar 02</span>
+      <span class="item">Lonely Binary ESP32-S3 Dev Board · Gold Edition · 16MB / 8MB PSRAM</span>
+      <span class="price">$21.42</span>
+      <span class="status delivered">Delivered</span>
+    </li>
+    <li>
+      <span class="date">Apr 03</span>
+      <span class="item">NVIDIA Jetson Orin Nano Super Developer Kit</span>
+      <span class="price">$266.58</span>
+      <span class="status delivered">Delivered</span>
+    </li>
+    <li>
+      <span class="date">Apr 07</span>
+      <span class="item">BOJACK 300pcs Rectifier Diode Assortment Kit + 2× DS-0420S Mini Solenoid</span>
+      <span class="price">$27.65</span>
+      <span class="status transit">Arriving Thu</span>
+    </li>
+    <li>
+      <span class="date">Apr 07</span>
+      <span class="item">uxcell 20pcs PP Plastic Bearing Balls · 12mm</span>
+      <span class="price">$6.07</span>
+      <span class="status transit">Arriving Tomorrow</span>
+    </li>
+    <li>
+      <span class="date">Apr 07</span>
+      <span class="item">THCMagorilla 10pcs Neodymium Magnets · 0.79″ × 0.24″</span>
+      <span class="price">$18.14</span>
+      <span class="status transit">Arriving Thu</span>
+    </li>
+    <li>
+      <span class="date">Apr 07</span>
+      <span class="item">2× MG90S 9g Metal Gear Micro Servo</span>
+      <span class="price">$9.48</span>
+      <span class="status transit">Arriving Tomorrow</span>
+    </li>
+    <li>
+      <span class="date">Apr 07</span>
+      <span class="item">Cytron MDD10A Dual Channel 10A DC Motor Driver</span>
+      <span class="price">$30.53</span>
+      <span class="status scheduled">Apr 10–14</span>
+    </li>
+    <li>
+      <span class="date">Apr 07</span>
+      <span class="item">2× Encoder Metal Gearmotor · 12V · 300 RPM</span>
+      <span class="price">$53.12</span>
+      <span class="status transit">Arriving Thu</span>
+    </li>
+    <li>
+      <span class="date">Apr 07</span>
+      <span class="item">4pcs TOF400C VL53L1X Laser Distance Sensor Modules</span>
+      <span class="price">$23.14</span>
+      <span class="status transit">Arriving Tomorrow</span>
+    </li>
+    <li>
+      <span class="date">Apr 07</span>
+      <span class="item">Bambu Lab PLA Basic Refill Filament 1kg · Orange 10300</span>
+      <span class="price">$26.68</span>
+      <span class="status transit">Arriving Tomorrow</span>
+    </li>
+  </ul>
 
   <h2>ARCHITECTURE</h2>
   <div class="arch-grid">
