@@ -236,6 +236,21 @@ h2 {
   border-color: #33ff33;
   color: #33ff33;
 }
+.print-credit {
+  font-size: 11px;
+  color: #555;
+  margin-bottom: 14px;
+}
+.print-credit strong {
+  color: #c8d8c8;
+  font-weight: 400;
+}
+.print-credit a {
+  color: #1a8a1a;
+  text-decoration: none;
+  border-bottom: 1px dotted #1a4a1a;
+}
+.print-credit a:hover { color: #33ff33; border-color: #33ff33; }
 .print-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -368,59 +383,7 @@ h2 {
     </div>
   </div>
 
-  <h2>MILESTONES</h2>
-  <ul class="milestones">
-    <li><span class="marker active">▸</span><span class="name">Ball rolls</span><span class="week">week 2.5</span></li>
-    <li><span class="marker">○</span><span class="name">Drives + avoids walls</span><span class="week">week 3.5</span></li>
-    <li><span class="marker">○</span><span class="name">Head mounted + tracks</span><span class="week">week 4.7</span></li>
-    <li><span class="marker">○</span><span class="name">Gesture response works</span><span class="week">week 6</span></li>
-    <li><span class="marker">○</span><span class="name">Feature complete</span><span class="week">week 6.5</span></li>
-    <li><span class="marker">○</span><span class="name">Deadline</span><span class="week">week 9.3</span></li>
-  </ul>
-
   <h2>BUILD LOG</h2>
-  <ul class="post-list">
-    <li class="post-item planned">
-      <span class="num">#001</span>
-      <span class="title">Part 1: Architecture & Parts Selection</span>
-      <span class="badge planned">PLANNED</span>
-    </li>
-    <li class="post-item planned">
-      <span class="num">#002</span>
-      <span class="title">Part 2: 3D Printing the Shell</span>
-      <span class="badge planned">PLANNED</span>
-    </li>
-    <li class="post-item planned">
-      <span class="num">#003</span>
-      <span class="title">Part 3: The Internal Drive Unit</span>
-      <span class="badge planned">PLANNED</span>
-    </li>
-    <li class="post-item planned">
-      <span class="num">#004</span>
-      <span class="title">Part 4: The Magnetic Head</span>
-      <span class="badge planned">PLANNED</span>
-    </li>
-    <li class="post-item planned">
-      <span class="num">#005</span>
-      <span class="title">Part 5: Electronics & Wiring</span>
-      <span class="badge planned">PLANNED</span>
-    </li>
-    <li class="post-item planned">
-      <span class="num">#006</span>
-      <span class="title">Part 6: Face Recognition & Gesture Control</span>
-      <span class="badge planned">PLANNED</span>
-    </li>
-    <li class="post-item planned">
-      <span class="num">#007</span>
-      <span class="title">Part 7: Indoor Navigation</span>
-      <span class="badge planned">PLANNED</span>
-    </li>
-    <li class="post-item planned">
-      <span class="num">#008</span>
-      <span class="title">Part 8: Final Assembly & Lessons Learned</span>
-      <span class="badge planned">PLANNED</span>
-    </li>
-  </ul>
 
   <h2>ARCHITECTURE</h2>
   <div class="arch-grid">
@@ -439,6 +402,7 @@ h2 {
     <span>54 STL files · grouped by subsystem</span>
     <span><span class="count" id="print-count">0 / 54</span> &nbsp;<button id="print-reset" type="button">Reset</button></span>
   </div>
+  <p class="print-credit">Files by <strong>nachumtwersky</strong> · <a href="https://www.instructables.com/3D-Printed-Robotic-BB8-unfinished-Instructions-Wil/" target="_blank" rel="noopener">3D Printed Robotic BB-8 on Instructables</a></p>
   <div class="print-grid" id="print-grid">
 
     <div class="print-group">
