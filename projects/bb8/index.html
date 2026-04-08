@@ -33,11 +33,11 @@ body {
   border-bottom: 1px solid #1a3a1a;
 }
 .topnav a {
-  color: #ff8eb4;
+  color: #33ff33;
   text-decoration: none;
   font-size: 18px;
 }
-.topnav a:hover { color: #ffb0c8; }
+.topnav a:hover { color: #66ff66; text-shadow: 0 0 8px #33ff33; }
 .topnav .crumbs {
   font-size: 11px;
   color: #555;
@@ -659,6 +659,18 @@ h2 {
     </div>
   </div>
 
+  <h2>ARCHITECTURE</h2>
+  <div class="arch-grid">
+    <div class="arch-item"><div class="role">BRAIN</div><div class="name">Jetson Orin Nano Super (67 TOPS)</div></div>
+    <div class="arch-item"><div class="role">CAMERA</div><div class="name">Arducam B0274 IMX477 (12.3MP)</div></div>
+    <div class="arch-item"><div class="role">BODY MCU</div><div class="name">ESP32-S3 (motors, IMU, ToF)</div></div>
+    <div class="arch-item"><div class="role">HEAD MCU</div><div class="name">ESP32-S3 (servos, LEDs, sound)</div></div>
+    <div class="arch-item"><div class="role">IMU</div><div class="name">Adafruit BNO055</div></div>
+    <div class="arch-item"><div class="role">OBSTACLE</div><div class="name">VL53L1X ToF ×3</div></div>
+    <div class="arch-item"><div class="role">AI STACK</div><div class="name">InsightFace + MediaPipe + ROS 2</div></div>
+    <div class="arch-item"><div class="role">SHELL</div><div class="name">Multicolor PLA</div></div>
+  </div>
+
   <h2>PARTS ORDERED</h2>
   <div class="parts-meta">
     <span>11 orders · prices in USD (Amazon CN¥ ≈ 7.2 CN¥/USD)</span>
@@ -732,18 +744,6 @@ h2 {
       <span class="status scheduled">Processing</span>
     </li>
   </ul>
-
-  <h2>ARCHITECTURE</h2>
-  <div class="arch-grid">
-    <div class="arch-item"><div class="role">BRAIN</div><div class="name">Jetson Orin Nano Super (67 TOPS)</div></div>
-    <div class="arch-item"><div class="role">CAMERA</div><div class="name">Arducam B0274 IMX477 (12.3MP)</div></div>
-    <div class="arch-item"><div class="role">BODY MCU</div><div class="name">ESP32-S3 (motors, IMU, ToF)</div></div>
-    <div class="arch-item"><div class="role">HEAD MCU</div><div class="name">ESP32-S3 (servos, LEDs, sound)</div></div>
-    <div class="arch-item"><div class="role">IMU</div><div class="name">Adafruit BNO055</div></div>
-    <div class="arch-item"><div class="role">OBSTACLE</div><div class="name">VL53L1X ToF ×3</div></div>
-    <div class="arch-item"><div class="role">AI STACK</div><div class="name">InsightFace + MediaPipe + ROS 2</div></div>
-    <div class="arch-item"><div class="role">SHELL</div><div class="name">Multicolor PLA</div></div>
-  </div>
 
   <h2>PRINT CHECKLIST</h2>
   <div class="print-meta">
