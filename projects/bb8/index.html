@@ -295,7 +295,7 @@ h2 {
   border-radius: 3px;
   padding: 14px 16px;
 }
-.print-group .group-head {
+.print-group > .group-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -306,8 +306,25 @@ h2 {
   margin-bottom: 10px;
   padding-bottom: 6px;
   border-bottom: 1px dashed #143014;
+  cursor: pointer;
+  list-style: none;
 }
-.print-group .group-head .group-name { color: #33ff33; }
+.print-group > .group-head::-webkit-details-marker { display: none; }
+.print-group > .group-head .group-name { color: #33ff33; }
+.print-group > .group-head .group-name::before {
+  content: '▸ ';
+  display: inline-block;
+  color: #1a8a1a;
+  transition: transform 0.2s;
+}
+details.print-group[open] > .group-head .group-name::before {
+  content: '▾ ';
+}
+details.print-group:not([open]) > .group-head {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
 .print-list {
   list-style: none;
   font-size: 12px;
@@ -451,6 +468,19 @@ h2 {
   z-index: 2;
 }
 .gantt-milestone[data-end="true"] { background: #ff5555; }
+.gantt-milestone[data-label]::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 50%;
+  top: -18px;
+  transform: translateX(-50%) rotate(-45deg);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #ff5555;
+  text-shadow: 0 0 6px rgba(255, 85, 85, 0.6);
+  white-space: nowrap;
+}
 .gantt-now {
   position: absolute;
   top: -2px;
@@ -711,6 +741,7 @@ h2 {
       <div class="gantt-track">
         <div class="gantt-bar soft" style="left:65%;width:28%;"></div>
         <div class="gantt-milestone" data-end="true" style="left:93%;" title="Deadline (wk 9.3)"></div>
+        <div class="gantt-milestone" data-end="true" data-label="RUMBLE" style="left:100%;" title="RUMBLE (end of W10)"></div>
       </div>
     </div>
 
@@ -819,8 +850,8 @@ h2 {
   <p class="print-credit">Files by <strong>nachumtwersky</strong> · <a href="https://www.instructables.com/3D-Printed-Robotic-BB8-unfinished-Instructions-Wil/" target="_blank" rel="noopener">3D Printed Robotic BB-8 on Instructables</a></p>
   <div class="print-grid" id="print-grid">
 
-    <div class="print-group">
-      <div class="group-head"><span class="group-name">Body / Shell</span><span>13</span></div>
+    <details class="print-group" open>
+      <summary class="group-head"><span class="group-name">Body / Shell</span><span>13</span></summary>
       <ul class="print-list">
         <li><label><input type="checkbox" data-stl="top-and-bottom-half-disc-x-4"><span class="pname">top-and-bottom-half-disc</span><span class="qty">×4</span></label></li>
         <li><label><input type="checkbox" data-stl="bottom-middle-half-circle-x4"><span class="pname">bottom-middle-half-circle</span><span class="qty">×4</span></label></li>
@@ -836,10 +867,10 @@ h2 {
         <li><label><input type="checkbox" data-stl="new-bb8-button-cap-w-twist"><span class="pname">new-bb8-button-cap-w-twist</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="twist-cap"><span class="pname">twist-cap</span><span class="qty">×1</span></label></li>
       </ul>
-    </div>
+    </details>
 
-    <div class="print-group">
-      <div class="group-head"><span class="group-name">Head (redesigning)</span><span>9</span></div>
+    <details class="print-group">
+      <summary class="group-head"><span class="group-name">Head (redesigning)</span><span>9</span></summary>
       <ul class="print-list">
         <li><label><input type="checkbox" data-stl="bb8-head-holder"><span class="pname">bb8-head-holder</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="head-cap-pt-1"><span class="pname">head-cap-pt-1</span><span class="qty">×1</span></label></li>
@@ -851,10 +882,10 @@ h2 {
         <li><label><input type="checkbox" data-stl="head-thin-with-holes-for-light"><span class="pname">head-thin-with-holes-for-light</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="head-magnet-holder"><span class="pname">head-magnet-holder</span><span class="qty">×1</span></label></li>
       </ul>
-    </div>
+    </details>
 
-    <div class="print-group">
-      <div class="group-head"><span class="group-name">Eye / Holo (redesigning)</span><span>5</span></div>
+    <details class="print-group">
+      <summary class="group-head"><span class="group-name">Eye / Holo (redesigning)</span><span>5</span></summary>
       <ul class="print-list">
         <li><label><input type="checkbox" data-stl="bb8-eye-top"><span class="pname">bb8-eye-top</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="bb8-eye-ring"><span class="pname">bb8-eye-ring</span><span class="qty">×1</span></label></li>
@@ -862,10 +893,10 @@ h2 {
         <li><label><input type="checkbox" data-stl="bb8-holo-top"><span class="pname">bb8-holo-top</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="bb8-holo-bottom"><span class="pname">bb8-holo-bottom</span><span class="qty">×1</span></label></li>
       </ul>
-    </div>
+    </details>
 
-    <div class="print-group">
-      <div class="group-head"><span class="group-name">Antennas (redesigning)</span><span>5</span></div>
+    <details class="print-group">
+      <summary class="group-head"><span class="group-name">Antennas (redesigning)</span><span>5</span></summary>
       <ul class="print-list">
         <li><label><input type="checkbox" data-stl="large-antenna-white"><span class="pname">large-antenna-white</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="bb8-antenna-bottom"><span class="pname">bb8-antenna-bottom</span><span class="qty">×1</span></label></li>
@@ -873,10 +904,10 @@ h2 {
         <li><label><input type="checkbox" data-stl="top-of-small-antenna"><span class="pname">top-of-small-antenna</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="bottom-of-small-antenna"><span class="pname">bottom-of-small-antenna</span><span class="qty">×1</span></label></li>
       </ul>
-    </div>
+    </details>
 
-    <div class="print-group">
-      <div class="group-head"><span class="group-name">Drive &amp; Wheels (redesigning)</span><span>12</span></div>
+    <details class="print-group">
+      <summary class="group-head"><span class="group-name">Drive &amp; Wheels (redesigning)</span><span>12</span></summary>
       <ul class="print-list">
         <li><label><input type="checkbox" data-stl="top-of-omniwheel"><span class="pname">top-of-omniwheel</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="bottom-of-omni-wheel"><span class="pname">bottom-of-omni-wheel</span><span class="qty">×1</span></label></li>
@@ -891,19 +922,19 @@ h2 {
         <li><label><input type="checkbox" data-stl="inside-body-servo-holder"><span class="pname">inside-body-servo-holder</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="inside-body-servo-magnet-holder"><span class="pname">inside-body-servo-magnet-holder</span><span class="qty">×1</span></label></li>
       </ul>
-    </div>
+    </details>
 
-    <div class="print-group">
-      <div class="group-head"><span class="group-name">Magnets (redesigning)</span><span>3</span></div>
+    <details class="print-group">
+      <summary class="group-head"><span class="group-name">Magnets (redesigning)</span><span>3</span></summary>
       <ul class="print-list">
         <li><label><input type="checkbox" data-stl="body-magnet-holder"><span class="pname">body-magnet-holder</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="screw-for-magnet"><span class="pname">screw-for-magnet</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="nut-for-magnet"><span class="pname">nut-for-magnet</span><span class="qty">×1</span></label></li>
       </ul>
-    </div>
+    </details>
 
-    <div class="print-group">
-      <div class="group-head"><span class="group-name">Electronics &amp; Mounts (redesigning)</span><span>7</span></div>
+    <details class="print-group">
+      <summary class="group-head"><span class="group-name">Electronics &amp; Mounts (redesigning)</span><span>7</span></summary>
       <ul class="print-list">
         <li><label><input type="checkbox" data-stl="battery-holder"><span class="pname">battery-holder</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="buck-converter-holder"><span class="pname">buck-converter-holder</span><span class="qty">×1</span></label></li>
@@ -913,7 +944,7 @@ h2 {
         <li><label><input type="checkbox" data-stl="wire-holder"><span class="pname">wire-holder</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="taller-weoght-holder"><span class="pname">taller-weight-holder</span><span class="qty">×1</span></label></li>
       </ul>
-    </div>
+    </details>
 
   </div>
 
