@@ -251,6 +251,39 @@ h2 {
   border-bottom: 1px dotted #1a4a1a;
 }
 .print-credit a:hover { color: #33ff33; border-color: #33ff33; }
+
+/* Build log entries */
+.log-entry {
+  background: #0a0f0a;
+  border: 1px solid #1a3a1a;
+  border-radius: 3px;
+  padding: 18px 22px;
+  margin-bottom: 14px;
+}
+.log-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 10px;
+}
+.log-meta .day { color: #33ff33; }
+.log-meta .date { color: #1a8a1a; }
+.log-entry h3 {
+  font-size: 16px;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.log-entry p {
+  font-size: 13px;
+  color: #c8d8c8;
+  line-height: 1.6;
+}
 .print-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -930,6 +963,15 @@ h2 {
   </div>
 
   <h2>BUILD LOG</h2>
+
+  <article class="log-entry">
+    <div class="log-meta">
+      <span class="day">Day 1</span>
+      <span class="date">2026-04-07</span>
+    </div>
+    <h3>Here we go.</h3>
+    <p>We decided to start because why not.</p>
+  </article>
 
   <div class="footer">
     yf(x).studio · <a href="/">home</a> · <a href="/donotpet">🦞</a>
