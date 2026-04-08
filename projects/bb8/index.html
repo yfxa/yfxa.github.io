@@ -207,6 +207,123 @@ h2 {
   font-size: 13px;
 }
 
+/* Print checklist */
+.print-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #555;
+  margin-bottom: 14px;
+}
+.print-meta .count {
+  color: #33ff33;
+  letter-spacing: 1px;
+}
+.print-meta button {
+  background: transparent;
+  border: 1px solid #1a3a1a;
+  color: #1a8a1a;
+  font-family: inherit;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.print-meta button:hover {
+  border-color: #33ff33;
+  color: #33ff33;
+}
+.print-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.print-group {
+  background: #0a0f0a;
+  border: 1px solid #1a3a1a;
+  border-radius: 3px;
+  padding: 14px 16px;
+}
+.print-group .group-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #555;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed #143014;
+}
+.print-group .group-head .group-name { color: #33ff33; }
+.print-list {
+  list-style: none;
+  font-size: 12px;
+}
+.print-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+.print-list label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1;
+  color: #c8d8c8;
+  line-height: 1.4;
+}
+.print-list input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border: 1px solid #1a8a1a;
+  border-radius: 2px;
+  background: #000;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+.print-list input[type="checkbox"]:hover { border-color: #33ff33; }
+.print-list input[type="checkbox"]:checked {
+  background: #1a8a1a;
+  border-color: #33ff33;
+}
+.print-list input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #000;
+  font-weight: 700;
+}
+.print-list label .qty {
+  color: #555;
+  font-size: 10px;
+  margin-left: auto;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+.print-list input[type="checkbox"]:checked + .pname {
+  color: #555;
+  text-decoration: line-through;
+  text-decoration-color: #1a4a1a;
+}
+.print-list .pname {
+  flex: 1;
+  word-break: break-word;
+}
+
 /* Footer */
 .footer {
   margin-top: 60px;
@@ -223,6 +340,7 @@ h2 {
   body { padding: 20px 14px; }
   h1 { font-size: 24px; }
   .arch-grid { grid-template-columns: 1fr; }
+  .print-grid { grid-template-columns: 1fr; }
   .status-block { padding: 14px 16px; }
 }
 </style>
@@ -315,6 +433,154 @@ h2 {
     <div class="arch-item"><div class="role">AI STACK</div><div class="name">InsightFace + MediaPipe + ROS 2</div></div>
     <div class="arch-item"><div class="role">SHELL</div><div class="name">Multicolor PLA</div></div>
   </div>
+
+  <h2>PRINT CHECKLIST</h2>
+  <div class="print-meta">
+    <span>54 STL files · grouped by subsystem</span>
+    <span><span class="count" id="print-count">0 / 54</span> &nbsp;<button id="print-reset" type="button">Reset</button></span>
+  </div>
+  <div class="print-grid" id="print-grid">
+
+    <div class="print-group">
+      <div class="group-head"><span class="group-name">Body / Shell</span><span>13</span></div>
+      <ul class="print-list">
+        <li><label><input type="checkbox" data-stl="top-and-bottom-half-disc-x-4"><span class="pname">top-and-bottom-half-disc</span><span class="qty">×4</span></label></li>
+        <li><label><input type="checkbox" data-stl="bottom-middle-half-circle-x4"><span class="pname">bottom-middle-half-circle</span><span class="qty">×4</span></label></li>
+        <li><label><input type="checkbox" data-stl="top-middle-half-circle"><span class="pname">top-middle-half-circle</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="top-middle-half-circle-screw"><span class="pname">top-middle-half-circle-screw</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="half-disc-body-connector-x-16"><span class="pname">half-disc-body-connector</span><span class="qty">×16</span></label></li>
+        <li><label><input type="checkbox" data-stl="middle-pentagons-x-8"><span class="pname">middle-pentagons</span><span class="qty">×8</span></label></li>
+        <li><label><input type="checkbox" data-stl="regular-pentagon-connecotr-x15"><span class="pname">regular-pentagon-connector</span><span class="qty">×15</span></label></li>
+        <li><label><input type="checkbox" data-stl="hole-for-button-pentgon-x-1"><span class="pname">hole-for-button-pentagon</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="disc-connector"><span class="pname">disc-connector (may need scaling)</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="screw-connector-v6"><span class="pname">screw-connector-v6</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="new-middle-body-holder"><span class="pname">new-middle-body-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="new-bb8-button-cap-w-twist"><span class="pname">new-bb8-button-cap-w-twist</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="twist-cap"><span class="pname">twist-cap</span><span class="qty">×1</span></label></li>
+      </ul>
+    </div>
+
+    <div class="print-group">
+      <div class="group-head"><span class="group-name">Head</span><span>9</span></div>
+      <ul class="print-list">
+        <li><label><input type="checkbox" data-stl="bb8-head-holder"><span class="pname">bb8-head-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="head-cap-pt-1"><span class="pname">head-cap-pt-1</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="head-chassie-part-1-of-3"><span class="pname">head-chassie-part-1-of-3</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="head-chassie-block-x3"><span class="pname">head-chassie-block</span><span class="qty">×3</span></label></li>
+        <li><label><input type="checkbox" data-stl="head-chassie-pin"><span class="pname">head-chassie-pin</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="head-chassie-triangle-bracket"><span class="pname">head-chassie-triangle-bracket</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="head-thin-x7"><span class="pname">head-thin</span><span class="qty">×7</span></label></li>
+        <li><label><input type="checkbox" data-stl="head-thin-with-holes-for-light"><span class="pname">head-thin-with-holes-for-light</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="head-magnet-holder"><span class="pname">head-magnet-holder</span><span class="qty">×1</span></label></li>
+      </ul>
+    </div>
+
+    <div class="print-group">
+      <div class="group-head"><span class="group-name">Eye / Holo</span><span>5</span></div>
+      <ul class="print-list">
+        <li><label><input type="checkbox" data-stl="bb8-eye-top"><span class="pname">bb8-eye-top</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="bb8-eye-ring"><span class="pname">bb8-eye-ring</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="bb8-eye-bottom"><span class="pname">bb8-eye-bottom</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="bb8-holo-top"><span class="pname">bb8-holo-top</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="bb8-holo-bottom"><span class="pname">bb8-holo-bottom</span><span class="qty">×1</span></label></li>
+      </ul>
+    </div>
+
+    <div class="print-group">
+      <div class="group-head"><span class="group-name">Antennas</span><span>5</span></div>
+      <ul class="print-list">
+        <li><label><input type="checkbox" data-stl="large-antenna-white"><span class="pname">large-antenna-white</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="bb8-antenna-bottom"><span class="pname">bb8-antenna-bottom</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="bb8-antenna-oinscrew"><span class="pname">bb8-antenna-oinscrew</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="top-of-small-antenna"><span class="pname">top-of-small-antenna</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="bottom-of-small-antenna"><span class="pname">bottom-of-small-antenna</span><span class="qty">×1</span></label></li>
+      </ul>
+    </div>
+
+    <div class="print-group">
+      <div class="group-head"><span class="group-name">Drive &amp; Wheels</span><span>12</span></div>
+      <ul class="print-list">
+        <li><label><input type="checkbox" data-stl="top-of-omniwheel"><span class="pname">top-of-omniwheel</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="bottom-of-omni-wheel"><span class="pname">bottom-of-omni-wheel</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="omni-wheel-roller"><span class="pname">omni-wheel-roller</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="castor-v4"><span class="pname">castor-v4</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="castor-wheel-total-round"><span class="pname">castor-wheel-total-round</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="castor-holder-v2"><span class="pname">castor-holder-v2</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="castor-holder-v3"><span class="pname">castor-holder-v3</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="wheel-pin-cap-v2"><span class="pname">wheel-pin-cap-v2</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="on-wooden-disk-bearing-holder"><span class="pname">on-wooden-disk-bearing-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="motor-protetoc"><span class="pname">motor-protector</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="inside-body-servo-holder"><span class="pname">inside-body-servo-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="inside-body-servo-magnet-holder"><span class="pname">inside-body-servo-magnet-holder</span><span class="qty">×1</span></label></li>
+      </ul>
+    </div>
+
+    <div class="print-group">
+      <div class="group-head"><span class="group-name">Magnets</span><span>3</span></div>
+      <ul class="print-list">
+        <li><label><input type="checkbox" data-stl="body-magnet-holder"><span class="pname">body-magnet-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="screw-for-magnet"><span class="pname">screw-for-magnet</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="nut-for-magnet"><span class="pname">nut-for-magnet</span><span class="qty">×1</span></label></li>
+      </ul>
+    </div>
+
+    <div class="print-group">
+      <div class="group-head"><span class="group-name">Electronics &amp; Mounts</span><span>7</span></div>
+      <ul class="print-list">
+        <li><label><input type="checkbox" data-stl="battery-holder"><span class="pname">battery-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="buck-converter-holder"><span class="pname">buck-converter-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="smaller-buck-converter-holder"><span class="pname">smaller-buck-converter-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="speaker-holder"><span class="pname">speaker-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="uno-holder"><span class="pname">uno-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="wire-holder"><span class="pname">wire-holder</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="taller-weoght-holder"><span class="pname">taller-weight-holder</span><span class="qty">×1</span></label></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <script>
+  (function () {
+    var KEY = 'bb8-print-checklist-v1';
+    var grid = document.getElementById('print-grid');
+    var countEl = document.getElementById('print-count');
+    var resetBtn = document.getElementById('print-reset');
+    var boxes = grid.querySelectorAll('input[type="checkbox"]');
+    var total = boxes.length;
+
+    function load() {
+      try { return JSON.parse(localStorage.getItem(KEY) || '{}'); }
+      catch (e) { return {}; }
+    }
+    function save(state) {
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    }
+    function refreshCount() {
+      var done = 0;
+      boxes.forEach(function (b) { if (b.checked) done++; });
+      countEl.textContent = done + ' / ' + total;
+    }
+
+    var state = load();
+    boxes.forEach(function (b) {
+      var k = b.getAttribute('data-stl');
+      if (state[k]) b.checked = true;
+      b.addEventListener('change', function () {
+        var s = load();
+        if (b.checked) s[k] = 1; else delete s[k];
+        save(s);
+        refreshCount();
+      });
+    });
+    resetBtn.addEventListener('click', function () {
+      if (!confirm('Reset all 54 print checks?')) return;
+      localStorage.removeItem(KEY);
+      boxes.forEach(function (b) { b.checked = false; });
+      refreshCount();
+    });
+    refreshCount();
+  })();
+  </script>
 
   <div class="footer">
     yf(x).studio · <a href="/">home</a> · <a href="/donotpet">🦞</a>
