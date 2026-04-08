@@ -4,635 +4,322 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Does BB-8 Dream of 9-to-5? | yf(x).studio</title>
-<meta name="description" content="An AI-powered delivery robot build log. A BB-8 that delivers. Or not.">
 <style>
-/* ---------- Reset ---------- */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+@import url('https://fonts.googleapis.com/css2?family=SF+Mono&display=swap');
 
-:root {
-  --black: #000000;
-  --near-black: #1d1d1f;
-  --light: #f5f5f7;
-  --white: #ffffff;
-  --apple-blue: #0071e3;
-  --link-blue: #0066cc;
-  --bright-blue: #2997ff;
-  --text-on-light: rgba(0, 0, 0, 0.8);
-  --text-tert-light: rgba(0, 0, 0, 0.56);
-  --text-on-dark: #ffffff;
-  --text-tert-dark: rgba(255, 255, 255, 0.56);
-  --hairline-light: rgba(0, 0, 0, 0.10);
-  --hairline-dark: rgba(255, 255, 255, 0.12);
-  --card-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px;
-  --display: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --text: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: var(--white);
-  color: var(--near-black);
-  font-family: var(--text);
-  font-size: 17px;
-  font-weight: 400;
-  line-height: 1.47;
-  letter-spacing: -0.022em;
+  background: #000;
+  color: #c8d8c8;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+  min-height: 100vh;
+  line-height: 1.6;
+  padding: 40px 20px;
 }
 
-/* ---------- Navigation (glass) ---------- */
-.nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: 48px;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-.nav-inner {
-  max-width: 980px;
-  height: 100%;
+.container {
+  max-width: 880px;
   margin: 0 auto;
-  padding: 0 22px;
+}
+
+/* Top nav */
+.topnav {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  font-family: var(--text);
-  font-size: 12px;
-  color: var(--white);
-}
-.nav-brand {
-  letter-spacing: 0.2px;
-  font-weight: 400;
-  color: var(--white);
-  text-decoration: none;
-  opacity: 0.88;
-  transition: opacity 0.2s;
-}
-.nav-brand:hover { opacity: 1; }
-.nav-crumbs {
-  color: var(--text-tert-dark);
-  letter-spacing: 0.4px;
-}
-.nav-crumbs span { color: var(--white); }
-
-/* ---------- Section scaffolding ---------- */
-section {
-  padding: 96px 22px;
-}
-section.dark {
-  background: var(--black);
-  color: var(--white);
-}
-section.light {
-  background: var(--light);
-  color: var(--near-black);
-}
-.wrap {
-  max-width: 980px;
-  margin: 0 auto;
-}
-
-/* ---------- Hero ---------- */
-.hero {
-  padding-top: 120px;
-  padding-bottom: 120px;
-  text-align: center;
-}
-.hero .eyebrow {
-  font-family: var(--text);
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.022em;
-  color: var(--bright-blue);
-  margin-bottom: 14px;
-}
-.hero h1 {
-  font-family: var(--display);
-  font-size: 56px;
-  font-weight: 600;
-  line-height: 1.07;
-  letter-spacing: -0.005em;
-  color: var(--white);
-  max-width: 820px;
-  margin: 0 auto 18px;
-}
-.hero .subtitle {
-  font-family: var(--display);
-  font-size: 21px;
-  font-weight: 400;
-  line-height: 1.19;
-  letter-spacing: 0.011em;
-  color: var(--text-tert-dark);
-  max-width: 640px;
-  margin: 0 auto 36px;
-}
-.cta-row {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.cta {
-  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 12px 22px;
-  border-radius: 980px;
-  font-family: var(--text);
-  font-size: 17px;
-  font-weight: 400;
-  line-height: 1;
+  margin-bottom: 60px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #1a3a1a;
+}
+.topnav a {
+  color: #ff8eb4;
   text-decoration: none;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  font-size: 18px;
 }
-.cta-primary {
-  background: var(--apple-blue);
-  color: var(--white);
-  border: 1px solid var(--apple-blue);
+.topnav a:hover { color: #ffb0c8; }
+.topnav .crumbs {
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 2px;
 }
-.cta-primary:hover { background: #0077ed; border-color: #0077ed; }
-.cta-secondary {
-  background: transparent;
-  color: var(--bright-blue);
-  border: 1px solid var(--bright-blue);
-}
-.cta-secondary:hover { background: rgba(41, 151, 255, 0.12); }
-.cta .chev { font-size: 13px; transform: translateY(-1px); }
+.topnav .crumbs span { color: #33ff33; }
 
-/* ---------- Section heading ---------- */
-.section-head {
-  text-align: center;
-  margin-bottom: 56px;
+/* Header */
+h1 {
+  font-size: 32px;
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
 }
-.section-eyebrow {
-  font-family: var(--text);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--apple-blue);
-  margin-bottom: 10px;
+.subtitle {
+  color: #777;
+  font-size: 13px;
+  margin-bottom: 32px;
 }
-section.dark .section-eyebrow { color: var(--bright-blue); }
-.section-title {
-  font-family: var(--display);
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 1.10;
-  letter-spacing: -0.003em;
-}
-.section-sub {
-  margin-top: 14px;
-  font-family: var(--display);
-  font-size: 21px;
-  font-weight: 400;
-  line-height: 1.19;
-  letter-spacing: 0.011em;
-  color: var(--text-tert-light);
-}
-section.dark .section-sub { color: var(--text-tert-dark); }
 
-/* ---------- Status grid ---------- */
-.status-card {
-  background: var(--white);
-  border-radius: 18px;
-  padding: 40px 44px;
-  box-shadow: var(--card-shadow);
+/* Status block */
+.status-block {
+  background: #0a0f0a;
+  border: 1px solid #1a3a1a;
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 40px;
 }
-.status-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
-  margin-bottom: 36px;
-}
-.status-cell .label {
-  font-family: var(--text);
+.status-row {
+  display: flex;
+  justify-content: space-between;
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-tert-light);
   margin-bottom: 8px;
 }
-.status-cell .val {
-  font-family: var(--display);
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.14;
-  letter-spacing: -0.003em;
-  color: var(--near-black);
+.status-row .label {
+  color: #555;
+  letter-spacing: 1.5px;
 }
-.progress-shell {
-  margin-top: 8px;
-}
-.progress-meta {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--text);
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: -0.016em;
-  color: var(--text-on-light);
-  margin-bottom: 12px;
-}
-.progress-meta strong {
-  font-weight: 600;
-  color: var(--near-black);
+.status-row .val {
+  color: #33ff33;
 }
 .progress-bar {
-  height: 6px;
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 980px;
+  margin-top: 14px;
+  height: 14px;
+  background: #0f1f0f;
+  border: 1px solid #1a3a1a;
+  border-radius: 2px;
+  position: relative;
   overflow: hidden;
 }
 .progress-fill {
+  background: linear-gradient(90deg, #1a8a1a, #33ff33);
   height: 100%;
-  width: 2%;
-  background: var(--apple-blue);
-  border-radius: 980px;
-  transition: width 0.8s ease;
+  width: 0%;
+  transition: width 0.6s ease;
 }
-
-/* ---------- Milestones ---------- */
-.milestones {
-  list-style: none;
-  max-width: 720px;
-  margin: 0 auto;
-  border-top: 1px solid var(--hairline-dark);
-}
-.milestones li {
-  display: grid;
-  grid-template-columns: 32px 1fr auto;
-  align-items: center;
-  gap: 18px;
-  padding: 22px 4px;
-  border-bottom: 1px solid var(--hairline-dark);
-}
-.m-marker {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 1.5px solid var(--text-tert-dark);
+.progress-text {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
+  color: #fff;
+  text-shadow: 0 0 4px rgba(0,0,0,0.8);
+  letter-spacing: 1px;
 }
-.m-marker.done {
-  background: var(--apple-blue);
-  border-color: var(--apple-blue);
-  color: var(--white);
-}
-.m-marker.active {
-  border-color: var(--bright-blue);
-  box-shadow: 0 0 0 4px rgba(41, 151, 255, 0.18);
-}
-.m-marker.active::after {
-  content: "";
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--bright-blue);
-}
-.m-name {
-  font-family: var(--display);
-  font-size: 21px;
-  font-weight: 400;
-  line-height: 1.19;
-  letter-spacing: 0.011em;
-  color: var(--white);
-}
-.m-week {
-  font-family: var(--text);
+
+/* Section headers */
+h2 {
+  color: #33ff33;
   font-size: 14px;
-  font-weight: 400;
-  letter-spacing: -0.016em;
-  color: var(--text-tert-dark);
+  letter-spacing: 4px;
+  font-weight: 700;
+  margin: 48px 0 16px;
+  border-bottom: 1px solid #1a3a1a;
+  padding-bottom: 8px;
 }
 
-/* ---------- Build log posts ---------- */
-.posts {
+/* Milestones */
+.milestones {
   list-style: none;
-  display: grid;
+  font-size: 13px;
+}
+.milestones li {
+  display: flex;
   gap: 14px;
-  max-width: 760px;
-  margin: 0 auto;
+  padding: 10px 0;
+  border-bottom: 1px dashed #143014;
 }
-.post {
-  display: grid;
-  grid-template-columns: 56px 1fr auto;
-  align-items: center;
-  gap: 22px;
-  background: var(--white);
-  border-radius: 14px;
-  padding: 22px 26px;
-  text-decoration: none;
-  color: inherit;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+.milestones li:last-child { border-bottom: none; }
+.milestones .marker {
+  color: #555;
+  width: 18px;
+  flex-shrink: 0;
 }
-.post:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--card-shadow);
+.milestones .marker.done { color: #33ff33; }
+.milestones .marker.active { color: #ffaa33; }
+.milestones .name {
+  flex: 1;
+  color: #c8d8c8;
 }
-.post .num {
-  font-family: var(--text);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--text-tert-light);
-}
-.post .title {
-  font-family: var(--display);
-  font-size: 21px;
-  font-weight: 400;
-  line-height: 1.19;
-  letter-spacing: 0.011em;
-  color: var(--near-black);
-}
-.post .badge {
-  font-family: var(--text);
+.milestones .week {
+  color: #555;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 5px 11px;
-  border-radius: 980px;
 }
-.badge.planned { background: rgba(0, 0, 0, 0.06); color: var(--text-tert-light); }
-.badge.draft { background: rgba(255, 170, 51, 0.16); color: #b56b00; }
-.badge.published { background: rgba(0, 113, 227, 0.12); color: var(--apple-blue); }
-.post.planned { cursor: default; }
-.post.planned:hover { transform: none; box-shadow: none; }
 
-/* ---------- Architecture grid ---------- */
+/* Post index */
+.post-list {
+  list-style: none;
+}
+.post-item {
+  display: flex;
+  align-items: baseline;
+  padding: 14px 0;
+  border-bottom: 1px dashed #143014;
+}
+.post-item .num {
+  color: #1a8a1a;
+  font-size: 11px;
+  width: 50px;
+  flex-shrink: 0;
+}
+.post-item .title {
+  flex: 1;
+  font-size: 14px;
+}
+.post-item.draft .title { color: #c8d8c8; }
+.post-item.draft .title a { color: #66ff66; text-decoration: none; border-bottom: 1px dotted #1a8a1a; }
+.post-item.draft .title a:hover { color: #fff; border-color: #33ff33; }
+.post-item.planned .title { color: #555; }
+.post-item.published .title { color: #fff; }
+.post-item.published .title a { color: #fff; text-decoration: none; border-bottom: 1px dotted #33ff33; }
+.post-item .badge {
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  margin-left: 12px;
+}
+.badge.draft { background: #2a2a0a; color: #ffaa33; border: 1px solid #4a4a0a; }
+.badge.planned { background: #0a0a1a; color: #4a6a8a; border: 1px solid #1a2a3a; }
+.badge.published { background: #0a2a0a; color: #33ff33; border: 1px solid #1a4a1a; }
+
+/* Architecture grid */
 .arch-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  font-size: 12px;
 }
 .arch-item {
-  background: #1d1d1f;
-  border-radius: 14px;
-  padding: 24px 22px;
-  min-height: 140px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  background: #0a0f0a;
+  border: 1px solid #1a3a1a;
+  padding: 12px 14px;
+  border-radius: 3px;
 }
 .arch-item .role {
-  font-family: var(--text);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--bright-blue);
+  color: #555;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
 }
 .arch-item .name {
-  font-family: var(--display);
-  font-size: 17px;
-  font-weight: 600;
-  line-height: 1.24;
-  letter-spacing: -0.022em;
-  color: var(--white);
-  margin-top: 18px;
+  color: #66ff66;
+  font-size: 13px;
 }
 
-/* ---------- Footer ---------- */
+/* Footer */
 .footer {
-  padding: 40px 22px;
-  background: var(--light);
-  border-top: 1px solid var(--hairline-light);
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid #1a3a1a;
+  font-size: 11px;
+  color: #555;
   text-align: center;
 }
-.footer p {
-  font-family: var(--text);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  color: var(--text-tert-light);
-}
-.footer a {
-  color: var(--link-blue);
-  text-decoration: none;
-}
-.footer a:hover { text-decoration: underline; }
+.footer a { color: #1a8a1a; text-decoration: none; }
+.footer a:hover { color: #33ff33; }
 
-/* ---------- Focus ---------- */
-a:focus-visible, button:focus-visible {
-  outline: 2px solid var(--apple-blue);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* ---------- Responsive ---------- */
-@media (max-width: 834px) {
-  section { padding: 72px 22px; }
-  .hero { padding-top: 88px; padding-bottom: 88px; }
-  .hero h1 { font-size: 40px; line-height: 1.10; }
-  .hero .subtitle { font-size: 19px; }
-  .section-title { font-size: 32px; }
-  .status-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
-  .status-card { padding: 28px; }
-  .arch-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 480px) {
-  section { padding: 64px 18px; }
-  .hero h1 { font-size: 32px; }
-  .hero .subtitle { font-size: 17px; }
-  .section-title { font-size: 26px; }
-  .status-grid { grid-template-columns: 1fr; }
-  .post { grid-template-columns: 1fr auto; padding: 18px 20px; }
-  .post .num { display: none; }
+@media (max-width: 600px) {
+  body { padding: 20px 14px; }
+  h1 { font-size: 24px; }
   .arch-grid { grid-template-columns: 1fr; }
-  .milestones li { grid-template-columns: 28px 1fr; }
-  .m-week { grid-column: 2; color: var(--text-tert-dark); margin-top: 4px; }
+  .status-block { padding: 14px 16px; }
 }
 </style>
 </head>
 <body>
+<div class="container">
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a class="nav-brand" href="/">yf(x).studio</a>
-    <div class="nav-crumbs">PROJECTS / <span>BB-8</span></div>
+  <div class="topnav">
+    <div class="crumbs">YF(X).STUDIO / PROJECTS / <span>BB-8</span></div>
+    <a href="/" title="Home">⌂</a>
   </div>
-</nav>
 
-<!-- HERO -->
-<section class="dark hero">
-  <div class="wrap">
-    <p class="eyebrow">Build Log · 2026</p>
-    <h1>Does BB-8 Dream of 9-to-5?</h1>
-    <p class="subtitle">A BB-8 that delivers. Or not. Follow along to see if we make it.</p>
-    <div class="cta-row">
-      <a class="cta cta-primary" href="#build-log">Read the log <span class="chev">›</span></a>
-      <a class="cta cta-secondary" href="#architecture">See the architecture <span class="chev">›</span></a>
-    </div>
-  </div>
-</section>
+  <h1>Does BB-8 Dream of 9-to-5?</h1>
+  <div class="subtitle">An AI-powered delivery robot build log · 2026</div>
 
-<!-- STATUS -->
-<section class="light">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="section-eyebrow">Status</p>
-      <h2 class="section-title">Where we are right now.</h2>
-      <p class="section-sub">Nine weeks. One ball. Many things that could go wrong.</p>
-    </div>
-
-    <div class="status-card">
-      <div class="status-grid">
-        <div class="status-cell">
-          <div class="label">Start</div>
-          <div class="val">Apr 7, 2026</div>
-        </div>
-        <div class="status-cell">
-          <div class="label">Deadline</div>
-          <div class="val">Jun 11, 2026</div>
-        </div>
-        <div class="status-cell">
-          <div class="label">Strategy</div>
-          <div class="val">Rolling-first</div>
-        </div>
-        <div class="status-cell">
-          <div class="label">Budget</div>
-          <div class="val">~$635</div>
-        </div>
-      </div>
-
-      <div class="progress-shell">
-        <div class="progress-meta">
-          <span>Current milestone: <strong>Order parts</strong></span>
-          <span><strong>2%</strong> · Kickoff</span>
-        </div>
-        <div class="progress-bar"><div class="progress-fill"></div></div>
-      </div>
+  <div class="status-block">
+    <div class="status-row"><span class="label">START</span><span class="val">2026-04-07</span></div>
+    <div class="status-row"><span class="label">DEADLINE</span><span class="val">2026-06-11 (9 weeks)</span></div>
+    <div class="status-row"><span class="label">STRATEGY</span><span class="val">Rolling-first</span></div>
+    <div class="status-row"><span class="label">BUDGET (essential)</span><span class="val">~$635</span></div>
+    <div class="status-row"><span class="label">MILESTONE</span><span class="val">Order parts</span></div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 2%;"></div>
+      <div class="progress-text">2% — KICKOFF</div>
     </div>
   </div>
-</section>
 
-<!-- MILESTONES -->
-<section class="dark">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="section-eyebrow">Milestones</p>
-      <h2 class="section-title">Six gates to a rolling droid.</h2>
-    </div>
+  <h2>MILESTONES</h2>
+  <ul class="milestones">
+    <li><span class="marker active">▸</span><span class="name">Ball rolls</span><span class="week">week 2.5</span></li>
+    <li><span class="marker">○</span><span class="name">Drives + avoids walls</span><span class="week">week 3.5</span></li>
+    <li><span class="marker">○</span><span class="name">Head mounted + tracks</span><span class="week">week 4.7</span></li>
+    <li><span class="marker">○</span><span class="name">Gesture response works</span><span class="week">week 6</span></li>
+    <li><span class="marker">○</span><span class="name">Feature complete</span><span class="week">week 6.5</span></li>
+    <li><span class="marker">○</span><span class="name">Deadline</span><span class="week">week 9.3</span></li>
+  </ul>
 
-    <ul class="milestones">
-      <li>
-        <span class="m-marker active"></span>
-        <span class="m-name">Ball rolls</span>
-        <span class="m-week">Week 2.5</span>
-      </li>
-      <li>
-        <span class="m-marker"></span>
-        <span class="m-name">Drives + avoids walls</span>
-        <span class="m-week">Week 3.5</span>
-      </li>
-      <li>
-        <span class="m-marker"></span>
-        <span class="m-name">Head mounted + tracks</span>
-        <span class="m-week">Week 4.7</span>
-      </li>
-      <li>
-        <span class="m-marker"></span>
-        <span class="m-name">Gesture response works</span>
-        <span class="m-week">Week 6</span>
-      </li>
-      <li>
-        <span class="m-marker"></span>
-        <span class="m-name">Feature complete</span>
-        <span class="m-week">Week 6.5</span>
-      </li>
-      <li>
-        <span class="m-marker"></span>
-        <span class="m-name">Deadline</span>
-        <span class="m-week">Week 9.3</span>
-      </li>
-    </ul>
+  <h2>BUILD LOG</h2>
+  <ul class="post-list">
+    <li class="post-item planned">
+      <span class="num">#001</span>
+      <span class="title">Part 1: Architecture & Parts Selection</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#002</span>
+      <span class="title">Part 2: 3D Printing the Shell</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#003</span>
+      <span class="title">Part 3: The Internal Drive Unit</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#004</span>
+      <span class="title">Part 4: The Magnetic Head</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#005</span>
+      <span class="title">Part 5: Electronics & Wiring</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#006</span>
+      <span class="title">Part 6: Face Recognition & Gesture Control</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#007</span>
+      <span class="title">Part 7: Indoor Navigation</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+    <li class="post-item planned">
+      <span class="num">#008</span>
+      <span class="title">Part 8: Final Assembly & Lessons Learned</span>
+      <span class="badge planned">PLANNED</span>
+    </li>
+  </ul>
+
+  <h2>ARCHITECTURE</h2>
+  <div class="arch-grid">
+    <div class="arch-item"><div class="role">BRAIN</div><div class="name">Jetson Orin Nano Super (67 TOPS)</div></div>
+    <div class="arch-item"><div class="role">CAMERA</div><div class="name">Arducam B0274 IMX477 (12.3MP)</div></div>
+    <div class="arch-item"><div class="role">BODY MCU</div><div class="name">ESP32-S3 (motors, IMU, ToF)</div></div>
+    <div class="arch-item"><div class="role">HEAD MCU</div><div class="name">ESP32-S3 (servos, LEDs, sound)</div></div>
+    <div class="arch-item"><div class="role">IMU</div><div class="name">Adafruit BNO055</div></div>
+    <div class="arch-item"><div class="role">OBSTACLE</div><div class="name">VL53L1X ToF ×3</div></div>
+    <div class="arch-item"><div class="role">AI STACK</div><div class="name">InsightFace + MediaPipe + ROS 2</div></div>
+    <div class="arch-item"><div class="role">SHELL</div><div class="name">Multicolor PLA</div></div>
   </div>
-</section>
 
-<!-- BUILD LOG -->
-<section class="light" id="build-log">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="section-eyebrow">Build Log</p>
-      <h2 class="section-title">Eight chapters. Hopefully fewer fires.</h2>
-    </div>
-
-    <ul class="posts">
-      <li><div class="post planned">
-        <span class="num">#001</span>
-        <span class="title">Architecture &amp; Parts Selection</span>
-        <span class="badge planned">Planned</span>
-      </div></li>
-      <li><div class="post planned">
-        <span class="num">#002</span>
-        <span class="title">3D Printing the Shell</span>
-        <span class="badge planned">Planned</span>
-      </div></li>
-      <li><div class="post planned">
-        <span class="num">#003</span>
-        <span class="title">The Internal Drive Unit</span>
-        <span class="badge planned">Planned</span>
-      </div></li>
-      <li><div class="post planned">
-        <span class="num">#004</span>
-        <span class="title">The Magnetic Head</span>
-        <span class="badge planned">Planned</span>
-      </div></li>
-      <li><div class="post planned">
-        <span class="num">#005</span>
-        <span class="title">Electronics &amp; Wiring</span>
-        <span class="badge planned">Planned</span>
-      </div></li>
-      <li><div class="post planned">
-        <span class="num">#006</span>
-        <span class="title">Face Recognition &amp; Gesture Control</span>
-        <span class="badge planned">Planned</span>
-      </div></li>
-      <li><div class="post planned">
-        <span class="num">#007</span>
-        <span class="title">Indoor Navigation</span>
-        <span class="badge planned">Planned</span>
-      </div></li>
-      <li><div class="post planned">
-        <span class="num">#008</span>
-        <span class="title">Final Assembly &amp; Lessons Learned</span>
-        <span class="badge planned">Planned</span>
-      </div></li>
-    </ul>
+  <div class="footer">
+    yf(x).studio · <a href="/">home</a> · <a href="/donotpet">🦞</a>
   </div>
-</section>
 
-<!-- ARCHITECTURE -->
-<section class="dark" id="architecture">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="section-eyebrow">Architecture</p>
-      <h2 class="section-title">The brains, the body, the rolling bits.</h2>
-    </div>
-
-    <div class="arch-grid">
-      <div class="arch-item"><div class="role">Brain</div><div class="name">Jetson Orin Nano Super · 67 TOPS</div></div>
-      <div class="arch-item"><div class="role">Camera</div><div class="name">Arducam B0274 IMX477 · 12.3MP</div></div>
-      <div class="arch-item"><div class="role">Body MCU</div><div class="name">ESP32-S3 · motors, IMU, ToF</div></div>
-      <div class="arch-item"><div class="role">Head MCU</div><div class="name">ESP32-S3 · servos, LEDs, sound</div></div>
-      <div class="arch-item"><div class="role">IMU</div><div class="name">Adafruit BNO055</div></div>
-      <div class="arch-item"><div class="role">Obstacle</div><div class="name">VL53L1X ToF · ×3</div></div>
-      <div class="arch-item"><div class="role">AI Stack</div><div class="name">InsightFace + MediaPipe + ROS 2</div></div>
-      <div class="arch-item"><div class="role">Shell</div><div class="name">Multicolor PLA</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer class="footer">
-  <p>yf(x).studio · <a href="/">home</a> · <a href="/donotpet">🦞</a></p>
-</footer>
-
+</div>
 </body>
 </html>
