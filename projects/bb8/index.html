@@ -971,6 +971,17 @@ details.print-group:not([open]) > .group-head {
       refreshCount();
     });
     refreshCount();
+
+    // Collapse on phone, expand on tablet/desktop.
+    var mq = window.matchMedia('(max-width: 600px)');
+    var groups = grid.querySelectorAll('details.print-group');
+    function applyGroupState(e) {
+      var isPhone = e.matches;
+      groups.forEach(function (g) { g.open = !isPhone; });
+    }
+    applyGroupState(mq);
+    if (mq.addEventListener) mq.addEventListener('change', applyGroupState);
+    else if (mq.addListener) mq.addListener(applyGroupState);
   })();
   </script>
   </div>
