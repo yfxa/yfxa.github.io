@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BB-8 Research Report | yf(x).studio</title>
+<meta name="description" content="How our AI-powered BB-8 stacks up against every other BB-8 out there.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=SF+Mono&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  color: #c8d8c8;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+  min-height: 100vh;
+  line-height: 1.6;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+/* Top nav */
+.topnav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 60px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #1a3a1a;
+}
+.topnav a {
+  color: #33ff33;
+  text-decoration: none;
+  font-size: 18px;
+}
+.topnav a:hover { color: #66ff66; text-shadow: 0 0 8px #33ff33; }
+.topnav .crumbs {
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 2px;
+}
+.topnav .crumbs a {
+  color: #1a8a1a;
+  font-size: 11px;
+  letter-spacing: 2px;
+  border-bottom: 1px dotted #1a4a1a;
+}
+.topnav .crumbs a:hover { color: #33ff33; text-shadow: none; border-color: #33ff33; }
+.topnav .crumbs span { color: #33ff33; }
+
+/* Header */
+h1 {
+  font-size: 32px;
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.subtitle {
+  color: #777;
+  font-size: 13px;
+  margin-bottom: 40px;
+}
+.report-meta {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 8px;
+}
+.report-meta .tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border: 1px solid #1a4a1a;
+  background: #0a2a0a;
+  color: #33ff33;
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+/* Sections */
+h2 {
+  color: #33ff33;
+  font-size: 14px;
+  letter-spacing: 4px;
+  font-weight: 700;
+  margin: 48px 0 16px;
+  border-bottom: 1px solid #1a3a1a;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+}
+
+p {
+  font-size: 13px;
+  color: #c8d8c8;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+strong { color: #66ff66; font-weight: 600; }
+
+ol, ul {
+  font-size: 13px;
+  color: #c8d8c8;
+  line-height: 1.7;
+  margin: 0 0 18px 22px;
+}
+ol li, ul li { margin-bottom: 8px; }
+
+/* Tables */
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid #1a3a1a;
+  border-radius: 3px;
+  margin-bottom: 18px;
+  background: #050a05;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  min-width: 720px;
+}
+th, td {
+  padding: 9px 12px;
+  text-align: left;
+  border-bottom: 1px dashed #143014;
+  border-right: 1px dashed #143014;
+  vertical-align: top;
+  line-height: 1.5;
+}
+th:last-child, td:last-child { border-right: none; }
+tr:last-child td { border-bottom: none; }
+thead th {
+  background: #0a1a0a;
+  color: #555;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #1a4a1a;
+}
+thead th.ours, tbody td.ours {
+  background: rgba(26, 138, 26, 0.10);
+  border-left: 1px solid #1a4a1a;
+}
+thead th.ours { color: #33ff33; }
+tbody th {
+  color: #66ff66;
+  font-weight: 600;
+  font-size: 11px;
+  white-space: nowrap;
+}
+tbody td { color: #999; }
+tbody td.ours { color: #c8d8c8; }
+tbody td.ours strong { color: #33ff33; }
+
+/* Code block */
+pre {
+  background: #050a05;
+  border: 1px solid #1a3a1a;
+  border-radius: 3px;
+  padding: 18px 20px;
+  overflow-x: auto;
+  margin-bottom: 18px;
+}
+pre code {
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 11px;
+  color: #66ff66;
+  line-height: 1.45;
+  white-space: pre;
+}
+
+/* Footer */
+.footer {
+  margin-top: 80px;
+  padding-top: 20px;
+  border-top: 1px solid #1a3a1a;
+  font-size: 11px;
+  color: #555;
+  text-align: center;
+}
+.footer a { color: #1a8a1a; text-decoration: none; }
+.footer a:hover { color: #33ff33; }
+
+@media (max-width: 600px) {
+  body { padding: 20px 14px; }
+  h1 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="topnav">
+    <div class="crumbs">YF(X).STUDIO / PROJECTS / <a href="../">BB-8</a> / <span>RESEARCH REPORT</span></div>
+    <a href="/" title="Home">⌂</a>
+  </div>
+
+  <div class="report-meta"><span class="tag">REPORT 001</span>Filed 2026-04-08</div>
+  <h1>BB-8 Build Comparison</h1>
+  <div class="subtitle">How our AI-powered BB-8 stacks up against every other BB-8 out there.</div>
+
+  <h2>Feature Comparison</h2>
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Sphero BB-8</th>
+        <th>SpinMaster Hero Droid</th>
+        <th>Nachum's 3D Print</th>
+        <th>Printed Droid Club</th>
+        <th class="ours">Our BB-8</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><th>Size</th><td>~11 cm (toy)</td><td>~49 cm (large toy)</td><td>~18 cm (small)</td><td>Full-size (~50 cm)</td><td class="ours">~45 cm (18 in)</td></tr>
+      <tr><th>Shell</th><td>Polycarbonate (factory)</td><td>Injection molded (factory)</td><td>3D printed, hand painted</td><td>3D printed, hand painted</td><td class="ours">3D printed multicolor (H2D, no painting)</td></tr>
+      <tr><th>Drive system</th><td>Hamster drive</td><td>Hamster drive</td><td>Hamster drive</td><td>Hamster drive</td><td class="ours">Hamster drive</td></tr>
+      <tr><th>Motors</th><td>DC, no encoder</td><td>DC, proprietary</td><td>DC, no encoder</td><td>DC, varies</td><td class="ours">300 RPM metal gearmotor with encoder</td></tr>
+      <tr><th>Motor control</th><td>Closed-loop (proprietary)</td><td>Closed-loop (proprietary)</td><td>Open-loop PWM</td><td>PID (varies)</td><td class="ours">Dual nested PID (velocity + orientation)</td></tr>
+      <tr><th>Brain</th><td>Proprietary SoC</td><td>Proprietary SoC</td><td>Arduino</td><td>Arduino / ESP32</td><td class="ours">NVIDIA Jetson Orin Nano Super (67 TOPS)</td></tr>
+      <tr><th>Microcontroller</th><td>N/A</td><td>N/A</td><td>Arduino Uno</td><td>Arduino / ESP32</td><td class="ours">2× ESP32-S3 (body + head)</td></tr>
+      <tr><th>IMU</th><td>Built-in gyro</td><td>Built-in gyro</td><td>None</td><td>Varies</td><td class="ours">Adafruit BNO055 (9-axis, on-chip fusion)</td></tr>
+      <tr><th>Camera</th><td>None</td><td>None</td><td>None</td><td>None</td><td class="ours">Arducam B0274 IMX477 12.3 MP (day/night IR-cut)</td></tr>
+      <tr><th>Face recognition</th><td>No</td><td>No</td><td>No</td><td>No</td><td class="ours"><strong>Yes — InsightFace on Jetson</strong></td></tr>
+      <tr><th>Gesture recognition</th><td>No</td><td>No</td><td>No</td><td>No</td><td class="ours"><strong>Yes — MediaPipe Hands on Jetson</strong></td></tr>
+      <tr><th>Obstacle avoidance</th><td>Bump detection</td><td>IR sensors (basic)</td><td>None</td><td>Varies</td><td class="ours">3× VL53L1X ToF (4 m range, upgradeable to RealSense D435i)</td></tr>
+      <tr><th>Navigation</th><td>App joystick</td><td>App + voice commands</td><td>App via Bluetooth</td><td>RC controller</td><td class="ours"><strong>Autonomous indoor navigation</strong></td></tr>
+      <tr><th>Head control</th><td>Magnetic (passive)</td><td>Magnetic + IR tracking</td><td>Magnetic + servo</td><td>Magnetic + servo</td><td class="ours">Magnetic + servo pan/tilt tracking person's face</td></tr>
+      <tr><th>Head ↔ body comms</th><td>Magnetic coupling only</td><td>Proprietary wireless</td><td>2× HC-05 Bluetooth</td><td>Varies (XBEE, BT)</td><td class="ours">ESP-NOW (1–2 ms latency)</td></tr>
+      <tr><th>Jetson ↔ body link</th><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td class="ours">UART serial</td></tr>
+      <tr><th>Voice control</th><td>Via phone app</td><td>Built-in mic (basic)</td><td>None</td><td>Optional</td><td class="ours">Planned (INMP441 mic)</td></tr>
+      <tr><th>Sound effects</th><td>Built-in speaker</td><td>Built-in speaker</td><td>Speaker via Bluetooth</td><td>Speaker</td><td class="ours">Speaker via I2S (MAX98357A)</td></tr>
+      <tr><th>Follow me</th><td>Via phone app</td><td>IR-based (short range)</td><td>No</td><td>No</td><td class="ours"><strong>Yes — camera-based face tracking</strong></td></tr>
+      <tr><th>Delivery capable</th><td>No</td><td>No</td><td>No</td><td>No</td><td class="ours"><strong>Yes — autonomous delivery to recognized person</strong></td></tr>
+      <tr><th>Power</th><td>LiPo (internal)</td><td>NiMH (internal)</td><td>Battery pack</td><td>LiPo</td><td class="ours">3S LiPo (11.1 V) + buck converter</td></tr>
+      <tr><th>Charging</th><td>Inductive dock</td><td>USB charging</td><td>Removable batteries</td><td>Varies</td><td class="ours">Removable LiPo + balance charger</td></tr>
+      <tr><th>Control method</th><td>Phone app</td><td>Phone app + voice + RC</td><td>Phone app (BT)</td><td>RC transmitter</td><td class="ours"><strong>Fully autonomous + optional app</strong></td></tr>
+      <tr><th>Open source</th><td>No</td><td>No</td><td>Yes (CC BY 4.0)</td><td>Community files</td><td class="ours">Yes (code + custom brackets on GitHub)</td></tr>
+      <tr><th>Approx. cost</th><td>$150 (toy)</td><td>$240 (discontinued)</td><td>~$400</td><td>$500–1500+</td><td class="ours">~$635 (essential parts)</td></tr>
+      <tr><th>Build time</th><td>N/A (buy)</td><td>N/A (buy)</td><td>~6 months</td><td>Months–years</td><td class="ours">9 weeks (target)</td></tr>
+      <tr><th>Printer needed</th><td>No</td><td>No</td><td>Any FDM (150 mm bed OK)</td><td>Large FDM recommended</td><td class="ours">Bambu Lab H2D (350 mm bed, multicolor)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>What Makes Ours Different</h2>
+  <p>The key difference isn't any single feature — it's that every other BB-8 needs a human to drive it. Ours doesn't.</p>
+  <p>Every BB-8 before this one is either a toy you control with a phone or an RC replica you steer with a transmitter. Our BB-8 is the first (that we know of) to combine:</p>
+  <ol>
+    <li><strong>Autonomous navigation</strong> — it decides where to go based on AI vision, not human joystick input</li>
+    <li><strong>Person recognition</strong> — it knows WHO it's delivering to, not just WHERE to go</li>
+    <li><strong>Gesture understanding</strong> — natural human-robot interaction without touching a phone</li>
+    <li><strong>Three-tier compute</strong> — Jetson for AI, ESP32 body for real-time motor control, ESP32 head for tracking — each running at the speed it needs</li>
+  </ol>
+  <p>It's the difference between a remote-controlled car and a self-driving car, except it's a ball.</p>
+
+  <h2>Architecture Diagram</h2>
+  <pre><code>                ┌─────────────────────┐
+                │   Arducam B0274     │
+                │   12.3MP Camera     │
+                │   (on BB-8 head)    │
+                └──────────┬──────────┘
+                           │ CSI
+                ┌──────────▼──────────┐
+                │  Jetson Orin Nano   │
+                │  Super (67 TOPS)    │
+                │                     │
+                │  • InsightFace      │
+                │  • MediaPipe Hands  │
+                │  • Navigation logic │
+                └──────────┬──────────┘
+                           │ UART
+                ┌──────────▼──────────┐
+                │  ESP32-S3 (Body)    │
+                │                     │
+                │  • PID motor ctrl   │
+                │  • BNO055 IMU       │
+                │  • 3× VL53L1X ToF   │
+                │  • Motor driver     │
+                └──────────┬──────────┘
+                           │ ESP-NOW (wireless)
+                ┌──────────▼──────────┐
+                │  ESP32-S3 (Head)    │
+                │                     │
+                │  • Pan/tilt servos  │
+                │  • LEDs / speaker   │
+                │  • Head orientation │
+                └─────────────────────┘</code></pre>
+
+  <div class="footer">
+    yf(x).studio · <a href="../">back to BB-8</a> · <a href="/">home</a> · <a href="/donotpet">🦞</a>
+  </div>
+
+</div>
+</body>
+</html>
