@@ -339,6 +339,125 @@ h2 {
   word-break: break-word;
 }
 
+/* Gantt schedule */
+.gantt-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #555;
+  margin-bottom: 10px;
+}
+.gantt-meta .val { color: #33ff33; letter-spacing: 1px; }
+.gantt {
+  background: #0a0f0a;
+  border: 1px solid #1a3a1a;
+  border-radius: 3px;
+  padding: 14px 16px 18px;
+  font-size: 11px;
+}
+.gantt-row {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.gantt-row.head { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed #143014; }
+.gantt-task {
+  color: #c8d8c8;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: right;
+}
+.gantt-row.head .gantt-task { color: #555; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; }
+.gantt-scale {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  font-size: 9px;
+  color: #555;
+  letter-spacing: 1px;
+}
+.gantt-scale span {
+  text-align: center;
+  border-left: 1px dashed #143014;
+  padding: 2px 0;
+}
+.gantt-scale span:first-child { border-left: none; }
+.gantt-track {
+  position: relative;
+  height: 18px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent calc(10% - 1px),
+    #143014 calc(10% - 1px),
+    #143014 10%
+  );
+  border: 1px solid #1a3a1a;
+  border-radius: 2px;
+}
+.gantt-bar {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  background: linear-gradient(90deg, #1a8a1a, #33ff33);
+  border-radius: 2px;
+  box-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
+}
+.gantt-bar.soft {
+  background: linear-gradient(90deg, #1a4a1a, #2a8a2a);
+  box-shadow: none;
+}
+.gantt-milestone {
+  position: absolute;
+  top: 50%;
+  width: 11px; height: 11px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: #ffaa33;
+  border: 1px solid #000;
+  z-index: 2;
+}
+.gantt-milestone[data-end="true"] { background: #ff5555; }
+.gantt-now {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: #ff3333;
+  box-shadow: 0 0 6px #ff3333;
+  z-index: 3;
+}
+.gantt-legend {
+  display: flex;
+  gap: 18px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed #143014;
+  font-size: 10px;
+  color: #555;
+  letter-spacing: 0.5px;
+  flex-wrap: wrap;
+}
+.gantt-legend .swatch {
+  display: inline-block;
+  width: 14px; height: 8px;
+  vertical-align: middle;
+  margin-right: 6px;
+  border-radius: 1px;
+}
+.gantt-legend .swatch.bar { background: linear-gradient(90deg, #1a8a1a, #33ff33); }
+.gantt-legend .swatch.diamond {
+  width: 9px; height: 9px;
+  transform: rotate(45deg);
+  background: #ffaa33;
+  border: 1px solid #000;
+}
+.gantt-legend .swatch.now {
+  width: 2px; height: 12px;
+  background: #ff3333;
+  box-shadow: 0 0 4px #ff3333;
+}
+
 /* Parts ordered */
 .parts-meta {
   display: flex;
@@ -423,6 +542,9 @@ h2 {
   .parts-list .item { grid-column: 1 / 3; }
   .parts-list .price { grid-column: 1; text-align: left; }
   .parts-list .status { grid-column: 2; }
+  .gantt-row { grid-template-columns: 110px 1fr; gap: 8px; }
+  .gantt-task { font-size: 10px; }
+  .gantt-scale { font-size: 8px; }
 }
 </style>
 </head>
@@ -435,17 +557,105 @@ h2 {
   </div>
 
   <h1>Does BB-8 Dream of 9-to-5?</h1>
-  <div class="subtitle">An AI-powered delivery robot build log · 2026</div>
 
-  <div class="status-block">
-    <div class="status-row"><span class="label">START</span><span class="val">2026-04-07</span></div>
-    <div class="status-row"><span class="label">DEADLINE</span><span class="val">2026-06-11 (9 weeks)</span></div>
-    <div class="status-row"><span class="label">STRATEGY</span><span class="val">Rolling-first</span></div>
-    <div class="status-row"><span class="label">BUDGET (essential)</span><span class="val">~$635</span></div>
-    <div class="status-row"><span class="label">MILESTONE</span><span class="val">Order parts</span></div>
-    <div class="progress-bar">
-      <div class="progress-fill" style="width: 2%;"></div>
-      <div class="progress-text">2% — KICKOFF</div>
+  <h2>SCHEDULE</h2>
+  <div class="gantt-meta">
+    <span>2026-04-07 → 2026-06-11 · 10 weeks · Rolling-first strategy</span>
+    <span class="val">DAY 1 / 65</span>
+  </div>
+  <div class="gantt">
+
+    <!-- Header: week scale -->
+    <div class="gantt-row head">
+      <div class="gantt-task">Phase ↓ &nbsp; Week →</div>
+      <div class="gantt-scale">
+        <span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span>
+        <span>W6</span><span>W7</span><span>W8</span><span>W9</span><span>W10</span>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">Source &amp; receive parts</div>
+      <div class="gantt-track">
+        <div class="gantt-bar" style="left:0%;width:15%;"></div>
+        <div class="gantt-now" style="left:1%;"></div>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">3D print body shell</div>
+      <div class="gantt-track">
+        <div class="gantt-bar" style="left:5%;width:25%;"></div>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">Drive unit build</div>
+      <div class="gantt-track">
+        <div class="gantt-bar" style="left:0%;width:25%;"></div>
+        <div class="gantt-milestone" style="left:25%;" title="Ball rolls (wk 2.5)"></div>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">Sensors &amp; obstacle avoidance</div>
+      <div class="gantt-track">
+        <div class="gantt-bar" style="left:20%;width:15%;"></div>
+        <div class="gantt-milestone" style="left:35%;" title="Drives + avoids walls (wk 3.5)"></div>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">Print &amp; assemble head</div>
+      <div class="gantt-track">
+        <div class="gantt-bar" style="left:15%;width:25%;"></div>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">Head magnets + camera mount</div>
+      <div class="gantt-track">
+        <div class="gantt-bar" style="left:40%;width:7%;"></div>
+        <div class="gantt-milestone" style="left:47%;" title="Head mounted + tracks (wk 4.7)"></div>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">Face / gesture software</div>
+      <div class="gantt-track">
+        <div class="gantt-bar soft" style="left:25%;width:35%;"></div>
+        <div class="gantt-milestone" style="left:60%;" title="Gesture response works (wk 6)"></div>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">Indoor navigation</div>
+      <div class="gantt-track">
+        <div class="gantt-bar soft" style="left:35%;width:30%;"></div>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">Integration &amp; polish</div>
+      <div class="gantt-track">
+        <div class="gantt-bar" style="left:50%;width:15%;"></div>
+        <div class="gantt-milestone" style="left:65%;" title="Feature complete (wk 6.5)"></div>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">Test + buffer</div>
+      <div class="gantt-track">
+        <div class="gantt-bar soft" style="left:65%;width:28%;"></div>
+        <div class="gantt-milestone" data-end="true" style="left:93%;" title="Deadline (wk 9.3)"></div>
+      </div>
+    </div>
+
+    <div class="gantt-legend">
+      <span><span class="swatch bar"></span>Critical path</span>
+      <span><span class="swatch diamond"></span>Milestone</span>
+      <span><span class="swatch now"></span>Today</span>
+      <span style="margin-left:auto;">Budget ~$635 essential</span>
     </div>
   </div>
 
