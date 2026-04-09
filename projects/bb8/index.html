@@ -552,13 +552,14 @@ details.print-group:not([open]) > .group-head {
 .two-col .col h2 { margin-top: 0; }
 .two-col .print-grid { grid-template-columns: 1fr; }
 .two-col .parts-list li {
-  grid-template-columns: 1fr auto;
-  gap: 6px 12px;
+  grid-template-columns: 20px 1fr auto;
+  grid-template-rows: auto auto auto;
 }
-.two-col .parts-list .date { grid-column: 1 / 3; font-size: 9px; }
-.two-col .parts-list .item { grid-column: 1 / 3; }
-.two-col .parts-list .price { grid-column: 1; text-align: left; }
-.two-col .parts-list .status { grid-column: 2; }
+.two-col .parts-list .parts-check { grid-column: 1; grid-row: 1 / span 3; align-self: center; }
+.two-col .parts-list .date { grid-column: 2 / 4; font-size: 9px; }
+.two-col .parts-list .item { grid-column: 2 / 4; }
+.two-col .parts-list .price { grid-column: 2; text-align: left; }
+.two-col .parts-list .status { grid-column: 3; }
 
 /* Parts ordered */
 .parts-meta {
@@ -581,12 +582,24 @@ details.print-group:not([open]) > .group-head {
 }
 .parts-list li {
   display: grid;
-  grid-template-columns: 70px 1fr auto auto;
+  grid-template-columns: 20px 70px 1fr auto auto;
   gap: 16px;
   align-items: center;
   padding: 12px 16px;
   border-bottom: 1px dashed #143014;
   font-size: 12px;
+}
+.parts-list .parts-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.parts-list .parts-check input[type="checkbox"] {
+  accent-color: #33ff33;
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
+  margin: 0;
 }
 .parts-list li:last-child { border-bottom: none; }
 .parts-list .date {
@@ -625,6 +638,7 @@ details.print-group:not([open]) > .group-head {
 .parts-list .status.delivered { background: #0a2a0a; color: #33ff33; border: 1px solid #1a4a1a; }
 .parts-list .status.transit   { background: #2a2a0a; color: #ffaa33; border: 1px solid #4a4a0a; }
 .parts-list .status.scheduled { background: #0a1a2a; color: #4a8acc; border: 1px solid #1a3a5a; }
+.parts-list .status.needed    { background: #2a0a0a; color: #ff6666; border: 1px solid #4a1a1a; }
 
 /* Footer */
 .footer {
@@ -648,13 +662,15 @@ details.print-group:not([open]) > .group-head {
   .print-grid { grid-template-columns: 1fr; }
   .status-block { padding: 14px 16px; }
   .parts-list li {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 20px 1fr auto;
+    grid-template-rows: auto auto auto;
     gap: 6px 12px;
   }
-  .parts-list .date { grid-column: 1 / 3; font-size: 9px; }
-  .parts-list .item { grid-column: 1 / 3; }
-  .parts-list .price { grid-column: 1; text-align: left; }
-  .parts-list .status { grid-column: 2; }
+  .parts-list .parts-check { grid-column: 1; grid-row: 1 / span 3; align-self: center; }
+  .parts-list .date { grid-column: 2 / 4; font-size: 9px; }
+  .parts-list .item { grid-column: 2 / 4; }
+  .parts-list .price { grid-column: 2; text-align: left; }
+  .parts-list .status { grid-column: 3; }
   .gantt-row { grid-template-columns: 110px 1fr; gap: 8px; }
   .gantt-task { font-size: 10px; }
   .gantt-scale { font-size: 8px; }
@@ -786,77 +802,193 @@ details.print-group:not([open]) > .group-head {
 
   <div class="two-col">
   <div class="col">
-  <h2>PARTS ORDERED</h2>
+  <h2>PARTS CHECKLIST</h2>
   <div class="parts-meta">
-    <span>11 orders · USD (Amazon CN¥ ≈ 7.2)</span>
-    <span class="total">TOTAL: $607.89</span>
+    <span>27 parts · 11 ordered · 16 to order</span>
+    <span class="total">ORDERED: $607.89 · EST: +$484</span>
   </div>
   <ul class="parts-list">
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Mar 02</span>
       <span class="item">Lonely Binary ESP32-S3 Dev Board · Gold Edition · 16MB / 8MB PSRAM<span class="vendor">Amazon</span></span>
       <span class="price">$21.42</span>
       <span class="status delivered">Delivered</span>
     </li>
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 03</span>
       <span class="item">NVIDIA Jetson Orin Nano Super Developer Kit<span class="vendor">Amazon</span></span>
       <span class="price">$266.58</span>
       <span class="status delivered">Delivered</span>
     </li>
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 07</span>
       <span class="item">BOJACK 300pcs Rectifier Diode Assortment Kit + 2× DS-0420S Mini Solenoid<span class="vendor">Amazon · BOJACK</span></span>
       <span class="price">$27.65</span>
       <span class="status transit">Arriving Thu</span>
     </li>
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 07</span>
       <span class="item">uxcell 20pcs PP Plastic Bearing Balls · 12mm<span class="vendor">Amazon · uxcell</span></span>
       <span class="price">$6.07</span>
       <span class="status transit">Arriving Tomorrow</span>
     </li>
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 07</span>
       <span class="item">THCMagorilla 10pcs Neodymium Magnets · 0.79″ × 0.24″<span class="vendor">Amazon · THCMagorilla</span></span>
       <span class="price">$18.14</span>
       <span class="status transit">Arriving Thu</span>
     </li>
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 07</span>
       <span class="item">2× MG90S 9g Metal Gear Micro Servo<span class="vendor">Amazon</span></span>
       <span class="price">$9.48</span>
       <span class="status transit">Arriving Tomorrow</span>
     </li>
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 07</span>
       <span class="item">Cytron MDD10A Dual Channel 10A DC Motor Driver<span class="vendor">Amazon · Cytron</span></span>
       <span class="price">$30.53</span>
       <span class="status scheduled">Apr 10–14</span>
     </li>
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 07</span>
       <span class="item">2× Encoder Metal Gearmotor · 12V · 300 RPM<span class="vendor">Amazon</span></span>
       <span class="price">$53.12</span>
       <span class="status transit">Arriving Thu</span>
     </li>
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 07</span>
       <span class="item">4pcs TOF400C VL53L1X Laser Distance Sensor Modules<span class="vendor">Amazon</span></span>
       <span class="price">$23.14</span>
       <span class="status transit">Arriving Tomorrow</span>
     </li>
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 07</span>
       <span class="item">Bambu Lab PLA Basic Refill Filament 1kg · Orange 10300<span class="vendor">Amazon · Bambu Lab</span></span>
       <span class="price">$26.68</span>
       <span class="status transit">Arriving Tomorrow</span>
     </li>
     <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 07</span>
       <span class="item">Arducam B0274 IMX477 HQ Camera + B0279 (incl. shipping)<span class="vendor">Arducam · direct (arducam.com)</span></span>
       <span class="price">$124.98</span>
       <span class="status scheduled">Processing</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Acrylic Hemisphere 18″ (pair) · the BB-8 body shell itself<span class="vendor">Plastruct / BB-8 Builders Club wiki</span></span>
+      <span class="price">~$110</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">22-wire Slip Ring · 1A per channel (body ↔ dome power/signal)<span class="vendor">Amazon · Joe's Drive core</span></span>
+      <span class="price">~$25</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">12″ Lazy Susan Bearing · hamster-drive main rotation<span class="vendor">Amazon · Joe's Drive core</span></span>
+      <span class="price">~$12</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Zeee 3S 11.1V 5200 mAh LiPo + XT60<span class="vendor">Amazon · Zeee</span></span>
+      <span class="price">~$28</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">SkyRC iMAX B6AC V2 Balance Charger<span class="vendor">Amazon · SkyRC</span></span>
+      <span class="price">~$55</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Adafruit BNO055 9-DOF IMU · on-chip sensor fusion<span class="vendor">Adafruit · direct</span></span>
+      <span class="price">~$35</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Steel Shot 2.4 mm · 5 lb · flywheel & balancer ballast<span class="vendor">Amazon · Joe's Drive MK3</span></span>
+      <span class="price">~$18</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Adafruit MAX98357A I2S Amp + 4Ω 3W Speaker<span class="vendor">Amazon · Adafruit</span></span>
+      <span class="price">~$12</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">INMP441 I2S MEMS Microphone · voice input (planned)<span class="vendor">Amazon</span></span>
+      <span class="price">~$6</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">M3 Allen Bolt &amp; Nut Kit + M4 Long Bolts / Lock Nuts / Washers / Flat Screws<span class="vendor">Amazon · Joe's Drive MK3 BOM</span></span>
+      <span class="price">$52.24</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Blue Locktite 242 + 14″ Zip Ties<span class="vendor">Amazon · Joe's Drive MK3 BOM</span></span>
+      <span class="price">$13.51</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">62/36/2 Silver Solder + Flux Paste + 16 AWG PTFE Wire + Heat Shrink Kit<span class="vendor">Amazon · Joe's Drive MK3 BOM</span></span>
+      <span class="price">$59.92</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Center Drill Bit + Small Level + Metal File<span class="vendor">Amazon · Joe's Drive MK3 BOM</span></span>
+      <span class="price">$25.68</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Switchcraft 2.1 mm DC Charge Port + 2.1 mm Male Barrel Plug<span class="vendor">Amazon · Builders Club panel-mod</span></span>
+      <span class="price">~$14</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">J-B Weld 2-Part Epoxy + 0.5 mm Steel Shim Sheet · panel magnet retention<span class="vendor">Amazon · Builders Club panel-mod</span></span>
+      <span class="price">~$18</span>
+      <span class="status needed">Need</span>
     </li>
   </ul>
   </div>
