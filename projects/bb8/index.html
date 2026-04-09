@@ -1341,31 +1341,7 @@ details.print-group:not([open]) > .group-head {
       <span class="day">Day 2</span>
       <span class="date">2026-04-08</span>
     </div>
-    <h3>Got into the BB-8 Builders Club. Drive locked in: Joe's Drive MK3 Flywheel. Jetson in the body. BOM is honest.</h3>
-
-    <p>Today started with an inbox ping. After cold-messaging <strong>all twelve admins</strong> of the BB-8 Builders Club Facebook group over the past couple of weeks — trying to get into what is probably the single most important archive of full-size BB-8 build knowledge on the internet — one of them finally said yes. Membership accepted. Google Drive shared. Suddenly the entire <em>Drive Systems</em> folder was in front of me: Joe's Drive, Cary's Drive V1, Carbon Drive, and all the accumulated STLs, wiring diagrams, BOMs, and build logs the community has produced since 2015. None of the rest of today's decisions are possible without this step. Thank you to whoever approved it — you saved me from having to reinvent ten years of BB-8 tribal knowledge from YouTube videos and forum screenshots.</p>
-
-    <p>With the files in hand, I spent the rest of the day reading every Joe's Drive file that isn't 147 MB (<code>Joe_s Documentation.pdf</code> — sorry, not today). That's the full MK3 Arduino source (<code>MK3_Drive.ino</code> + <code>Functions.ino</code>, <code>MK3_Dome.ino</code>, <code>IMU_Pro_Mini.ino</code>, <code>MK3_Remote.ino</code>), the parsed BOM spreadsheet (~$1,113 baseline), the 100-page assembly manual, and both Mat Prentis build logs (mechanical + electronics). The result: five real decisions.</p>
-
-    <p><strong>1. Drive is Joe's MK3 Flywheel, not Cary's.</strong> Cary's is simpler and cheaper, but with a Jetson, camera, speaker and servos eventually living inside this thing, our build is a <em>heavy-head</em> build. Joe's flywheel is exactly the counter-inertia we need — it's the only BB-8 drive in the community that actively stabilizes against head mass-shift. We're not reinventing the drivetrain, we're replacing the brain.</p>
-
-    <p><strong>2. Jetson lives in the body, not the head.</strong> Original sketch had a ~300 g Jetson riding in the dome. That would have crushed the CG budget and pushed us toward 80 kg+ dome-tilt servos, which is insane for what is physically a plastic hemisphere with LEDs. Moving the Jetson into the internal drive unit keeps the dome under ~200 g and the stock 60 kg DS5160 dome-tilt servos are comfortably in spec. Camera stays in the head because it needs the face vantage — connected back to the body Jetson via USB over slip ring. Exact slip ring model is TBD, but that's a week-5 problem, not a week-1 problem.</p>
-
-    <p><strong>3. Bourns 6630 is dead. Long live AS5600.</strong> Joe's BOM calls for a Bourns 6630S0D-C28-A103 — a $16 continuous-rotation potentiometer on the dome spin axle that reports absolute angle. It's a nightmare to source: ~7-week lead at Digi-Key, $50 in freight on a $16 part, and it has a 5–10° dead band at the wraparound that Joe's code works around in software. We're replacing it with an <strong>AS5600 magnetic rotary encoder</strong> — $8 on Amazon, in stock today, 12-bit contactless, no dead band, I²C. It's a one-line swap in the dome spin PID input (<code>analogRead()</code> → <code>as5600.rawAngle()</code>), and we're rewriting that firmware layer for ESP32-S3 anyway, so zero extra friction. Mounts with a 6 mm diametrical neo magnet glued to the shaft end and the sensor PCB on a printed bracket ~2 mm above. This alone removes our single longest lead item from the critical path.</p>
-
-    <p><strong>4. BOM got honest.</strong> Parts Checklist now has the full Joe's Drive MK3 mechanical stack: PDTech 12 mm hardened axle rod, dual 1621 RPM flywheel motors, 45 RPM S2S motor, 2× 60 kg dome-tilt servos, 608ZZ / 6001ZZ bearings, ServoCity timing pulleys, Gates 192XL037 belt, 32 mm clamping mounts, 17 lb of steel shot for the flywheel tray, and the Suaoki U10 20 Ah jump-starter as the body battery (has BMS + charger built in; this is what the Joe's Drive community converged on, not a bare LiPo). All-in estimate with compute + drive + shell: <strong>~$1,700</strong>. The "~$635" number on the research report was only the AI layer and was misleading by a factor of 3. Print Checklist gained two new groups — <em>Joe's Drive MK3 · Center &amp; Head Control</em> and <em>Joe's Drive MK3 · Dome Tilt (servo variant)</em> — for the parts unique to MK3 that weren't already in the Naigon-lineage print list.</p>
-
-    <p><strong>5. Research Report 001 revised.</strong> The old version compared us to Sphero, SpinMaster, Nachum's 3D print, and Printed Droid Club. That's a comparison against toys and static builds, and it was flattering for the wrong reason. The revised report compares us only against the <strong>BB-8 Builders Club canonical build running Joe's Drive MK3</strong> — which is the actual baseline we're building on and therefore the only honest comparison. Architecture diagram updated to match today's decisions: Jetson in body, camera on head over USB-slip-ring, AS5600 on the dome spin axle, ESP-NOW for head ↔ body control. <a class="report-btn" href="research-report/">Read the revised report →</a></p>
-
-    <p><strong>Punch list for this week:</strong></p>
-    <ul>
-      <li>Order the <strong>PDTech 12 mm hardened steel rod</strong>, custom cut to 470 mm, from eBay today. Longest remaining lead (~2 weeks).</li>
-      <li>Order the <strong>AS5600 breakout + 6 mm diametrical neodymium magnet</strong> from Amazon (Prime).</li>
-      <li>Order the ServoCity drivetrain: <strong>45 RPM S2S, 2× 1621 RPM flywheel, 100 RPM dome spin</strong>, plus the timing pulley kit.</li>
-      <li>Order <strong>2× DS5160</strong> dome-tilt servos, <strong>3× BTS7960B</strong>, bearings, and steel shot (17 lb).</li>
-      <li>Pull Joe's STLs off the Drive Systems folder and slice the <em>Bearing Tester</em> first — Joe put it in the repo specifically so you can validate your printer tolerances before committing hours to the A-frames. H2D should handle it, but trust and verify.</li>
-      <li>Start a mechanical foamcore mockup of the internal drive cage to gut-check that the Jetson + Suaoki U10 + flywheel all actually fit once CG is pulled as low as possible.</li>
-    </ul>
+    <p><a class="report-btn" href="research-report/">Revised Research Report →</a></p>
   </article>
 
   <article class="log-entry">
