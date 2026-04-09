@@ -808,12 +808,14 @@ details.print-group:not([open]) > .group-head {
 
   <h2>ARCHITECTURE</h2>
   <div class="arch-grid">
-    <div class="arch-item"><div class="role">BRAIN</div><div class="name">Jetson Orin Nano Super (67 TOPS)</div></div>
-    <div class="arch-item"><div class="role">CAMERA</div><div class="name">Arducam B0274 IMX477 (12.3MP)</div></div>
+    <div class="arch-item"><div class="role">BRAIN · body</div><div class="name">Jetson Orin Nano Super (67 TOPS)</div></div>
+    <div class="arch-item"><div class="role">CAMERA · head</div><div class="name">Arducam B0274 IMX477 (12.3MP)</div></div>
+    <div class="arch-item"><div class="role">HEAD↔BODY LINK</div><div class="name">USB over slip ring (TBD)</div></div>
     <div class="arch-item"><div class="role">BODY MCU</div><div class="name">ESP32-S3 (motors, IMU, ToF)</div></div>
     <div class="arch-item"><div class="role">HEAD MCU</div><div class="name">ESP32-S3 (servos, LEDs, sound)</div></div>
     <div class="arch-item"><div class="role">IMU</div><div class="name">Adafruit BNO055</div></div>
     <div class="arch-item"><div class="role">OBSTACLE</div><div class="name">VL53L1X ToF ×3</div></div>
+    <div class="arch-item"><div class="role">DRIVE</div><div class="name">Joe's Drive MK3 Flywheel (dual motor)</div></div>
     <div class="arch-item"><div class="role">AI STACK</div><div class="name">InsightFace + MediaPipe + ROS 2</div></div>
     <div class="arch-item"><div class="role">SHELL</div><div class="name">Multicolor PLA</div></div>
   </div>
@@ -822,8 +824,8 @@ details.print-group:not([open]) > .group-head {
   <div class="col">
   <h2>PARTS CHECKLIST</h2>
   <div class="parts-meta">
-    <span>22 essential + 5 optional · <span id="parts-checked">11</span> / 27 ordered</span>
-    <span class="total">ORDERED: $607.89 · EST: +$452 essential + $50 optional</span>
+    <span>21 essential + 15 Joe's Drive MK3 + 5 optional · <span id="parts-checked">11</span> / 41 ordered</span>
+    <span class="total">ORDERED: $607.89 · REMAINING EST: ~$1,040 essential + $50 optional</span>
   </div>
   <ul class="parts-list" id="parts-list">
     <li>
@@ -941,8 +943,8 @@ details.print-group:not([open]) > .group-head {
     <li>
       <span class="parts-check"><input type="checkbox"></span>
       <span class="date">—</span>
-      <span class="item">Steel Shot 2.4 mm · 5 lb · flywheel & balancer ballast<span class="vendor">Amazon · Joe's Drive MK3</span></span>
-      <span class="price">~$18</span>
+      <span class="item">Steel Shot 2.4 mm · 17 lb (7.7 kg) · flywheel ballast (Joe's MK3 spec)<span class="vendor">Sportsman's Warehouse · Joe's Drive MK3</span></span>
+      <span class="price">~$45</span>
       <span class="status needed">Need</span>
     </li>
     <li>
@@ -972,6 +974,112 @@ details.print-group:not([open]) > .group-head {
       <span class="item">Center Drill Bit + Small Level + Metal File<span class="vendor">Amazon · Joe's Drive MK3 BOM</span></span>
       <span class="price">$25.68</span>
       <span class="status needed">Need</span>
+    </li>
+    <li class="section-header"><span>Joe's Drive MK3 · drivetrain &amp; mechanical</span></li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">AS5600 12-bit magnetic rotary encoder breakout · dome spin feedback (replaces Bourns 6630 — contactless, no dead-band)<span class="vendor">Amazon · ams AS5600</span></span>
+      <span class="price">~$8</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">6 mm × 2.5 mm diametrical neodymium magnet · pairs with AS5600 on dome-spin shaft end<span class="vendor">Amazon · K&amp;J Magnetics</span></span>
+      <span class="price">~$5</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">PDTech 12 mm hardened steel rod · custom cut to 470 mm · main drive axle<span class="vendor">eBay · slow ship · <strong>order this week</strong></span></span>
+      <span class="price">~$21</span>
+      <span class="status needed">Long lead</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">2× DS5160 60 kg digital servo · MK3 dome tilt L/R (60 kg is enough because Jetson stays in body)<span class="vendor">Amazon</span></span>
+      <span class="price">~$84</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">ServoCity 45 RPM HD Planetary Gear Motor · side-to-side (S2S)<span class="vendor">ServoCity</span></span>
+      <span class="price">~$40</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">2× ServoCity 1,621 RPM HD Planetary Gear Motor · dual flywheel spin<span class="vendor">ServoCity</span></span>
+      <span class="price">~$80</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">XD-37GB520 100 RPM gear motor · dome spin<span class="vendor">Amazon / RobotShop</span></span>
+      <span class="price">~$13</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">3× BTS7960B 43 A motor driver · flywheel + S2S + spare<span class="vendor">Amazon</span></span>
+      <span class="price">~$33</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">L298N dual H-bridge · dome spin motor driver<span class="vendor">Amazon</span></span>
+      <span class="price">~$7</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">10× 608ZZ 8 mm bearings + 10× 6001ZZ 12 mm bearings<span class="vendor">eBay</span></span>
+      <span class="price">~$30</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">ServoCity timing pulley kit · 1× 62T timing pulley + 4× 15T pinion + 2× 1.50″/0.770″ hub adapters + 2× 12 mm clamping hubs<span class="vendor">ServoCity</span></span>
+      <span class="price">~$80</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Gates 192XL037 belt + 48″ 240T XL belt + 2× 8 mm 20T GT2 pulley + 6→8 mm flex coupler<span class="vendor">Amazon · ServoCity</span></span>
+      <span class="price">~$48</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">2× ServoCity 32 mm bottom-tapped clamping mount + 2× 6 mm D-hub · flywheel motor mounts<span class="vendor">ServoCity</span></span>
+      <span class="price">~$26</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">2× 10 kΩ linear-taper pot · S2S + head-tilt feedback<span class="vendor">Digi-Key · Bourns / CTS</span></span>
+      <span class="price">~$15</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Suaoki U10 20 Ah Li-Ion jump-starter · body battery w/ built-in BMS + charger (preferred over bare 3S LiPo)<span class="vendor">Amazon · Joe's Drive community pick</span></span>
+      <span class="price">~$75</span>
+      <span class="status needed">Alt to LiPo</span>
     </li>
     <li class="section-header"><span>Optional · personality / cosmetic</span></li>
     <li>
@@ -1015,10 +1123,10 @@ details.print-group:not([open]) > .group-head {
   <div class="col">
   <h2>PRINT CHECKLIST</h2>
   <div class="print-meta">
-    <span>40 STL files · Builders Club shell + Joe's Drive MK3</span>
-    <span><span class="count" id="print-count">0 / 40</span> &nbsp;<button id="print-reset" type="button">Reset</button></span>
+    <span>48 STL files · Builders Club shell + Joe's Drive MK3 Flywheel</span>
+    <span><span class="count" id="print-count">0 / 48</span> &nbsp;<button id="print-reset" type="button">Reset</button></span>
   </div>
-  <p class="print-credit">Shell &amp; dome from <a href="https://www.facebook.com/groups/BB8BuildersClub/" target="_blank" rel="noopener">BB-8 Builders Club</a> (Dai Buckley, Monty Saine, Nick Danielak, Bob Ross, Autumn Jackson, et al.) · drive from <strong>Joe Latiola</strong> + <strong>Naigon</strong>, <a href="https://www.facebook.com/groups/JoesDrive/" target="_blank" rel="noopener">Joe's Drive</a>.</p>
+  <p class="print-credit">Shell &amp; dome from <a href="https://www.facebook.com/groups/BB8BuildersClub/" target="_blank" rel="noopener">BB-8 Builders Club</a> (Dai Buckley, Monty Saine, Nick Danielak, Bob Ross, Autumn Jackson, et al.) · drive from <strong>Joe Latiola</strong>, <a href="https://www.facebook.com/groups/JoesDrive/" target="_blank" rel="noopener">Joe's Drive MK3 Flywheel</a> (file names pulled directly from the BCC Google Drive archive).</p>
   <div class="print-grid" id="print-grid">
 
     <details class="print-group" open>
@@ -1063,61 +1171,63 @@ details.print-group:not([open]) > .group-head {
     </details>
 
     <details class="print-group">
-      <summary class="group-head"><span class="group-name">Flywheel Core</span><span>5</span></summary>
+      <summary class="group-head"><span class="group-name">Joe's Drive MK3 · Center Assembly</span><span>12</span></summary>
       <ul class="print-list">
-        <li><label><input type="checkbox" data-stl="jd-back-aframe-v3"><span class="pname">Back A-Frame Support V3</span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-front-aframe-v2"><span class="pname">Front A-Frame Support V2</span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-flywheel-third-v4"><span class="pname">Flywheel Third V4</span><span class="qty">×3</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-flywheel-plug-v8"><span class="pname">Flywheel Plug V8</span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-battery-cclamp-v4"><span class="pname">Battery C-Clamp V4</span><span class="qty">×2</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-main-square"><span class="pname">Main Square.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-motor-carriage-v3"><span class="pname">Motor Carriage V3.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-motor-mount"><span class="pname">Motor Mount.stl</span><span class="qty">×2</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-s2s-pulley-v4"><span class="pname">S2S Pulley V4.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-s2s-pulley-adapter"><span class="pname">s2s pulley adapter.stl</span><span class="qty">×2</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-head-tilt-pulley-v3"><span class="pname">head tilt pulley_v3_fixed.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-shorter-wedges"><span class="pname">shorter wedges_fixed.stl <em>(belt tensioning)</em></span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-axle-ends-cary"><span class="pname">Axle Ends – Cary.stl <em>(Injection Frame variant)</em></span><span class="qty">×2</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-axle-adapter"><span class="pname">Axle Adapter_print.stl</span><span class="qty">×2</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-pots-v3"><span class="pname">Pots v3_1_fixed.stl <em>(S2S + head-tilt pot holder)</em></span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-washers-spacers"><span class="pname">assorted washers and spacers_fixed.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-imu-mount"><span class="pname">IMU mount_fixed.stl <em>(repurpose for BNO055)</em></span><span class="qty">×1</span></label></li>
       </ul>
     </details>
 
     <details class="print-group">
-      <summary class="group-head"><span class="group-name">Under-Battery Ballast</span><span>3</span></summary>
+      <summary class="group-head"><span class="group-name">Joe's Drive MK3 · Flywheel Assembly</span><span>10</span></summary>
       <ul class="print-list">
-        <li><label><input type="checkbox" data-stl="jd-ub-ballast-holder-v1"><span class="pname">Under-Battery Ballast Holder V1</span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-ub-center-lid"><span class="pname">Under-Battery Center Lid</span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-ub-side-lid"><span class="pname">Under-Battery Side Lid</span><span class="qty">×2</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-aframe-dual-motor"><span class="pname">A-frame DUAL Motor.stl <em>(motor side)</em></span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-dual-motor-mount"><span class="pname">Dual Motor Mount.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-aframe-pulley-side"><span class="pname">A Frame V2 pulley side.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-flywheel-split-v2"><span class="pname">flywheel Split V2 x3.stl <em>(3-piece for print bed)</em></span><span class="qty">×3</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-flywheel-gear"><span class="pname">Flywheel gear with cover.stl <em>(Bobby White, print in PETG)</em></span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-drive-tire-flex"><span class="pname">drive tire FLEX.stl <em>(TPU/TPC)</em></span><span class="qty">×2</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-drive-wheel-1"><span class="pname">drive wheel 1_2.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-drive-wheel-2"><span class="pname">drive wheel 2_2.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-s2s-motor-mount-v5"><span class="pname">SideTiltMotorMount v5.stl <em>(hose-clamp variant)</em></span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-motor-mount-shim"><span class="pname">Motor Mount Shim.stl</span><span class="qty">×1</span></label></li>
       </ul>
     </details>
 
     <details class="print-group">
-      <summary class="group-head"><span class="group-name">S2S Balancing</span><span>3</span></summary>
+      <summary class="group-head"><span class="group-name">Joe's Drive MK3 · Dome Tilt Assembly</span><span>5</span></summary>
       <ul class="print-list">
-        <li><label><input type="checkbox" data-stl="jd-s2s-balancer-v2"><span class="pname">S2S Balancer V2</span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-s2s-side-lid-l"><span class="pname">Side Lid L <em>(TPU/TPC)</em></span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-s2s-side-lid-r"><span class="pname">Side Lid R <em>(TPU/TPC)</em></span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-dome-tilt-main-arm"><span class="pname">Main arm.stl <em>(dome-tilt main arm)</em></span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-dome-tilt-axle-mount"><span class="pname">Dome Tilt Axle Mount.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-dome-tilt-rod-mount"><span class="pname">Rod Mount.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-dome-tilt-adapter"><span class="pname">.25 to 8mm adapter.stl</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-dome-tilt-blank"><span class="pname">Blank v0.stl</span><span class="qty">×1</span></label></li>
       </ul>
     </details>
 
     <details class="print-group">
-      <summary class="group-head"><span class="group-name">Front/Back Balancing — pick one</span><span>7</span></summary>
+      <summary class="group-head"><span class="group-name">Joe's Drive MK3 · Dome Spin Servo</span><span>2</span></summary>
       <ul class="print-list">
-        <li><label><input type="checkbox" data-stl="jd-back-ballast-holder-v2"><span class="pname">Back Ballast Holder V2</span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-back-lid-l"><span class="pname">Back Lid L <em>(TPU/TPC)</em></span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-back-lid-r"><span class="pname">Back Lid R <em>(TPU/TPC)</em></span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-front-ballast-holder-v2"><span class="pname">Front Ballast Holder V2</span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-front-lid-l"><span class="pname">Front Lid L <em>(TPU/TPC)</em></span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-front-lid-m"><span class="pname">Front Lid M <em>(TPU/TPC)</em></span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-front-lid-r"><span class="pname">Front Lid R <em>(TPU/TPC)</em></span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-servo-horns"><span class="pname">servo horns.stl <em>(dome spin servo horns)</em></span><span class="qty">×2</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-servo-mount"><span class="pname">Servo Mount.stl</span><span class="qty">×1</span></label></li>
       </ul>
     </details>
 
     <details class="print-group">
-      <summary class="group-head"><span class="group-name">21700 Battery Pack — optional</span><span>2</span></summary>
+      <summary class="group-head"><span class="group-name">Joe's Drive MK3 · Speaker (optional, panel-mount)</span><span>2</span></summary>
       <ul class="print-list">
-        <li><label><input type="checkbox" data-stl="jd-21700-6x-holder"><span class="pname">21700 6× Holder</span><span class="qty">×2</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-21700-battery-box-v1"><span class="pname">Battery Box V1</span><span class="qty">×1</span></label></li>
-      </ul>
-    </details>
-
-    <details class="print-group">
-      <summary class="group-head"><span class="group-name">Power Switch Holder — optional, pick one</span><span>3</span></summary>
-      <ul class="print-list">
-        <li><label><input type="checkbox" data-stl="jd-psh-simple"><span class="pname">Power Switch Holder Simple</span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-psh-voltage"><span class="pname">Power Switch Holder Voltage</span><span class="qty">×1</span></label></li>
-        <li><label><input type="checkbox" data-stl="jd-voltage-display-holder-v1"><span class="pname">Voltage Display Holder V1</span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-speaker-box-v2"><span class="pname">Speaker Box V2.stl <em>(single-speaker variant)</em></span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-speaker-baffle"><span class="pname">speaker baffle X2.stl <em>(for dual-speaker variant)</em></span><span class="qty">×1</span></label></li>
       </ul>
     </details>
 
@@ -1125,7 +1235,7 @@ details.print-group:not([open]) > .group-head {
 
   <script>
   (function () {
-    var KEY = 'bb8-print-checklist-v2';
+    var KEY = 'bb8-print-checklist-v3';
     var grid = document.getElementById('print-grid');
     var countEl = document.getElementById('print-count');
     var resetBtn = document.getElementById('print-reset');
@@ -1179,7 +1289,7 @@ details.print-group:not([open]) > .group-head {
   (function () {
     // Parts Checklist localStorage persistence.
     // Keyed by item index; bump PARTS_KEY if list structure changes.
-    var PARTS_KEY = 'bb8-parts-checklist-v1';
+    var PARTS_KEY = 'bb8-parts-checklist-v2';
     var list = document.getElementById('parts-list');
     if (!list) return;
     var countEl = document.getElementById('parts-checked');
@@ -1225,6 +1335,38 @@ details.print-group:not([open]) > .group-head {
   </div>
 
   <h2>BUILD LOG</h2>
+
+  <article class="log-entry">
+    <div class="log-meta">
+      <span class="day">Day 2</span>
+      <span class="date">2026-04-08</span>
+    </div>
+    <h3>Got into the BB-8 Builders Club. Drive locked in: Joe's Drive MK3 Flywheel. Jetson in the body. BOM is honest.</h3>
+
+    <p>Today started with an inbox ping. After cold-messaging <strong>all twelve admins</strong> of the BB-8 Builders Club Facebook group over the past couple of weeks — trying to get into what is probably the single most important archive of full-size BB-8 build knowledge on the internet — one of them finally said yes. Membership accepted. Google Drive shared. Suddenly the entire <em>Drive Systems</em> folder was in front of me: Joe's Drive, Cary's Drive V1, Carbon Drive, and all the accumulated STLs, wiring diagrams, BOMs, and build logs the community has produced since 2015. None of the rest of today's decisions are possible without this step. Thank you to whoever approved it — you saved me from having to reinvent ten years of BB-8 tribal knowledge from YouTube videos and forum screenshots.</p>
+
+    <p>With the files in hand, I spent the rest of the day reading every Joe's Drive file that isn't 147 MB (<code>Joe_s Documentation.pdf</code> — sorry, not today). That's the full MK3 Arduino source (<code>MK3_Drive.ino</code> + <code>Functions.ino</code>, <code>MK3_Dome.ino</code>, <code>IMU_Pro_Mini.ino</code>, <code>MK3_Remote.ino</code>), the parsed BOM spreadsheet (~$1,113 baseline), the 100-page assembly manual, and both Mat Prentis build logs (mechanical + electronics). The result: five real decisions.</p>
+
+    <p><strong>1. Drive is Joe's MK3 Flywheel, not Cary's.</strong> Cary's is simpler and cheaper, but with a Jetson, camera, speaker and servos eventually living inside this thing, our build is a <em>heavy-head</em> build. Joe's flywheel is exactly the counter-inertia we need — it's the only BB-8 drive in the community that actively stabilizes against head mass-shift. We're not reinventing the drivetrain, we're replacing the brain.</p>
+
+    <p><strong>2. Jetson lives in the body, not the head.</strong> Original sketch had a ~300 g Jetson riding in the dome. That would have crushed the CG budget and pushed us toward 80 kg+ dome-tilt servos, which is insane for what is physically a plastic hemisphere with LEDs. Moving the Jetson into the internal drive unit keeps the dome under ~200 g and the stock 60 kg DS5160 dome-tilt servos are comfortably in spec. Camera stays in the head because it needs the face vantage — connected back to the body Jetson via USB over slip ring. Exact slip ring model is TBD, but that's a week-5 problem, not a week-1 problem.</p>
+
+    <p><strong>3. Bourns 6630 is dead. Long live AS5600.</strong> Joe's BOM calls for a Bourns 6630S0D-C28-A103 — a $16 continuous-rotation potentiometer on the dome spin axle that reports absolute angle. It's a nightmare to source: ~7-week lead at Digi-Key, $50 in freight on a $16 part, and it has a 5–10° dead band at the wraparound that Joe's code works around in software. We're replacing it with an <strong>AS5600 magnetic rotary encoder</strong> — $8 on Amazon, in stock today, 12-bit contactless, no dead band, I²C. It's a one-line swap in the dome spin PID input (<code>analogRead()</code> → <code>as5600.rawAngle()</code>), and we're rewriting that firmware layer for ESP32-S3 anyway, so zero extra friction. Mounts with a 6 mm diametrical neo magnet glued to the shaft end and the sensor PCB on a printed bracket ~2 mm above. This alone removes our single longest lead item from the critical path.</p>
+
+    <p><strong>4. BOM got honest.</strong> Parts Checklist now has the full Joe's Drive MK3 mechanical stack: PDTech 12 mm hardened axle rod, dual 1621 RPM flywheel motors, 45 RPM S2S motor, 2× 60 kg dome-tilt servos, 608ZZ / 6001ZZ bearings, ServoCity timing pulleys, Gates 192XL037 belt, 32 mm clamping mounts, 17 lb of steel shot for the flywheel tray, and the Suaoki U10 20 Ah jump-starter as the body battery (has BMS + charger built in; this is what the Joe's Drive community converged on, not a bare LiPo). All-in estimate with compute + drive + shell: <strong>~$1,700</strong>. The "~$635" number on the research report was only the AI layer and was misleading by a factor of 3. Print Checklist gained two new groups — <em>Joe's Drive MK3 · Center &amp; Head Control</em> and <em>Joe's Drive MK3 · Dome Tilt (servo variant)</em> — for the parts unique to MK3 that weren't already in the Naigon-lineage print list.</p>
+
+    <p><strong>5. Research Report 001 revised.</strong> The old version compared us to Sphero, SpinMaster, Nachum's 3D print, and Printed Droid Club. That's a comparison against toys and static builds, and it was flattering for the wrong reason. The revised report compares us only against the <strong>BB-8 Builders Club canonical build running Joe's Drive MK3</strong> — which is the actual baseline we're building on and therefore the only honest comparison. Architecture diagram updated to match today's decisions: Jetson in body, camera on head over USB-slip-ring, AS5600 on the dome spin axle, ESP-NOW for head ↔ body control. <a class="report-btn" href="research-report/">Read the revised report →</a></p>
+
+    <p><strong>Punch list for this week:</strong></p>
+    <ul>
+      <li>Order the <strong>PDTech 12 mm hardened steel rod</strong>, custom cut to 470 mm, from eBay today. Longest remaining lead (~2 weeks).</li>
+      <li>Order the <strong>AS5600 breakout + 6 mm diametrical neodymium magnet</strong> from Amazon (Prime).</li>
+      <li>Order the ServoCity drivetrain: <strong>45 RPM S2S, 2× 1621 RPM flywheel, 100 RPM dome spin</strong>, plus the timing pulley kit.</li>
+      <li>Order <strong>2× DS5160</strong> dome-tilt servos, <strong>3× BTS7960B</strong>, bearings, and steel shot (17 lb).</li>
+      <li>Pull Joe's STLs off the Drive Systems folder and slice the <em>Bearing Tester</em> first — Joe put it in the repo specifically so you can validate your printer tolerances before committing hours to the A-frames. H2D should handle it, but trust and verify.</li>
+      <li>Start a mechanical foamcore mockup of the internal drive cage to gut-check that the Jetson + Suaoki U10 + flywheel all actually fit once CG is pulled as low as possible.</li>
+    </ul>
+  </article>
 
   <article class="log-entry">
     <div class="log-meta">

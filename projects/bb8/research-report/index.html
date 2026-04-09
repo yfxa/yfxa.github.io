@@ -202,9 +202,12 @@ pre code {
     <a href="/" title="Home">⌂</a>
   </div>
 
-  <div class="report-meta"><span class="tag">REPORT 001</span>Filed 2026-04-08</div>
+  <div class="report-meta"><span class="tag">REPORT 001 · REV 2</span>Filed 2026-04-08 · Revised 2026-04-09</div>
   <h1>BB-8 Build Comparison</h1>
-  <div class="subtitle">How our AI-powered BB-8 stacks up against every other BB-8 out there.</div>
+  <div class="subtitle">Our BB-8 vs. the BB-8 Builders Club baseline running Joe's Drive MK3. Same mechanical bones, very different brain.</div>
+
+  <h2>Why only these two?</h2>
+  <p>The first cut of this report compared us to Sphero, SpinMaster, Nachum's 3D print, and the Printed Droid Club. That was a flattering comparison against toys and static builds — and it was dishonest, because none of them is the thing we're actually building from. We're building on top of the <strong>BB-8 Builders Club</strong> canonical full-size droid, powered by <strong>Joe Latiola's Drive MK3 Flywheel</strong> — that's the shell STLs, that's the drivetrain, that's the assembly manual we're following. The only comparison that matters is: what does our build <em>add</em> on top of that baseline, and what does it <em>keep</em>?</p>
 
   <h2>Feature Comparison</h2>
   <div class="table-scroll">
@@ -212,77 +215,101 @@ pre code {
     <thead>
       <tr>
         <th>Feature</th>
-        <th>Sphero BB-8</th>
-        <th>SpinMaster Hero Droid</th>
-        <th>Nachum's 3D Print</th>
-        <th>Printed Droid Club</th>
+        <th>BCC + Joe's Drive MK3 <span style="color:#555;font-weight:400;text-transform:none;">(baseline)</span></th>
         <th class="ours">Our BB-8</th>
       </tr>
     </thead>
     <tbody>
-      <tr><th>Size</th><td>~11 cm (toy)</td><td>~49 cm (large toy)</td><td>~18 cm (small)</td><td>Full-size (~50 cm)</td><td class="ours">~45 cm (18 in)</td></tr>
-      <tr><th>Shell</th><td>Polycarbonate (factory)</td><td>Injection molded (factory)</td><td>3D printed, hand painted</td><td>3D printed, hand painted</td><td class="ours">3D printed multicolor (H2D, no painting)</td></tr>
-      <tr><th>Drive system</th><td>Hamster drive (BCO)</td><td>Hamster drive (BCO)</td><td>Hamster drive (BCO)</td><td>Axle/pendulum (BCO)</td><td class="ours">Axle/pendulum + flywheel (BCO + COAM)</td></tr>
-      <tr><th>Motors</th><td>DC, no encoder</td><td>DC, proprietary</td><td>DC, no encoder</td><td>DC, varies</td><td class="ours">300 RPM metal gearmotor with encoder</td></tr>
-      <tr><th>Motor control</th><td>Closed-loop (proprietary)</td><td>Closed-loop (proprietary)</td><td>Open-loop PWM</td><td>PID (varies)</td><td class="ours">Dual nested PID (velocity + orientation)</td></tr>
-      <tr><th>Brain</th><td>Proprietary SoC</td><td>Proprietary SoC</td><td>Arduino</td><td>Arduino / ESP32</td><td class="ours">NVIDIA Jetson Orin Nano Super (67 TOPS)</td></tr>
-      <tr><th>Microcontroller</th><td>N/A</td><td>N/A</td><td>Arduino Uno</td><td>Arduino / ESP32</td><td class="ours">2× ESP32-S3 (body + head)</td></tr>
-      <tr><th>IMU</th><td>Built-in gyro</td><td>Built-in gyro</td><td>None</td><td>Varies</td><td class="ours">Adafruit BNO055 (9-axis, on-chip fusion)</td></tr>
-      <tr><th>Camera</th><td>None</td><td>None</td><td>None</td><td>None</td><td class="ours">Arducam B0274 IMX477 12.3 MP (day/night IR-cut)</td></tr>
-      <tr><th>Face recognition</th><td>No</td><td>No</td><td>No</td><td>No</td><td class="ours"><strong>Yes — InsightFace on Jetson</strong></td></tr>
-      <tr><th>Gesture recognition</th><td>No</td><td>No</td><td>No</td><td>No</td><td class="ours"><strong>Yes — MediaPipe Hands on Jetson</strong></td></tr>
-      <tr><th>Obstacle avoidance</th><td>Bump detection</td><td>IR sensors (basic)</td><td>None</td><td>Varies</td><td class="ours">3× VL53L1X ToF (4 m range, upgradeable to RealSense D435i)</td></tr>
-      <tr><th>Navigation</th><td>App joystick</td><td>App + voice commands</td><td>App via Bluetooth</td><td>RC controller</td><td class="ours"><strong>Autonomous indoor navigation</strong></td></tr>
-      <tr><th>Head control</th><td>Magnetic (passive)</td><td>Magnetic + IR tracking</td><td>Magnetic + servo</td><td>Magnetic + servo</td><td class="ours">Magnetic + servo pan/tilt tracking person's face</td></tr>
-      <tr><th>Head ↔ body comms</th><td>Magnetic coupling only</td><td>Proprietary wireless</td><td>2× HC-05 Bluetooth</td><td>Varies (XBEE, BT)</td><td class="ours">ESP-NOW (1–2 ms latency)</td></tr>
-      <tr><th>Jetson ↔ body link</th><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td class="ours">UART serial</td></tr>
-      <tr><th>Voice control</th><td>Via phone app</td><td>Built-in mic (basic)</td><td>None</td><td>Optional</td><td class="ours">Planned (INMP441 mic)</td></tr>
-      <tr><th>Sound effects</th><td>Built-in speaker</td><td>Built-in speaker</td><td>Speaker via Bluetooth</td><td>Speaker</td><td class="ours">Speaker via I2S (MAX98357A)</td></tr>
-      <tr><th>Follow me</th><td>Via phone app</td><td>IR-based (short range)</td><td>No</td><td>No</td><td class="ours"><strong>Yes — camera-based face tracking</strong></td></tr>
-      <tr><th>Delivery capable</th><td>No</td><td>No</td><td>No</td><td>No</td><td class="ours"><strong>Yes — autonomous delivery to recognized person</strong></td></tr>
-      <tr><th>Power</th><td>LiPo (internal)</td><td>NiMH (internal)</td><td>Battery pack</td><td>LiPo</td><td class="ours">3S LiPo (11.1 V) + buck converter</td></tr>
-      <tr><th>Charging</th><td>Inductive dock</td><td>USB charging</td><td>Removable batteries</td><td>Varies</td><td class="ours">Removable LiPo + balance charger</td></tr>
-      <tr><th>Control method</th><td>Phone app</td><td>Phone app + voice + RC</td><td>Phone app (BT)</td><td>RC transmitter</td><td class="ours"><strong>Fully autonomous + optional app</strong></td></tr>
-      <tr><th>Open source</th><td>No</td><td>No</td><td>Yes (CC BY 4.0)</td><td>Community files</td><td class="ours">Yes (code + custom brackets on GitHub)</td></tr>
-      <tr><th>Approx. cost</th><td>$150 (toy)</td><td>$240 (discontinued)</td><td>~$400</td><td>$500–1500+</td><td class="ours">~$635 (essential parts)</td></tr>
-      <tr><th>Build time</th><td>N/A (buy)</td><td>N/A (buy)</td><td>~6 months</td><td>Months–years</td><td class="ours">9 weeks (target)</td></tr>
-      <tr><th>Printer needed</th><td>No</td><td>No</td><td>Any FDM (150 mm bed OK)</td><td>Large FDM recommended</td><td class="ours">Bambu Lab H2D (350 mm bed, multicolor)</td></tr>
+      <tr><th>Size</th><td>~45 cm (18 in), full-size</td><td class="ours">Same — same shell STLs</td></tr>
+      <tr><th>Shell</th><td>3D printed PLA+, grey-primed, rattle-can painted, clear-coated (Cabothane)</td><td class="ours"><strong>Multicolor PLA on Bambu H2D, no paint, no clear coat</strong></td></tr>
+      <tr><th>Drive system</th><td>Joe's Drive MK3 Flywheel (axle/pendulum + flywheel)</td><td class="ours">Same</td></tr>
+      <tr><th>Drive motors</th><td>2× ServoCity 165 RPM HD Premium Planetary (no encoder)</td><td class="ours">2× 12 V 300 RPM metal gearmotors <strong>with encoder</strong></td></tr>
+      <tr><th>S2S motor</th><td>1× ServoCity 45 RPM HD Premium Planetary</td><td class="ours">Same</td></tr>
+      <tr><th>Flywheel motors</th><td>1× 612 RPM <em>or</em> 2× 1,621 RPM HD planetary</td><td class="ours">2× 1,621 RPM (dual-motor config)</td></tr>
+      <tr><th>Dome tilt</th><td>2× 60 kg digital servos (DS5160 / JX PDI-HV2060MG)</td><td class="ours">Same — 2× DS5160</td></tr>
+      <tr><th>Dome spin feedback</th><td>Bourns 6630 10 kΩ continuous pot (5–10° dead band, 7-week lead time)</td><td class="ours"><strong>AS5600 12-bit magnetic encoder — contactless, no dead band</strong></td></tr>
+      <tr><th>Motor control</th><td>Open-loop PID on Arduino Mega, IMU + S2S pot feedback only</td><td class="ours"><strong>Dual nested PID (velocity + orientation) on ESP32-S3, encoder-closed-loop</strong></td></tr>
+      <tr><th>Body brain</th><td>Arduino Mega 2560 + Arduino Pro Mini (separate IMU)</td><td class="ours"><strong>NVIDIA Jetson Orin Nano Super (67 TOPS, in body)</strong></td></tr>
+      <tr><th>Body MCU</th><td>— (the Mega is both brain and MCU)</td><td class="ours">ESP32-S3 (motor PID, sensors, real-time loop)</td></tr>
+      <tr><th>Head MCU</th><td>Adafruit Feather 32u4 RFM69HCW (lights + radio only)</td><td class="ours">ESP32-S3 (camera bridge, speaker, mic, LEDs)</td></tr>
+      <tr><th>Remote</th><td>Adafruit Feather 32u4 + 2× joysticks + OLED (custom handheld)</td><td class="ours"><strong>No remote — fully autonomous</strong> (optional phone/web UI)</td></tr>
+      <tr><th>IMU</th><td>MPU6050 (6-axis, DMP firmware blob, on its own Pro Mini)</td><td class="ours"><strong>Adafruit BNO055 (9-axis, on-chip sensor fusion)</strong></td></tr>
+      <tr><th>Camera</th><td>None</td><td class="ours"><strong>Arducam B0274 IMX477 12.3 MP (day/night IR-cut)</strong></td></tr>
+      <tr><th>Face recognition</th><td>No</td><td class="ours"><strong>Yes — InsightFace on Jetson</strong></td></tr>
+      <tr><th>Gesture recognition</th><td>No</td><td class="ours"><strong>Yes — MediaPipe Hands on Jetson</strong></td></tr>
+      <tr><th>Obstacle avoidance</th><td>None</td><td class="ours"><strong>3× VL53L1X ToF (4 m range, upgradeable to RealSense D435i)</strong></td></tr>
+      <tr><th>Navigation</th><td>2-stick RC remote (human drives)</td><td class="ours"><strong>Autonomous indoor navigation</strong></td></tr>
+      <tr><th>Head ↔ body control</th><td>RFM69 @ 433 MHz (Adafruit Feather radios)</td><td class="ours"><strong>ESP-NOW @ 2.4 GHz (1–2 ms latency)</strong></td></tr>
+      <tr><th>Camera → Jetson link</th><td>N/A</td><td class="ours">USB over slip ring (Jetson in body, camera on head)</td></tr>
+      <tr><th>Voice control</th><td>No</td><td class="ours">Planned — INMP441 I²S MEMS mic</td></tr>
+      <tr><th>Sound effects</th><td>Adafruit Audio FX Mini Sound Board, 56× .ogg samples, GPIO/Serial triggered</td><td class="ours">MAX98357A I²S amp — samples + synthesized lines</td></tr>
+      <tr><th>Follow me</th><td>No</td><td class="ours"><strong>Yes — camera-based face tracking</strong></td></tr>
+      <tr><th>Delivery capable</th><td>No</td><td class="ours"><strong>Yes — autonomous delivery to recognized person</strong></td></tr>
+      <tr><th>Power</th><td>Suaoki U10 20 Ah Li-Ion jump-starter (community pick, has BMS + charger built in)</td><td class="ours">Same — Suaoki U10 20 Ah</td></tr>
+      <tr><th>Charging</th><td>Panel-mounted port through body slip ring</td><td class="ours">Same</td></tr>
+      <tr><th>Open source</th><td>Yes — STLs + Arduino code on the BB-8 Builders Club Facebook group + Google Drive</td><td class="ours">Yes — code + custom brackets on GitHub</td></tr>
+      <tr><th>Approx. parts cost</th><td>~$1,113 (parsed from Joe's MK3 BOM)</td><td class="ours"><strong>~$1,700</strong> (Joe's mechanical + AI compute stack)</td></tr>
+      <tr><th>Build time</th><td>3–10 months typical (part-time hobby build)</td><td class="ours"><strong>9 weeks target</strong></td></tr>
+      <tr><th>Printer needed</th><td>Any FDM with ~250 mm bed (CR-10s is the community workhorse). Panels need priming, sanding, painting, clear-coating.</td><td class="ours">Bambu Lab H2D (350 mm bed, multicolor) — panels come off the printer production-ready, no painting.</td></tr>
     </tbody>
   </table>
   </div>
 
+  <h2>What we keep, what we change</h2>
+  <p><strong>We keep the entire Joe's Drive MK3 Flywheel mechanical stack.</strong> Motor carriage, A-frames, flywheel tray, weighted flywheel, head control arm, dome-tilt servo geometry, 12 mm hardened axle rod, slip rings, Suaoki battery pack. Zero mechanical redesign. The Joe's Drive community has burned thousands of hours validating this drivetrain and we have nothing to gain by reinventing it for a 9-week deadline.</p>
+  <p><strong>We replace the brain and the sensing.</strong> Arduino Mega → ESP32-S3 for the real-time motor loop, with a Jetson Orin Nano Super sitting on top doing perception and planning. MPU6050 → BNO055 because on-chip fusion is cleaner. Bourns 6630 dome-spin pot → AS5600 magnetic encoder because it's $5 instead of $65-with-freight and kills our single longest-lead part. RFM69 RC remote → nothing, because the whole point of this build is that BB-8 drives itself.</p>
+  <p><strong>Net delta over baseline:</strong> ~$590 more in parts, ~4 months less build time (because the H2D eliminates the panel paint/sand/clear-coat cycle that eats half of a typical Joe's Drive build), and every AI capability the canonical build doesn't have — camera, face recognition, gesture recognition, obstacle avoidance, autonomous navigation, delivery.</p>
+
   <h2>Architecture Diagram</h2>
-  <pre><code>                ┌─────────────────────┐
-                │   Arducam B0274     │
-                │   12.3MP Camera     │
-                │   (on BB-8 head)    │
-                └──────────┬──────────┘
-                           │ CSI
-                ┌──────────▼──────────┐
-                │  Jetson Orin Nano   │
-                │  Super (67 TOPS)    │
-                │                     │
-                │  • InsightFace      │
-                │  • MediaPipe Hands  │
-                │  • Navigation logic │
-                └──────────┬──────────┘
-                           │ UART
-                ┌──────────▼──────────┐
-                │  ESP32-S3 (Body)    │
-                │                     │
-                │  • PID motor ctrl   │
-                │  • BNO055 IMU       │
-                │  • 3× VL53L1X ToF   │
-                │  • Motor driver     │
-                └──────────┬──────────┘
-                           │ ESP-NOW (wireless)
-                ┌──────────▼──────────┐
-                │  ESP32-S3 (Head)    │
-                │                     │
-                │  • Pan/tilt servos  │
-                │  • LEDs / speaker   │
-                │  • Head orientation │
-                └─────────────────────┘</code></pre>
+  <pre><code>         ┌───────────────────────────────┐
+         │         HEAD (Dome)           │
+         │                               │
+         │  Arducam IMX477  ──USB──┐     │
+         │                         │     │
+         │  ESP32-S3 (head bridge) │     │
+         │  • MAX98357A speaker    │     │
+         │  • INMP441 mic          │     │
+         │  • Neopixel logic LEDs  │     │
+         │         │               │     │
+         │         └── ESP-NOW ─┐  │     │
+         └───────────────────── │ ─│─────┘
+                                │  │
+                 ═══ slip ring ═╪══╪═══════
+                                │  │ USB
+         ┌──────────────────────▼──▼─────┐
+         │  BODY (Joe's Drive MK3)       │
+         │                               │
+         │  ┌─────────────────────────┐  │
+         │  │ Jetson Orin Nano Super  │◄─┘ USB
+         │  │ (67 TOPS, in body)      │
+         │  │                         │
+         │  │ • InsightFace           │
+         │  │ • MediaPipe Hands       │
+         │  │ • Autonomous nav + NLU  │
+         │  └──────────┬──────────────┘
+         │             │ UART
+         │  ┌──────────▼──────────────┐
+         │  │ ESP32-S3 (body PID)     │◄── ESP-NOW from head
+         │  │                         │
+         │  │ • BNO055 9-axis IMU     │
+         │  │ • 3× VL53L1X ToF        │
+         │  │ • AS5600 dome spin enc  │
+         │  │ • Dual nested PID       │
+         │  └──────────┬──────────────┘
+         │             │ PWM × N
+         │  ┌──────────▼──────────────┐
+         │  │ Joe's Drive MK3 motors  │
+         │  │                         │
+         │  │ • 2× drive (encoder)    │
+         │  │ • 2× flywheel 1621 RPM  │
+         │  │ • 1× S2S 45 RPM         │
+         │  │ • 1× dome spin 100 RPM  │
+         │  │ • 2× DS5160 dome tilt   │
+         │  └─────────────────────────┘
+         │                               │
+         │  Suaoki U10 20 Ah (12 V) →    │
+         │     buck → 5 V / 7.2 V rails  │
+         └───────────────────────────────┘</code></pre>
 
   <div class="footer">
     yf(x).studio · <a href="../">back to BB-8</a> · <a href="/">home</a> · <a href="/donotpet">🦞</a>
