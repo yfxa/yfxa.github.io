@@ -222,7 +222,7 @@ pre code {
       <tr><th>Drive system</th><td>Joe's Drive MK3 Flywheel (axle/pendulum + flywheel)</td><td class="ours">Same</td></tr>
       <tr><th>Drive motors</th><td>2× ServoCity 165 RPM HD Premium Planetary (no encoder)</td><td class="ours">2× 12 V 300 RPM metal gearmotors <strong>with encoder</strong></td></tr>
       <tr><th>S2S motor</th><td>1× ServoCity 45 RPM HD Premium Planetary</td><td class="ours">Same</td></tr>
-      <tr><th>Flywheel motors</th><td>1× 612 RPM <em>or</em> 2× 1,621 RPM HD planetary</td><td class="ours">2× 1,621 RPM (dual-motor config)</td></tr>
+      <tr><th>Flywheel motors</th><td>1× 612 RPM <em>or</em> 2× 621 RPM HD planetary</td><td class="ours">2× 621 RPM (dual-motor config)</td></tr>
       <tr><th>Dome tilt</th><td>2× 60 kg digital servos (DS5160 / JX PDI-HV2060MG)</td><td class="ours">Same — 2× DS5160</td></tr>
       <tr><th>Dome spin feedback</th><td>Bourns 6630 10 kΩ continuous pot (5–10° dead band, 7-week lead time)</td><td class="ours"><strong>AS5600 12-bit magnetic encoder — contactless, no dead band</strong></td></tr>
       <tr><th>Motor control</th><td>Open-loop PID on Arduino Mega, IMU + S2S pot feedback only</td><td class="ours"><strong>Dual nested PID (velocity + orientation) on ESP32-S3, encoder-closed-loop</strong></td></tr>
@@ -298,7 +298,7 @@ pre code {
          │  │ Joe's Drive MK3 motors  │
          │  │                         │
          │  │ • 2× drive (encoder)    │
-         │  │ • 2× flywheel 1621 RPM  │
+         │  │ • 2× flywheel 621 RPM   │
          │  │ • 1× S2S 45 RPM         │
          │  │ • 1× dome spin 100 RPM  │
          │  │ • 2× DS5160 dome tilt   │
