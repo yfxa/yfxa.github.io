@@ -805,7 +805,7 @@ details.print-group:not([open]) > .group-head {
   <div class="col">
   <h2>PARTS CHECKLIST</h2>
   <div class="parts-meta">
-    <span>41 parts · <span id="parts-checked">11</span> / 41 ordered</span>
+    <span>66 parts · <span id="parts-checked">11</span> / 66 ordered</span>
   </div>
   <ul class="parts-list" id="parts-list">
     <li class="section-header">Essential</li>
@@ -847,6 +847,35 @@ details.print-group:not([open]) > .group-head {
     <li><label><input type="checkbox"><span class="pname">ServoCity 32 mm bottom-tapped clamping mount + 6 mm D-hub · flywheel motor mount</span><span class="qty">×2</span></label></li>
     <li><label><input type="checkbox"><span class="pname">10 kΩ linear-taper pot · S2S + head-tilt feedback</span><span class="qty">×2</span></label></li>
     <li><label><input type="checkbox"><span class="pname">Suaoki U10 20 Ah Li-Ion jump-starter · body battery (BMS + charger built in)</span><span class="qty">×1</span></label></li>
+
+    <li class="section-header">Joe's Drive MK3 · fasteners &amp; mechanical hardware</li>
+    <li><label><input type="checkbox"><span class="pname">#6-32 socket-head screw assortment (3/8″ / 1/2″ / 3/4″ / 1″) · ServoCity hub fasteners</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">7/64″ hex key (required driver for #6-32 socket heads)</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">#8-32 × 1-1/2″ flathead screw · flywheel attachment</span><span class="qty">×6</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">#8 nylon lock nut</span><span class="qty">×6</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">#6 self-tapping screw (22-pack)</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">M5 × 25 mm hex-head bolt · drive</span><span class="qty">×6</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">M5 × 70 mm hex-head bolt · drive</span><span class="qty">×4</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">M8 × 90 mm hex-head bolt · main axle through bearings</span><span class="qty">×2</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">M8 nylon lock nut</span><span class="qty">×3</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">M5 rod end (ball joint) · head control arm linkages</span><span class="qty">×4</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">M5 × 120 mm threaded rod · head control arm linkages</span><span class="qty">×2</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">8 mm × ~225 mm threaded rod · dome spin magnet mast (cut from stock)</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">8 mm × 100 mm smooth rod · dome tilt pivots (cut to 2× 20 mm)</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">2.5″ pipe clamp · S2S motor mount retainer</span><span class="qty">×2</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">102 mm closed-loop GT2 belt · head control arm drive belt</span><span class="qty">×1</span></label></li>
+
+    <li class="section-header">Joe's Drive MK3 · wiring &amp; power path</li>
+    <li><label><input type="checkbox"><span class="pname">14 AWG silicone-insulated wire (10 ft) · main power feed</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">18 AWG silicone-insulated wire (7 m) · motor runs</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">12 V → 5 V buck converter · ESP32 + sensors + Arduino logic rail</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">12 V → 7.2 V buck converter · dome tilt servo rail</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">30 A inline fuse holder + 20 A blade fuse pack</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">Main 20 A on/off power switch · body-panel mounted</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">EC5 male/female connector pair · Suaoki U10 battery tap</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">Wago 221/222 lever-nut connector assortment</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">12 V DC barrel-jack panel mount · slip-ring charge port</span><span class="qty">×1</span></label></li>
+    <li><label><input type="checkbox"><span class="pname">Resistor kit (220 Ω / 150 Ω / 82 Ω) · audio divider + battery monitor</span><span class="qty">×1</span></label></li>
 
     <li class="section-header">Optional · personality &amp; cosmetic</li>
     <li><label><input type="checkbox" checked><span class="pname">Bambu Lab PLA Basic refill filament · Orange 10300 · 1 kg</span><span class="qty">×1</span></label></li>
@@ -1026,7 +1055,7 @@ details.print-group:not([open]) > .group-head {
   (function () {
     // Parts Checklist localStorage persistence.
     // Keyed by item index; bump PARTS_KEY if list structure changes.
-    var PARTS_KEY = 'bb8-parts-checklist-v3';
+    var PARTS_KEY = 'bb8-parts-checklist-v4';
     var list = document.getElementById('parts-list');
     if (!list) return;
     var countEl = document.getElementById('parts-checked');
