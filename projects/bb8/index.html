@@ -639,6 +639,24 @@ details.print-group:not([open]) > .group-head {
 .parts-list .status.transit   { background: #2a2a0a; color: #ffaa33; border: 1px solid #4a4a0a; }
 .parts-list .status.scheduled { background: #0a1a2a; color: #4a8acc; border: 1px solid #1a3a5a; }
 .parts-list .status.needed    { background: #2a0a0a; color: #ff6666; border: 1px solid #4a1a1a; }
+.parts-list li.section-header {
+  grid-template-columns: 1fr;
+  background: #050a05;
+  color: #66ff66;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  border-top: 1px solid #1a4a1a;
+  border-bottom: 1px solid #1a4a1a;
+  justify-items: center;
+}
+.parts-list li.section-header span {
+  grid-column: 1;
+  text-align: center;
+  color: #66ff66;
+}
+.two-col .parts-list li.section-header { grid-template-columns: 1fr; grid-template-rows: auto; }
 
 /* Footer */
 .footer {
@@ -804,10 +822,10 @@ details.print-group:not([open]) > .group-head {
   <div class="col">
   <h2>PARTS CHECKLIST</h2>
   <div class="parts-meta">
-    <span>27 parts · 11 ordered · 16 to order</span>
-    <span class="total">ORDERED: $607.89 · EST: +$484</span>
+    <span>22 essential + 5 optional · <span id="parts-checked">11</span> / 27 ordered</span>
+    <span class="total">ORDERED: $607.89 · EST: +$452 essential + $50 optional</span>
   </div>
-  <ul class="parts-list">
+  <ul class="parts-list" id="parts-list">
     <li>
       <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Mar 02</span>
@@ -874,13 +892,6 @@ details.print-group:not([open]) > .group-head {
     <li>
       <span class="parts-check"><input type="checkbox" checked></span>
       <span class="date">Apr 07</span>
-      <span class="item">Bambu Lab PLA Basic Refill Filament 1kg · Orange 10300<span class="vendor">Amazon · Bambu Lab</span></span>
-      <span class="price">$26.68</span>
-      <span class="status transit">Arriving Tomorrow</span>
-    </li>
-    <li>
-      <span class="parts-check"><input type="checkbox" checked></span>
-      <span class="date">Apr 07</span>
       <span class="item">Arducam B0274 IMX477 HQ Camera + B0279 (incl. shipping)<span class="vendor">Arducam · direct (arducam.com)</span></span>
       <span class="price">$124.98</span>
       <span class="status scheduled">Processing</span>
@@ -937,20 +948,6 @@ details.print-group:not([open]) > .group-head {
     <li>
       <span class="parts-check"><input type="checkbox"></span>
       <span class="date">—</span>
-      <span class="item">Adafruit MAX98357A I2S Amp + 4Ω 3W Speaker<span class="vendor">Amazon · Adafruit</span></span>
-      <span class="price">~$12</span>
-      <span class="status needed">Need</span>
-    </li>
-    <li>
-      <span class="parts-check"><input type="checkbox"></span>
-      <span class="date">—</span>
-      <span class="item">INMP441 I2S MEMS Microphone · voice input (planned)<span class="vendor">Amazon</span></span>
-      <span class="price">~$6</span>
-      <span class="status needed">Need</span>
-    </li>
-    <li>
-      <span class="parts-check"><input type="checkbox"></span>
-      <span class="date">—</span>
       <span class="item">M3 Allen Bolt &amp; Nut Kit + M4 Long Bolts / Lock Nuts / Washers / Flat Screws<span class="vendor">Amazon · Joe's Drive MK3 BOM</span></span>
       <span class="price">$52.24</span>
       <span class="status needed">Need</span>
@@ -976,6 +973,28 @@ details.print-group:not([open]) > .group-head {
       <span class="price">$25.68</span>
       <span class="status needed">Need</span>
     </li>
+    <li class="section-header"><span>Optional · personality / cosmetic / nice-to-have</span></li>
+    <li>
+      <span class="parts-check"><input type="checkbox" checked></span>
+      <span class="date">Apr 07</span>
+      <span class="item">Bambu Lab PLA Basic Refill Filament 1kg · Orange 10300<span class="vendor">Amazon · Bambu Lab</span></span>
+      <span class="price">$26.68</span>
+      <span class="status transit">Arriving Tomorrow</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">Adafruit MAX98357A I2S Amp + 4Ω 3W Speaker · BB-8 beeps<span class="vendor">Amazon · Adafruit</span></span>
+      <span class="price">~$12</span>
+      <span class="status needed">Need</span>
+    </li>
+    <li>
+      <span class="parts-check"><input type="checkbox"></span>
+      <span class="date">—</span>
+      <span class="item">INMP441 I2S MEMS Microphone · voice input<span class="vendor">Amazon</span></span>
+      <span class="price">~$6</span>
+      <span class="status needed">Need</span>
+    </li>
     <li>
       <span class="parts-check"><input type="checkbox"></span>
       <span class="date">—</span>
@@ -999,15 +1018,15 @@ details.print-group:not([open]) > .group-head {
     <span>40 STL files · Builders Club shell + Joe's Drive MK3</span>
     <span><span class="count" id="print-count">0 / 40</span> &nbsp;<button id="print-reset" type="button">Reset</button></span>
   </div>
-  <p class="print-credit">Shell &amp; dome from <a href="https://www.facebook.com/groups/BB8BuildersClub/" target="_blank" rel="noopener">BB-8 Builders Club</a> (Dai Buckley, Monty Saine, Nick Danielak, Bob Ross, Autumn Jackson, et al.) · drive from <strong>Joe Latiola</strong> + <strong>Naigon</strong>, <a href="https://www.facebook.com/groups/JoesDrive/" target="_blank" rel="noopener">Joe's Drive</a>. Reference PDFs (panel orientation, dome assembly) are guides, not in this list.</p>
+  <p class="print-credit">Shell &amp; dome from <a href="https://www.facebook.com/groups/BB8BuildersClub/" target="_blank" rel="noopener">BB-8 Builders Club</a> (Dai Buckley, Monty Saine, Nick Danielak, Bob Ross, Autumn Jackson, et al.) · drive from <strong>Joe Latiola</strong> + <strong>Naigon</strong>, <a href="https://www.facebook.com/groups/JoesDrive/" target="_blank" rel="noopener">Joe's Drive</a>.</p>
   <div class="print-grid" id="print-grid">
 
     <details class="print-group" open>
       <summary class="group-head"><span class="group-name">Body Shell — Panels</span><span>5</span></summary>
       <ul class="print-list">
-        <li><label><input type="checkbox" data-stl="bc-triangle"><span class="pname">Triangle.STL <em>(Nick Danielak)</em></span><span class="qty">×?</span></label></li>
-        <li><label><input type="checkbox" data-stl="bc-ring-v2"><span class="pname">RingV2.STL <em>(Monty Saine)</em></span><span class="qty">×?</span></label></li>
-        <li><label><input type="checkbox" data-stl="bc-base-section-v2"><span class="pname">BaseSectionV2.STL <em>(Monty Saine)</em></span><span class="qty">×?</span></label></li>
+        <li><label><input type="checkbox" data-stl="bc-triangle"><span class="pname">Triangle.STL <em>(Nick Danielak)</em></span><span class="qty">×8</span></label></li>
+        <li><label><input type="checkbox" data-stl="bc-ring-v2"><span class="pname">RingV2.STL <em>(Monty Saine)</em></span><span class="qty">×6</span></label></li>
+        <li><label><input type="checkbox" data-stl="bc-base-section-v2"><span class="pname">BaseSectionV2.STL <em>(Monty Saine)</em></span><span class="qty">×6</span></label></li>
         <li><label><input type="checkbox" data-stl="bc-infil-ring"><span class="pname">infil ring.stl <em>(Manny Garcia)</em></span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="bc-bracket-v2"><span class="pname">Bracket v2.0.obj <em>(Brian Munger — convert OBJ→STL)</em></span><span class="qty">×?</span></label></li>
       </ul>
@@ -1155,6 +1174,51 @@ details.print-group:not([open]) > .group-head {
     applyGroupState(mq);
     if (mq.addEventListener) mq.addEventListener('change', applyGroupState);
     else if (mq.addListener) mq.addListener(applyGroupState);
+  })();
+
+  (function () {
+    // Parts Checklist localStorage persistence.
+    // Keyed by item index; bump PARTS_KEY if list structure changes.
+    var PARTS_KEY = 'bb8-parts-checklist-v1';
+    var list = document.getElementById('parts-list');
+    if (!list) return;
+    var countEl = document.getElementById('parts-checked');
+    var boxes = list.querySelectorAll('li:not(.section-header) input[type="checkbox"]');
+
+    function load() {
+      try { return JSON.parse(localStorage.getItem(PARTS_KEY) || 'null'); }
+      catch (e) { return null; }
+    }
+    function save(state) {
+      try { localStorage.setItem(PARTS_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+    function refreshCount() {
+      var done = 0;
+      boxes.forEach(function (b) { if (b.checked) done++; });
+      if (countEl) countEl.textContent = done;
+    }
+
+    var state = load();
+    if (state) {
+      // Subsequent visits: apply saved state
+      boxes.forEach(function (b, i) { b.checked = !!state['p' + i]; });
+    } else {
+      // First visit: seed from HTML defaults so future reloads are consistent
+      var seed = {};
+      boxes.forEach(function (b, i) { if (b.checked) seed['p' + i] = 1; });
+      save(seed);
+    }
+
+    boxes.forEach(function (b, i) {
+      b.addEventListener('change', function () {
+        var s = load() || {};
+        if (b.checked) s['p' + i] = 1; else delete s['p' + i];
+        save(s);
+        refreshCount();
+      });
+    });
+
+    refreshCount();
   })();
   </script>
   </div>
