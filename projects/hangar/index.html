@@ -857,9 +857,9 @@ function renderPlan() {
   const offsetX = (W - usedW) / 2;
   const offsetY = (H - usedH) / 2;
 
-  // Bays go 1→15 left to right; arch direction still flipped vertically.
+  // Bays go 1→15 left to right; arch direction top to bottom.
   const bx = lx => offsetX + lx * scale;
-  const by = wy => offsetY + (WD - wy) * scale;
+  const by = wy => offsetY + wy * scale;
 
   let svgContent = '';
 
