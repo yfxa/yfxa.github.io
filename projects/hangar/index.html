@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Barker Hangar — ArUco Pattern Designer</title>
+<style>
+  :root {
+    --bg: #f5f4ef;
+    --fg: #1a1a1a;
+    --muted: #8a8880;
+    --line: #c8c5b8;
+    --panel: #fff;
+    --solid: #000;
+    --void: #ffffff;
+    --drone: #b8d4e3;
+    --accent: #c8503c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  header {
+    padding: 20px 32px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+  header h1 {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  header .subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    min-height: calc(100vh - 64px);
+  }
+
+  /* Sidebar */
+  #sidebar {
+    padding: 24px 24px;
+    border-right: 1px solid var(--line);
+    background: var(--panel);
+    overflow-y: auto;
+  }
+  .section {
+    margin-bottom: 28px;
+  }
+  .section h2 {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0;
+    font-size: 12px;
+  }
+  .control-row label {
+    color: var(--fg);
+  }
+  .control-row input[type="number"],
+  .control-row select {
+    width: 80px;
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--fg);
+    border-radius: 2px;
+  }
+  .control-row input[type="checkbox"] {
+    accent-color: var(--accent);
+  }
+  .btn-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  button {
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    color: var(--fg);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: background 0.15s, border-color 0.15s;
+    border-radius: 2px;
+  }
+  button:hover {
+    background: var(--bg);
+    border-color: var(--fg);
+  }
+  button.primary {
+    background: var(--fg);
+    color: var(--panel);
+    border-color: var(--fg);
+  }
+  button.primary:hover {
+    background: #333;
+  }
+  button.full {
+    grid-column: 1 / -1;
+  }
+  .tool-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .aruco-group-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 8px 0 4px;
+  }
+  .aruco-row {
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .aruco-row .marker-preview {
+    width: 54px;
+    height: 54px;
+    display: block;
+    background: #fff;
+    border: 1px solid var(--line);
+  }
+  .aruco-row .marker-fields {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .aruco-row .marker-fields label { font-size: 10px; }
+  .aruco-row input[type="number"] {
+    width: 64px;
+    padding: 3px 4px;
+    font-size: 10px;
+    font-family: "SF Mono", Menlo, monospace;
+    border: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .aruco-row .reroll-btn {
+    padding: 3px 8px;
+    font-size: 10px;
+    font-family: "SF Mono", Menlo, monospace;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .aruco-row .reroll-btn:hover {
+    border-color: var(--fg);
+    background: var(--bg);
+  }
+  .stats {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .stats div { margin: 2px 0; }
+
+  /* Main */
+  #main {
+    padding: 24px 32px;
+    overflow-y: auto;
+  }
+  .view-block {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 2px;
+  }
+  .view-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .view-title .hint {
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--muted);
+  }
+
+  /* Editable views (top view + elevation) */
+  #plan-svg, #elev-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    user-select: none;
+  }
+  #plan-svg .cell, #elev-svg .cell {
+    cursor: pointer;
+    transition: stroke-width 0.05s;
+  }
+  #plan-svg .cell:hover, #elev-svg .cell:hover {
+    stroke: var(--accent);
+    stroke-width: 2;
+  }
+  #plan-svg .centerline, #elev-svg .centerline {
+    stroke: var(--accent);
+    stroke-width: 1;
+    stroke-dasharray: 4 3;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  #plan-svg .label, #elev-svg .label {
+    font-size: 9px;
+    fill: var(--muted);
+    font-family: "SF Mono", Menlo, monospace;
+    pointer-events: none;
+  }
+
+  /* Previews */
+  .preview-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: var(--bg);
+  }
+  #axo-svg {
+    cursor: grab;
+    user-select: none;
+  }
+  #axo-svg.grabbing {
+    cursor: grabbing;
+  }
+  .preview-svg .arch-outline {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 1.5;
+  }
+  .preview-svg .cell {
+    stroke: #888;
+    stroke-width: 0.3;
+  }
+  .preview-svg .grid-line {
+    stroke: var(--line);
+    stroke-width: 0.5;
+  }
+  .preview-svg .label {
+    font-size: 9px;
+    fill: var(--muted);
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .preview-svg .dim-line {
+    stroke: var(--muted);
+    stroke-width: 0.3;
+  }
+
+  .legend {
+    display: flex;
+    gap: 18px;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-item .swatch {
+    width: 12px;
+    height: 12px;
+    border: 1px solid #888;
+  }
+
+  details {
+    margin-top: 8px;
+    font-size: 11px;
+  }
+  details summary {
+    cursor: pointer;
+    color: var(--muted);
+    padding: 4px 0;
+  }
+  details pre {
+    background: var(--bg);
+    padding: 8px;
+    border-radius: 2px;
+    font-size: 10px;
+    overflow-x: auto;
+    max-height: 120px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Distribution Center NW-09 — Roof Pattern Designer</h1>
+  <div class="subtitle">Barker Hangar · 250' × 148' circular vault · interactive ArUco-style configurator</div>
+</header>
+
+<div id="app">
+  <aside id="sidebar">
+
+    <div class="section">
+      <h2>Geometry</h2>
+      <div class="control-row">
+        <label>Bays (length)</label>
+        <input type="number" id="numBays" value="15" min="4" max="30">
+      </div>
+      <div class="control-row">
+        <label>Arch segments / half</label>
+        <input type="number" id="numSegments" value="6" min="3" max="12">
+      </div>
+      <div class="control-row">
+        <label>Building length (ft)</label>
+        <input type="number" id="buildingLength" value="250" min="100" max="500">
+      </div>
+      <div class="control-row">
+        <label>Building width (ft)</label>
+        <input type="number" id="buildingWidth" value="148" min="80" max="300">
+      </div>
+      <div class="control-row">
+        <label>Wall height (ft)</label>
+        <input type="number" id="wallHeight" value="10.5" min="0" max="30" step="0.5">
+      </div>
+      <div class="control-row">
+        <label>Crown height (ft)</label>
+        <input type="number" id="crownHeight" value="54" min="20" max="150">
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Edit</h2>
+      <div class="btn-group" style="margin-bottom:8px">
+        <button id="allSolid">All Solid</button>
+        <button id="allVoid">All Void</button>
+      </div>
+      <div class="control-row">
+        <label><input type="checkbox" id="mirrorMode" checked> Mirror across crown</label>
+      </div>
+      <div class="control-row" style="margin-bottom:4px">
+        <button id="randomBtn" class="full">Random</button>
+      </div>
+      <div id="randomControls" style="display:none">
+        <div class="control-row" style="display:flex;align-items:center;gap:6px">
+          <input type="range" id="densitySlider" min="0" max="100" value="50" style="flex:1">
+          <span id="densityLabel" style="font-family:'SF Mono',Menlo,monospace;font-size:10px;white-space:nowrap">Density 50%</span>
+        </div>
+        <div class="control-row" style="display:flex;align-items:center;gap:6px">
+          <label style="font-size:10px">Seed</label>
+          <input type="number" id="randomSeed" value="42" min="0" step="1" style="width:60px">
+          <button id="rerollBtn" style="font-size:10px;padding:3px 8px;border:1px solid #ccc;background:#fff;cursor:pointer;border-radius:2px">Reroll</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>ArUco Code Generator</h2>
+      <div class="hint" style="font-size:10px;color:var(--muted);margin-bottom:8px">6 markers · 3×3 inner pattern + 1-cell border (IDs 0–511).</div>
+      <div class="control-row" style="margin-bottom:8px">
+        <button id="toggleArucoBorder" class="full">Toggle ArUco Border</button>
+      </div>
+      <div id="arucoControls"></div>
+    </div>
+
+    <div class="section">
+      <h2>Export</h2>
+      <div class="btn-group">
+        <button class="full primary" id="exportSvg">Download SVG</button>
+        <button id="savePattern">Save JSON</button>
+        <button id="loadPattern">Load JSON</button>
+        <input type="file" id="loadInput" accept=".json" style="display:none">
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Stats</h2>
+      <div class="stats" id="stats"></div>
+    </div>
+
+  </aside>
+
+  <main id="main">
+
+    <div class="view-block">
+      <div class="view-title">
+        <span>Top View — Roof Plan (editable, rotated 180°)</span>
+      </div>
+      <svg id="plan-svg" viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="legend">
+        <div class="legend-item"><span class="swatch" style="background:#000"></span>Solid panel (opaque roof)</div>
+        <div class="legend-item"><span class="swatch" style="background:#fff"></span>Void panel (translucent/mesh)</div>
+      </div>
+    </div>
+
+    <div class="view-block">
+      <div class="view-title">
+        <span>Long Elevation (editable) — 250' length × 43.5' height</span>
+        <span class="hint">Wall at the bottom, arch cells projected above</span>
+      </div>
+      <svg id="elev-svg" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <div class="view-block">
+      <div class="view-title">
+        <span>Axonometric Preview</span>
+        <span class="hint">Drag to orbit · <button id="resetAxo" style="font-size:10px;padding:2px 8px;border:1px solid #ccc;background:#fff;cursor:pointer;border-radius:2px">Reset view</button></span>
+      </div>
+      <svg id="axo-svg" class="preview-svg" viewBox="0 0 1400 780" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <details>
+      <summary>Pattern data (JSON)</summary>
+      <pre id="jsonOut"></pre>
+    </details>
+  </main>
+</div>
+
+<script>
+// ============================================================
+// State
+// ============================================================
+
+const state = {
+  numBays: 15,
+  numSegments: 6,           // arch segments per half (12 total; crown between B6 and B7)
+  buildingLength: 250,      // feet
+  buildingWidth: 148,       // feet
+  wallHeight: 10.5,         // feet — vertical wall height before arch springs
+  crownHeight: 54,           // feet — total height at crown (10.5' wall + 43.5' arch rise)
+  pattern: [],              // 2D array: [row=bay][col], values: 0=void, 1=solid
+  mirrorMode: true,
+  fixedBorder: true,
+  isDragging: false,
+  dragPaintValue: null,     // the value we're painting during a drag (toggle from initial)
+  lastCell: null,
+  randomSeed: 42,
+  arucoBorderOn: false,
+  arucoMarkers: [
+    { id: 7 }, { id: 19 }, { id: 42 },
+    { id: 77 }, { id: 128 }, { id: 256 },
+  ],
+  // Axonometric camera (yaw around vertical z, pitch tilt)
+  axoYaw: 30 * Math.PI / 180,
+  axoPitch: 30 * Math.PI / 180,
+  axoDragging: false,
+};
+
+const ARUCO_INNER_SIZE = 3;  // all 6 markers use a 3×3 inner pattern + 1-cell border
+
+// ============================================================
+// Pattern initialization
+// ============================================================
+
+function hasWalls() {
+  return state.wallHeight > 0;
+}
+
+function totalCols() {
+  return state.numSegments * 2 + (hasWalls() ? 2 : 0);
+}
+
+function isWallCol(c) {
+  if (!hasWalls()) return false;
+  return c === 0 || c === totalCols() - 1;
+}
+
+function archColIndex(c) {
+  if (!hasWalls()) return c;
+  if (c === 0 || c === totalCols() - 1) return -1;
+  return c - 1;
+}
+
+function createEmptyPattern() {
+  const cols = totalCols();
+  const rows = state.numBays;
+  return Array.from({length: rows}, () => new Array(cols).fill(0));
+}
+
+function initPattern() {
+  state.pattern = createEmptyPattern();
+  if (state.fixedBorder) applyBorder();
+}
+
+// B1 on both eaves must always be solid (col 1 and col totalCols-2)
+function enforceB1Solid() {
+  const rows = state.numBays;
+  const cols = totalCols();
+  for (let r = 0; r < rows; r++) {
+    state.pattern[r][1] = 1;
+    state.pattern[r][cols - 2] = 1;
+  }
+}
+
+// The 6 canvas positions: each is a 3×3 block of cells where an ArUco
+// marker's inner pattern is painted. Layout (in pattern array coords):
+//
+//   border row 0 (bay 1)
+//   Canvas 0: rows 1-3,  cols 2-4    Canvas 1: rows 1-3,  cols 9-11
+//   border rows 4-5 (bays 5-6)
+//   Canvas 2: rows 6-8,  cols 2-4    Canvas 3: rows 6-8,  cols 9-11
+//   border rows 9-10 (bays 10-11)
+//   Canvas 4: rows 11-13, cols 2-4   Canvas 5: rows 11-13, cols 9-11
+//   border row 14 (bay 15)
+//
+// Cols 2-4 = B2-B4 (left of crown), cols 9-11 = B9-B11 (right of crown).
+const CANVASES = [
+  { rows: [1, 2, 3],    cols: [2, 3, 4] },
+  { rows: [1, 2, 3],    cols: [9, 10, 11] },
+  { rows: [6, 7, 8],    cols: [2, 3, 4] },
+  { rows: [6, 7, 8],    cols: [9, 10, 11] },
+  { rows: [11, 12, 13], cols: [2, 3, 4] },
+  { rows: [11, 12, 13], cols: [9, 10, 11] },
+];
+
+function applyMarkerToCanvas(markerIdx) {
+  const canvas = CANVASES[markerIdx];
+  const marker = state.arucoMarkers[markerIdx];
+  const grid = generateArucoMarker(marker.id, ARUCO_INNER_SIZE);
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      state.pattern[canvas.rows[r]][canvas.cols[c]] = grid[r + 1][c + 1];
+    }
+  }
+}
+
+function applyAllMarkers() {
+  for (let i = 0; i < 6; i++) applyMarkerToCanvas(i);
+}
+
+// Set the ArUco border cells (B5-B7 columns + bays 5,6,10,11) solid,
+// then paint the 6 markers into the 6 canvases.
+function applyArucoBorder() {
+  const rows = state.numBays;
+  const cols = totalCols();
+  const archCols = [5, 6, 7];
+  const bayRows = [4, 5, 9, 10];
+  // Solid: arch columns (skip bay rows to keep B1 intersections)
+  for (let r = 0; r < rows; r++) {
+    if (bayRows.includes(r)) continue;
+    archCols.forEach(c => { state.pattern[r][c] = 1; });
+  }
+  // Solid: bay rows (skip B1)
+  bayRows.forEach(r => {
+    for (let c = 0; c < cols; c++) {
+      if (c === 1) continue;
+      state.pattern[r][c] = 1;
+    }
+  });
+  if (state.mirrorMode) applyMirror();
+  applyAllMarkers();
+  enforceB1Solid();
+}
+
+// Clear the ArUco border cells back to void.
+function clearArucoBorder() {
+  const rows = state.numBays;
+  const cols = totalCols();
+  const archCols = [5, 6, 7];
+  const bayRows = [4, 5, 9, 10];
+  for (let r = 0; r < rows; r++) {
+    archCols.forEach(c => { state.pattern[r][c] = 0; });
+  }
+  bayRows.forEach(r => {
+    for (let c = 0; c < cols; c++) {
+      if (c === 1) continue;
+      state.pattern[r][c] = 0;
+    }
+  });
+  // Also clear canvases
+  CANVASES.forEach(cv => {
+    cv.rows.forEach(r => { cv.cols.forEach(c => { state.pattern[r][c] = 0; }); });
+  });
+  if (state.mirrorMode) applyMirror();
+  enforceB1Solid();
+}
+
+function applyBorder() {
+  const cols = totalCols();
+  const rows = state.numBays;
+  for (let r = 0; r < rows; r++) {
+    state.pattern[r][0] = 1;
+    state.pattern[r][cols - 1] = 1;
+  }
+  for (let c = 0; c < cols; c++) {
+    state.pattern[0][c] = 1;
+    state.pattern[rows - 1][c] = 1;
+  }
+}
+
+// ============================================================
+// Arch geometry — parabolic vault
+// ============================================================
+
+// Circular arc profile (x measured from the crown/center, 0 → halfW)
+function archRadius() {
+  const archH = state.crownHeight - state.wallHeight;
+  const halfW = state.buildingWidth / 2;
+  return (halfW * halfW + archH * archH) / (2 * archH);
+}
+
+function sampleArch(steps = 200) {
+  const wH = state.wallHeight;
+  const archH = state.crownHeight - wH;
+  const halfW = state.buildingWidth / 2;
+  const R = archRadius();
+  const yCenter = wH + archH - R;
+  const samples = [];
+  let arcS = 0;
+  let prevX = 0;
+  let prevY = wH + archH; // crown
+  samples.push({ x: 0, y: prevY, arcS: 0 });
+  for (let i = 1; i <= steps; i++) {
+    const x = (halfW * i) / steps;
+    const y = yCenter + Math.sqrt(Math.max(0, R * R - x * x));
+    const dx = x - prevX;
+    const dy = y - prevY;
+    arcS += Math.sqrt(dx * dx + dy * dy);
+    samples.push({ x, y, arcS });
+    prevX = x;
+    prevY = y;
+  }
+  return samples;
+}
+
+function getSegmentXPositions(n) {
+  const samples = sampleArch(500);
+  const totalArc = samples[samples.length - 1].arcS;
+  const xsFromEdge = [];
+  const halfW = state.buildingWidth / 2;
+  for (let i = 0; i <= n; i++) {
+    const targetFromCenter = totalArc - (totalArc * i) / n;
+    let s = samples[0];
+    for (let j = 0; j < samples.length; j++) {
+      if (samples[j].arcS >= targetFromCenter) {
+        if (j === 0) { s = samples[0]; break; }
+        const a = samples[j - 1];
+        const b = samples[j];
+        const t = (targetFromCenter - a.arcS) / (b.arcS - a.arcS);
+        s = {
+          x: a.x + t * (b.x - a.x),
+          y: a.y + t * (b.y - a.y),
+        };
+        break;
+      }
+    }
+    xsFromEdge.push(halfW - s.x);
+  }
+  return xsFromEdge;
+}
+
+// For the elevation: returns n+1 world-space Y values marking the boundaries
+// of n equal-arc-length arch segments, in order from the eave (y = wallHeight)
+// up to the crown (y = crownHeight). These row heights, when differenced, are
+// TALL at the eave (arch tangent nearly vertical) and SHORT at the crown (arch
+// tangent nearly horizontal) — that's the projected vertical extent of each
+// equal-arc-length cell on the elevation plane.
+function getElevationRowYs(n) {
+  const samples = sampleArch(500);
+  const totalArc = samples[samples.length - 1].arcS;
+  // samples[0] is at x=0, y=crown; samples[last] is at x=halfW, y=wallHeight
+  // We want y values sorted eave → crown, so k=0 → eave, k=n → crown.
+  const ys = [];
+  for (let k = 0; k <= n; k++) {
+    const targetFromCrown = totalArc * (1 - k / n);
+    let s = samples[0];
+    for (let j = 0; j < samples.length; j++) {
+      if (samples[j].arcS >= targetFromCrown) {
+        if (j === 0) { s = samples[0]; break; }
+        const a = samples[j - 1];
+        const b = samples[j];
+        const t = (targetFromCrown - a.arcS) / (b.arcS - a.arcS);
+        s = { x: a.x + t * (b.x - a.x), y: a.y + t * (b.y - a.y) };
+        break;
+      }
+    }
+    ys.push(s.y);
+  }
+  return ys;
+}
+
+// For the plan (top view): derive x-positions from the elevation y-boundaries.
+// Each elevation band has a height range; mapping that back through the parabola
+// gives the plan width of the same physical strip. Because the arch flattens
+// near the crown, a small vertical band there maps to a WIDE plan strip.
+function getPlanXPositions(n) {
+  const rowYs = getElevationRowYs(n);  // eave (wH) → crown
+  const wH = state.wallHeight;
+  const archH = state.crownHeight - wH;
+  const halfW = state.buildingWidth / 2;
+  const R = archRadius();
+  const yCenter = wH + archH - R;
+  // Invert the circular arc: y = yCenter + sqrt(R² - x²)
+  //   → x = sqrt(R² - (y - yCenter)²),  measured from center
+  const xsFromEdge = [];
+  for (let k = 0; k <= n; k++) {
+    const dy = rowYs[k] - yCenter;
+    const xFromCenter = Math.sqrt(Math.max(0, R * R - dy * dy));
+    xsFromEdge.push(halfW - xFromCenter);
+  }
+  return xsFromEdge;
+}
+
+// Circular arc profile in building coordinates (x from 0 to buildingWidth)
+function archYAtX(x) {
+  const wH = state.wallHeight;
+  const archH = state.crownHeight - wH;
+  const halfW = state.buildingWidth / 2;
+  const R = archRadius();
+  const yCenter = wH + archH - R;
+  const dx = x - halfW;
+  return yCenter + Math.sqrt(Math.max(0, R * R - dx * dx));
+}
+
+// ============================================================
+// Rendering
+// ============================================================
+
+const SOLID_COLOR = '#000';
+const VOID_COLOR = '#ffffff';
+
+function cellColor(v) {
+  return v === 1 ? SOLID_COLOR : VOID_COLOR;
+}
+
+// Seeded PRNG (mulberry32) — deterministic random for a given seed
+function mulberry32(seed) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Generate an ArUco-like 6×6 marker (4×4 inner pattern + 1-cell black border)
+// from an integer ID. Not a real dictionary — a deterministic encoding.
+function generateArucoMarker(id, innerSize = 4) {
+  const size = innerSize + 2;
+  const grid = Array.from({ length: size }, () => new Array(size).fill(1));
+  // Outer border is all black (1). Inner cells from bits of id.
+  for (let r = 0; r < innerSize; r++) {
+    for (let c = 0; c < innerSize; c++) {
+      const bit = (id >> (r * innerSize + c)) & 1;
+      // ArUco convention: 1 bit = white (void), 0 bit = black (solid).
+      // Flip to match: visually, bit==1 → white cell, bit==0 → black cell.
+      grid[r + 1][c + 1] = bit === 1 ? 0 : 1;
+    }
+  }
+  return grid;
+}
+
+// Render a marker as SVG at (cx, cy) with total side length `size` in the
+// current coordinate system. Returns a string of <rect> elements.
+function renderArucoMarkerSVG(markerGrid, cx, cy, size) {
+  const gridSize = markerGrid.length;
+  const cellSize = size / gridSize;
+  let out = '';
+  // Background (white) so void cells are opaque white
+  out += `<rect x="${cx}" y="${cy}" width="${size}" height="${size}" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.5" pointer-events="none"/>`;
+  for (let r = 0; r < gridSize; r++) {
+    for (let c = 0; c < gridSize; c++) {
+      if (markerGrid[r][c] === 1) {
+        const x = cx + c * cellSize;
+        const y = cy + r * cellSize;
+        out += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" fill="#000" pointer-events="none"/>`;
+      }
+    }
+  }
+  return out;
+}
+
+// Section view (short face — walls + parabolic arch at selected bay)
+// Top view — plan projection of the curved vault, rotated 180° (so what
+// would be bay 1 / left-eave sits at the upper-right instead of the upper-
+// left). Horizontal extent matches the elevation's horizontal extent, so the
+// two views line up visually stacked. Editable: click/drag to paint (click
+// toggles the cell, drag paints with the inverse of the initial cell).
+function renderPlan() {
+  const svg = document.getElementById('plan-svg');
+  const W = 900;
+  const H = 560;
+  const padX = 40;
+  const padY = 30;
+  const drawW = W - padX * 2;
+
+  const L = state.buildingLength;
+  const WD = state.buildingWidth;
+
+  // Horizontal scale matches the elevation's so bay N aligns vertically.
+  const scale = drawW / L;
+  const usedW = L * scale;
+  const usedH = WD * scale;
+  const offsetX = (W - usedW) / 2;
+  const offsetY = (H - usedH) / 2;
+
+  // 180° rotation: cell at world (lx, wy) → screen at mirrored position.
+  const bx = lx => offsetX + (L - lx) * scale;
+  const by = wy => offsetY + (WD - wy) * scale;
+
+  let svgContent = '';
+
+  // Use elevation-derived x positions so cell widths vary dramatically
+  // (narrow at eave, wide at crown) matching the reference.
+  const planXsFromEdge = getPlanXPositions(state.numSegments);
+  const leftXs = planXsFromEdge.slice();
+  const rightXs = planXsFromEdge.slice().reverse().map(v => WD - v);
+  const fullXs = leftXs.concat(rightXs.slice(1));
+  const numArchCells = state.numSegments * 2;
+
+  const bayLen = L / state.numBays;
+  const archStartCol = hasWalls() ? 1 : 0;
+
+  for (let r = 0; r < state.numBays; r++) {
+    for (let i = 0; i < numArchCells; i++) {
+      const wy0 = fullXs[i];
+      const wy1 = fullXs[i + 1];
+      const lx0 = r * bayLen;
+      const lx1 = (r + 1) * bayLen;
+      // After 180° rotation, (lx1, wy1) is the top-left of the screen rect.
+      const sx = bx(lx1);
+      const sy = by(wy1);
+      const sw = (lx1 - lx0) * scale;
+      const sh = (wy1 - wy0) * scale;
+      const patternCol = archStartCol + i;
+      const color = cellColor(state.pattern[r][patternCol]);
+      svgContent += `<rect class="cell" data-row="${r}" data-col="${patternCol}" x="${sx}" y="${sy}" width="${sw}" height="${sh}" fill="${color}" stroke="#888" stroke-width="0.3"/>`;
+    }
+  }
+
+  // Building outline
+  svgContent += `<rect x="${offsetX}" y="${offsetY}" width="${usedW}" height="${usedH}" fill="none" stroke="#1a1a1a" stroke-width="1.5" pointer-events="none"/>`;
+
+  // Wall lines along the eaves
+  if (hasWalls()) {
+    svgContent += `<line x1="${offsetX}" y1="${offsetY}" x2="${offsetX + usedW}" y2="${offsetY}" stroke="#1a1a1a" stroke-width="2" pointer-events="none"/>`;
+    svgContent += `<line x1="${offsetX}" y1="${offsetY + usedH}" x2="${offsetX + usedW}" y2="${offsetY + usedH}" stroke="#1a1a1a" stroke-width="2" pointer-events="none"/>`;
+  }
+
+  // Crown centerline
+  svgContent += `<line class="centerline" x1="${offsetX - 5}" y1="${offsetY + usedH / 2}" x2="${offsetX + usedW + 5}" y2="${offsetY + usedH / 2}"/>`;
+
+  // Bay dividers
+  for (let r = 0; r <= state.numBays; r++) {
+    const dx = bx(r * bayLen);
+    svgContent += `<line x1="${dx}" y1="${offsetY}" x2="${dx}" y2="${offsetY + usedH}" stroke="#ddd" stroke-width="0.3" pointer-events="none"/>`;
+  }
+
+  // Bay numbers (top edge) — reversed due to 180° rotation
+  for (let r = 0; r < state.numBays; r++) {
+    svgContent += `<text class="label" x="${bx(r * bayLen + bayLen / 2)}" y="${offsetY - 6}" text-anchor="middle" style="font-size:8px">${r + 1}</text>`;
+  }
+
+  // Dimension labels
+  svgContent += `<text class="label" x="${offsetX + usedW / 2}" y="${offsetY + usedH + 18}" text-anchor="middle">${L}' (length)</text>`;
+  svgContent += `<text class="label" x="${offsetX - 10}" y="${offsetY + usedH / 2 + 3}" text-anchor="end">${WD}'</text>`;
+  svgContent += `<text class="label" x="${offsetX - 10}" y="${offsetY + 3}" text-anchor="end" style="font-size:8px">eave</text>`;
+  svgContent += `<text class="label" x="${offsetX - 10}" y="${offsetY + usedH + 3}" text-anchor="end" style="font-size:8px">eave</text>`;
+  svgContent += `<text class="label" x="${offsetX + usedW + 8}" y="${offsetY + usedH / 2 + 3}" text-anchor="start" style="font-size:8px">crown</text>`;
+
+  svg.innerHTML = svgContent;
+
+  // Attach click/drag handlers
+  svg.querySelectorAll('.cell').forEach(cell => {
+    cell.addEventListener('mousedown', onCellMouseDown);
+    cell.addEventListener('mouseenter', onCellMouseEnter);
+  });
+}
+
+// Long elevation — true projection of the vault on the long-side elevation plane.
+// Wall at the bottom (height = wallHeight), and above it the arch cells
+// B1..Bn stacked as PROJECTED bands. Because the cells are equal-arc-length on
+// the curved surface, their projected heights are TALL near the eave (arch is
+// nearly vertical there) and SHORT near the crown (arch is nearly horizontal).
+// Each vertical strip shows one bay along the length.
+function renderElevation() {
+  const svg = document.getElementById('elev-svg');
+  const W = 900;
+  const H = 260;
+  const padX = 40;
+  const padY = 30;
+  const drawW = W - padX * 2;
+  const drawH = H - padY * 2;
+
+  const L = state.buildingLength;
+  const wH = state.wallHeight;
+  const crownH = state.crownHeight;
+  const n = state.numSegments;
+
+  // World-space y boundaries for the arch bands (index 0 = eave = wH, n = crown)
+  const rowYs = getElevationRowYs(n);
+
+  const totalH = crownH;  // ground → crown
+
+  const scaleX = drawW / L;
+  const scaleY = drawH / totalH;
+  const scale = Math.min(scaleX, scaleY);
+  const offsetX = (W - L * scale) / 2;
+  const offsetY = H - padY;
+
+  // Mirror the length axis so bay 0 sits on the right, matching the
+  // 180°-rotated top view (leftmost cell in both views == highest bay index).
+  const bx = x => offsetX + (L - x) * scale;
+  const by = y => offsetY - y * scale;
+
+  const bayLen = L / state.numBays;
+  const bayCellW = bayLen * scale;
+
+  let svgContent = '';
+
+  // Ground line
+  svgContent += `<line x1="${bx(L + 10)}" y1="${by(0)}" x2="${bx(-10)}" y2="${by(0)}" class="dim-line"/>`;
+
+  // Wall cells (pattern col 0) — rectangular strip at the bottom
+  if (hasWalls()) {
+    const wallPatternCol = 0;
+    for (let r = 0; r < state.numBays; r++) {
+      // Use the right edge of the bay (r+1) because bx mirrors, so the rect
+      // anchor needs to be the higher-length end to get positive width.
+      const x = bx((r + 1) * bayLen);
+      const val = state.pattern[r][wallPatternCol];
+      svgContent += `<rect class="cell" data-row="${r}" data-col="${wallPatternCol}" x="${x}" y="${by(wH)}" width="${bayCellW}" height="${wH * scale}" fill="${cellColor(val)}" stroke="#888" stroke-width="0.4"/>`;
+    }
+  }
+
+  // Arch bands — B1 at the bottom (near eave, tall), Bn at the top (near crown, thin)
+  const archStart = hasWalls() ? 1 : 0;
+  for (let i = 0; i < n; i++) {
+    const patternCol = archStart + i;           // B(i+1)
+    const yLower = rowYs[i];                    // closer to eave / wall
+    const yUpper = rowYs[i + 1];                // closer to crown
+    const rowH = (yUpper - yLower) * scale;     // projected vertical extent (positive)
+    for (let r = 0; r < state.numBays; r++) {
+      const x = bx((r + 1) * bayLen);
+      const val = state.pattern[r][patternCol];
+      svgContent += `<rect class="cell" data-row="${r}" data-col="${patternCol}" x="${x}" y="${by(yUpper)}" width="${bayCellW}" height="${rowH}" fill="${cellColor(val)}" stroke="#888" stroke-width="0.4"/>`;
+    }
+  }
+
+  // Screen x bounds of the drawing rectangle
+  const screenLeft = offsetX;
+  const screenRight = offsetX + L * scale;
+
+  // Spring line (wall top)
+  if (hasWalls()) {
+    svgContent += `<line x1="${screenLeft}" y1="${by(wH)}" x2="${screenRight}" y2="${by(wH)}" stroke="#1a1a1a" stroke-width="1"/>`;
+  }
+
+  // Crown line
+  svgContent += `<line x1="${screenLeft}" y1="${by(crownH)}" x2="${screenRight}" y2="${by(crownH)}" stroke="#c8503c" stroke-width="0.8" stroke-dasharray="4 3"/>`;
+
+  // Building outline
+  svgContent += `<rect x="${screenLeft}" y="${by(crownH)}" width="${L * scale}" height="${crownH * scale}" fill="none" stroke="#1a1a1a" stroke-width="1"/>`;
+
+  // Subtle bay dividers
+  for (let r = 0; r <= state.numBays; r++) {
+    const dx = bx(r * bayLen);
+    svgContent += `<line x1="${dx}" y1="${by(0)}" x2="${dx}" y2="${by(crownH)}" stroke="#ddd" stroke-width="0.3"/>`;
+  }
+
+  // Bay labels (bottom, numbered). bx already accounts for the flip, so the
+  // labels naturally line up with the mirrored plan.
+  for (let r = 0; r < state.numBays; r++) {
+    svgContent += `<text class="label" x="${bx(r * bayLen + bayLen / 2)}" y="${by(0) + 14}" text-anchor="middle" style="font-size:8px">${r + 1}</text>`;
+  }
+
+  // Arch row labels on the LEFT edge of the drawing (W, B1..Bn)
+  if (hasWalls()) {
+    svgContent += `<text class="label" x="${screenLeft - 6}" y="${by(wH / 2) + 3}" text-anchor="end" style="font-size:8px;font-style:italic">W</text>`;
+  }
+  for (let i = 0; i < n; i++) {
+    const rowMid = (rowYs[i] + rowYs[i + 1]) / 2;
+    const bandH = (rowYs[i + 1] - rowYs[i]) * scale;
+    if (bandH >= 8) {
+      svgContent += `<text class="label" x="${screenLeft - 6}" y="${by(rowMid) + 3}" text-anchor="end" style="font-size:8px">B${i + 1}</text>`;
+    }
+  }
+
+  // Crown / wall height labels on the RIGHT edge of the drawing
+  svgContent += `<text class="label" x="${screenRight + 8}" y="${by(crownH) + 3}" text-anchor="start" style="font-size:9px">${crownH}' crown</text>`;
+  if (hasWalls()) {
+    svgContent += `<text class="label" x="${screenRight + 8}" y="${by(wH / 2) + 3}" text-anchor="start" style="font-size:9px">${wH}'</text>`;
+  }
+
+  // Length dimension (centered)
+  svgContent += `<text class="label" x="${(screenLeft + screenRight) / 2}" y="${by(0) + 28}" text-anchor="middle">${L}' (length)</text>`;
+
+  // Title
+  svgContent += `<text class="label" x="${padX}" y="${padY - 14}" text-anchor="start" style="font-size:10px">Long elevation — arch cells projected onto the side (crown band thin, eave band tall)</text>`;
+
+  svg.innerHTML = svgContent;
+
+  // Attach click/drag handlers for editing
+  svg.querySelectorAll('.cell').forEach(cell => {
+    cell.addEventListener('mousedown', onCellMouseDown);
+    cell.addEventListener('mouseenter', onCellMouseEnter);
+  });
+}
+
+// Axonometric preview — walls + vaulted arch
+function renderAxo() {
+  const svg = document.getElementById('axo-svg');
+  const W = 1400;
+  const H = 780;
+
+  const L = state.buildingLength;
+  const WD = state.buildingWidth;
+  const HT = state.crownHeight;
+  const wH = state.wallHeight;
+
+  // Orbit camera: yaw around the vertical (z) axis, then pitch tilt around the
+  // horizontal (x) axis. Orthographic projection onto the screen plane.
+  const cYaw = Math.cos(state.axoYaw);
+  const sYaw = Math.sin(state.axoYaw);
+  const cPit = Math.cos(state.axoPitch);
+  const sPit = Math.sin(state.axoPitch);
+  const cx = L / 2, cy = WD / 2, cz = 0;
+
+  function project3(x, y, z) {
+    // Center the world so rotation pivots around the building midpoint
+    const dx = x - cx, dy = y - cy, dz = z - cz;
+    // Yaw around z
+    const x1 = dx * cYaw - dy * sYaw;
+    const y1 = dx * sYaw + dy * cYaw;
+    const z1 = dz;
+    // Pitch around x
+    const x2 = x1;
+    const y2 = y1 * cPit + z1 * sPit;
+    const z2 = -y1 * sPit + z1 * cPit;
+    // Screen: x right, y down (SVG); depth = y2 (larger = further from camera)
+    return { sx: x2, sy: -z2, depth: y2 };
+  }
+
+  // Fit the projected bounding box to the viewport
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  const corners = [
+    [0, 0, 0], [L, 0, 0], [L, WD, 0], [0, WD, 0],
+    [0, 0, wH], [L, 0, wH], [L, WD, wH], [0, WD, wH],
+    [0, WD / 2, HT], [L, WD / 2, HT],
+  ];
+  corners.forEach(c => {
+    const p = project3(c[0], c[1], c[2]);
+    if (p.sx < minX) minX = p.sx;
+    if (p.sx > maxX) maxX = p.sx;
+    if (p.sy < minY) minY = p.sy;
+    if (p.sy > maxY) maxY = p.sy;
+  });
+  const bbW = maxX - minX;
+  const bbH = maxY - minY;
+  const scale = Math.min((W - 80) / bbW, (H - 80) / bbH);
+  const cX = W / 2 - ((minX + maxX) / 2) * scale;
+  const cY = H / 2 - ((minY + maxY) / 2) * scale;
+
+  function toScreen(bxr, byr, bzr) {
+    const p = project3(bxr, byr, bzr);
+    return [cX + p.sx * scale, cY + p.sy * scale];
+  }
+
+  function depthAt(bxr, byr, bzr) {
+    return project3(bxr, byr, bzr).depth;
+  }
+
+  function surfaceHeight(byr) {
+    return archYAtX(byr);
+  }
+
+  const xsFromEdge = getSegmentXPositions(state.numSegments);
+  const leftXs = xsFromEdge.slice();
+  const rightXs = xsFromEdge.slice().reverse().map(v => WD - v);
+  const archFullXs = leftXs.concat(rightXs.slice(1));
+  const numArchCells = state.numSegments * 2;
+  const bayH = L / state.numBays;
+  const archStartCol = hasWalls() ? 1 : 0;
+
+  let svgContent = '';
+
+  // Ground plane
+  const g1 = toScreen(0, 0, 0);
+  const g2 = toScreen(L, 0, 0);
+  const g3 = toScreen(L, WD, 0);
+  const g4 = toScreen(0, WD, 0);
+  svgContent += `<polygon points="${g1.join(',')} ${g2.join(',')} ${g3.join(',')} ${g4.join(',')}" fill="#f0ede6" stroke="#ccc" stroke-width="0.5"/>`;
+
+  const panels = [];
+
+  // Helper: compute a panel's centroid depth for the painter's sort
+  function centroidDepth(corners3d) {
+    let sum = 0;
+    corners3d.forEach(([x, y, z]) => { sum += depthAt(x, y, z); });
+    return sum / corners3d.length;
+  }
+
+  // Walls
+  if (hasWalls()) {
+    for (let r = 0; r < state.numBays; r++) {
+      const xA = r * bayH;
+      const xB = (r + 1) * bayH;
+
+      const leftCorners3d = [[xA, 0, 0], [xB, 0, 0], [xB, 0, wH], [xA, 0, wH]];
+      panels.push({
+        type: 'wall-left',
+        r, c: 0,
+        points: leftCorners3d.map(c => toScreen(c[0], c[1], c[2])),
+        colorVal: state.pattern[r][0],
+        depth: centroidDepth(leftCorners3d),
+      });
+
+      const rightCorners3d = [[xA, WD, 0], [xB, WD, 0], [xB, WD, wH], [xA, WD, wH]];
+      panels.push({
+        type: 'wall-right',
+        r, c: totalCols() - 1,
+        points: rightCorners3d.map(c => toScreen(c[0], c[1], c[2])),
+        colorVal: state.pattern[r][totalCols() - 1],
+        depth: centroidDepth(rightCorners3d),
+      });
+    }
+  }
+
+  // Arch panels
+  for (let r = 0; r < state.numBays; r++) {
+    for (let i = 0; i < numArchCells; i++) {
+      const xA = r * bayH;
+      const xB = (r + 1) * bayH;
+      const y0 = archFullXs[i];
+      const y1 = archFullXs[i + 1];
+      const z_y0 = surfaceHeight(y0);
+      const z_y1 = surfaceHeight(y1);
+
+      const archCorners3d = [
+        [xA, y0, z_y0], [xB, y0, z_y0],
+        [xB, y1, z_y1], [xA, y1, z_y1],
+      ];
+      const patternCol = archStartCol + i;
+      panels.push({
+        type: 'arch',
+        r, c: patternCol,
+        points: archCorners3d.map(c => toScreen(c[0], c[1], c[2])),
+        colorVal: state.pattern[r][patternCol],
+        depth: centroidDepth(archCorners3d),
+      });
+    }
+  }
+
+  // Painter's algorithm: sort by depth, draw farthest first (largest depth)
+  panels.sort((a, b) => b.depth - a.depth);
+
+  panels.forEach(p => {
+    const fill = cellColor(p.colorVal);
+    const pointsStr = p.points.map(pt => pt.join(',')).join(' ');
+    svgContent += `<polygon points="${pointsStr}" fill="${fill}" stroke="#555" stroke-width="0.5"/>`;
+  });
+
+  // End arch outlines
+  for (const bayEnd of [0, L]) {
+    let archPath = '';
+    const steps = 60;
+
+    if (hasWalls()) {
+      const [sx0, sy0] = toScreen(bayEnd, 0, 0);
+      archPath += `M${sx0} ${sy0} `;
+      const [sx1, sy1] = toScreen(bayEnd, 0, wH);
+      archPath += `L${sx1} ${sy1} `;
+    } else {
+      const [sx0, sy0] = toScreen(bayEnd, 0, 0);
+      archPath += `M${sx0} ${sy0} `;
+    }
+
+    for (let i = 0; i <= steps; i++) {
+      const byr = (WD * i) / steps;
+      const bzr = surfaceHeight(byr);
+      const [sx, sy] = toScreen(bayEnd, byr, bzr);
+      archPath += `L${sx} ${sy} `;
+    }
+
+    if (hasWalls()) {
+      const [sx2, sy2] = toScreen(bayEnd, WD, wH);
+      archPath += `L${sx2} ${sy2} `;
+      const [sx3, sy3] = toScreen(bayEnd, WD, 0);
+      archPath += `L${sx3} ${sy3} `;
+    }
+    archPath += 'Z';
+    svgContent += `<path d="${archPath}" class="arch-outline" stroke-width="1"/>`;
+  }
+
+  svg.innerHTML = svgContent;
+}
+
+// ============================================================
+// Interaction
+// ============================================================
+
+function onCellMouseDown(e) {
+  state.isDragging = true;
+  // Decide paint value by toggling the current value of the clicked cell
+  const cellEl = e.currentTarget;
+  const r = parseInt(cellEl.dataset.row, 10);
+  const c = parseInt(cellEl.dataset.col, 10);
+  const currentVal = state.pattern[r][c] === 1 ? 1 : 0;
+  state.dragPaintValue = currentVal === 1 ? 0 : 1;
+  paintCell(cellEl);
+  e.preventDefault();
+}
+
+function onCellMouseEnter(e) {
+  if (!state.isDragging) return;
+  paintCell(e.currentTarget);
+}
+
+window.addEventListener('mouseup', () => {
+  state.isDragging = false;
+  state.lastCell = null;
+  state.dragPaintValue = null;
+});
+
+function paintCell(cellEl) {
+  const r = parseInt(cellEl.dataset.row, 10);
+  const c = parseInt(cellEl.dataset.col, 10);
+  const key = `${r},${c}`;
+  if (state.lastCell === key) return;
+  state.lastCell = key;
+
+  const val = state.dragPaintValue != null ? state.dragPaintValue : 1;
+  setCell(r, c, val);
+
+  rerenderAll();
+}
+
+function setCell(r, c, val) {
+  const rows = state.numBays;
+  const cols = totalCols();
+  const isBorder = (r === 0 || r === rows - 1 || c === 0 || c === cols - 1);
+  if (state.fixedBorder && isBorder) return;
+  // B1 (col 1) and its mirror are always solid
+  if (c === 1 || c === cols - 2) return;
+
+  state.pattern[r][c] = val;
+  if (state.mirrorMode) {
+    const mc = cols - 1 - c;
+    state.pattern[r][mc] = val;
+  }
+}
+
+// Generate a random pattern at the given density (0.0–1.0) using the current seed
+function applyRandomDensity(density) {
+  const rows = state.numBays;
+  const cols = totalCols();
+  const rng = mulberry32(state.randomSeed);
+  state.pattern = createEmptyPattern();
+  if (density <= 0) {
+    // all void — done
+  } else if (density >= 1) {
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) state.pattern[r][c] = 1;
+  } else if (state.mirrorMode) {
+    // Only fill the left half; mirror copies to the right
+    const halfCols = Math.ceil(cols / 2);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < halfCols; c++) {
+        state.pattern[r][c] = rng() < density ? 1 : 0;
+      }
+    }
+    applyMirror();
+  } else {
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        state.pattern[r][c] = rng() < density ? 1 : 0;
+      }
+    }
+  }
+  if (state.fixedBorder) applyBorder();
+  enforceB1Solid();
+  rerenderAll();
+}
+
+function applyMirror() {
+  const rows = state.numBays;
+  const cols = totalCols();
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < Math.floor(cols / 2); c++) {
+      state.pattern[r][cols - 1 - c] = state.pattern[r][c];
+    }
+  }
+}
+
+// Stats
+function updateStats() {
+  const rows = state.numBays;
+  const cols = totalCols();
+  let solid = 0, void_ = 0;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    if (state.pattern[r][c] === 1) solid++;
+    else void_++;
+  }
+  const total = rows * cols;
+  document.getElementById('stats').innerHTML = `
+    <div>Grid: ${cols} × ${rows} = ${total}</div>
+    <div>Solid: ${solid} (${Math.round(100 * solid / total)}%)</div>
+    <div>Void: ${void_} (${Math.round(100 * void_ / total)}%)</div>
+    <div>Seed: ${state.randomSeed}</div>
+    <div>Cell: ${(state.buildingLength / rows).toFixed(1)}' × ${(state.buildingWidth / cols).toFixed(1)}' (avg)</div>
+  `;
+  document.getElementById('jsonOut').textContent = JSON.stringify({
+    meta: {
+      bays: rows,
+      segments: state.numSegments,
+      length: state.buildingLength,
+      width: state.buildingWidth,
+      wallHeight: state.wallHeight,
+      height: state.crownHeight,
+    },
+    pattern: state.pattern,
+  }, null, 1);
+}
+
+// ============================================================
+// Export / Load
+// ============================================================
+
+function exportSvg() {
+  const w = 1500;
+  const h = 2250;
+
+  const planSvg = document.getElementById('plan-svg').innerHTML;
+  const elevSvg = document.getElementById('elev-svg').innerHTML;
+  const axoSvg = document.getElementById('axo-svg').innerHTML;
+
+  const combined = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <rect width="${w}" height="${h}" fill="#f5f4ef"/>
+  <style>
+    .label { font-family: monospace; fill: #888; font-size: 10px; }
+    .arch-outline { fill: none; stroke: #1a1a1a; stroke-width: 1.5; }
+    .centerline { stroke: #c8503c; stroke-dasharray: 4 3; }
+    .cell { stroke: #888; stroke-width: 0.3; }
+    .dim-line { stroke: #888; }
+  </style>
+  <text x="40" y="40" style="font-family: sans-serif; font-size: 16px; letter-spacing: 2px">DISTRIBUTION CENTER NW-09 — ROOF PATTERN</text>
+  <text x="40" y="58" style="font-family: sans-serif; font-size: 11px; fill: #888">Barker Hangar · ${state.buildingLength}' × ${state.buildingWidth}' × ${state.crownHeight}' (wall ${state.wallHeight}') · ${totalCols()}×${state.numBays} grid</text>
+
+  <g transform="translate(40, 90)">
+    <text class="label" x="0" y="-5">TOP VIEW — ROOF PLAN</text>
+    <svg width="1420" height="884" viewBox="0 0 900 560">${planSvg}</svg>
+  </g>
+
+  <g transform="translate(40, 1000)">
+    <text class="label" x="0" y="-5">LONG ELEVATION</text>
+    <svg width="1420" height="410" viewBox="0 0 900 260">${elevSvg}</svg>
+  </g>
+
+  <g transform="translate(40, 1440)">
+    <text class="label" x="0" y="-5">AXONOMETRIC</text>
+    <svg width="1420" height="790" viewBox="0 0 1400 780">${axoSvg}</svg>
+  </g>
+</svg>`;
+
+  const blob = new Blob([combined], {type: 'image/svg+xml'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `hangar_aruco_${Date.now()}.svg`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function savePattern() {
+  const data = {
+    meta: {
+      bays: state.numBays,
+      segments: state.numSegments,
+      length: state.buildingLength,
+      width: state.buildingWidth,
+      wallHeight: state.wallHeight,
+      height: state.crownHeight,
+      mirrorMode: state.mirrorMode,
+      fixedBorder: state.fixedBorder,
+    },
+    pattern: state.pattern,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `hangar_pattern_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function loadPattern(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.meta) {
+        state.numBays = data.meta.bays;
+        state.numSegments = data.meta.segments;
+        state.buildingLength = data.meta.length;
+        state.buildingWidth = data.meta.width;
+        state.crownHeight = data.meta.height;
+        if (typeof data.meta.wallHeight === 'number') state.wallHeight = data.meta.wallHeight;
+        if (typeof data.meta.mirrorMode === 'boolean') state.mirrorMode = data.meta.mirrorMode;
+        if (typeof data.meta.fixedBorder === 'boolean') state.fixedBorder = data.meta.fixedBorder;
+        document.getElementById('numBays').value = state.numBays;
+        document.getElementById('numSegments').value = state.numSegments;
+        document.getElementById('buildingLength').value = state.buildingLength;
+        document.getElementById('buildingWidth').value = state.buildingWidth;
+        document.getElementById('wallHeight').value = state.wallHeight;
+        document.getElementById('crownHeight').value = state.crownHeight;
+        document.getElementById('mirrorMode').checked = state.mirrorMode;
+        document.getElementById('stripBorder').checked = state.fixedBorder;
+      }
+      if (data.pattern) {
+        // Normalize any legacy drone values (2) down to void (0)
+        state.pattern = data.pattern.map(row => row.map(v => v === 1 ? 1 : 0));
+      }
+      rerenderAll();
+    } catch (err) {
+      alert('Failed to load pattern: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ============================================================
+// Wiring
+// ============================================================
+
+function rerenderAll() {
+  renderPlan();
+  renderElevation();
+  renderAxo();
+  updateStats();
+}
+
+function applyDefaultPattern() {
+  const rows = state.numBays;
+  const cols = totalCols();
+  // Start all void
+  state.pattern = Array.from({ length: rows }, () => new Array(cols).fill(0));
+  if (state.mirrorMode) applyMirror();
+  if (state.fixedBorder) applyBorder();
+  enforceB1Solid();
+}
+
+function init() {
+  applyDefaultPattern();
+
+  // Geometry inputs
+  ['numBays', 'numSegments', 'buildingLength', 'buildingWidth', 'wallHeight', 'crownHeight'].forEach(id => {
+    document.getElementById(id).addEventListener('change', e => {
+      const val = parseFloat(e.target.value);
+      if (isNaN(val)) return;
+      if (id === 'numBays' || id === 'numSegments') {
+        state[id] = Math.round(val);
+        initPattern();
+      } else if (id === 'wallHeight') {
+        const oldHadWalls = hasWalls();
+        state.wallHeight = val;
+        const newHasWalls = hasWalls();
+        if (oldHadWalls !== newHasWalls) {
+          initPattern();
+        }
+      } else {
+        state[id] = val;
+      }
+      rerenderAll();
+    });
+  });
+
+  // All Solid / All Void
+  document.getElementById('allSolid').addEventListener('click', () => {
+    const rows = state.numBays;
+    const cols = totalCols();
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) state.pattern[r][c] = 1;
+    rerenderAll();
+  });
+  document.getElementById('allVoid').addEventListener('click', () => {
+    state.pattern = createEmptyPattern();
+    if (state.fixedBorder) applyBorder();
+    enforceB1Solid();
+    rerenderAll();
+  });
+
+  // Mirror toggle
+  document.getElementById('mirrorMode').addEventListener('change', e => {
+    state.mirrorMode = e.target.checked;
+    if (state.mirrorMode) { applyMirror(); rerenderAll(); }
+  });
+
+  // Random button reveals slider + seed controls
+  const randomControls = document.getElementById('randomControls');
+  const slider = document.getElementById('densitySlider');
+  const label = document.getElementById('densityLabel');
+  document.getElementById('randomBtn').addEventListener('click', () => {
+    randomControls.style.display = randomControls.style.display === 'none' ? 'block' : 'none';
+    applyRandomDensity(parseInt(slider.value, 10) / 100);
+  });
+  slider.addEventListener('input', () => {
+    label.textContent = 'Density ' + slider.value + '%';
+    applyRandomDensity(parseInt(slider.value, 10) / 100);
+  });
+  document.getElementById('randomSeed').addEventListener('input', e => {
+    const v = parseInt(e.target.value, 10);
+    if (!isNaN(v)) state.randomSeed = v;
+  });
+  document.getElementById('rerollBtn').addEventListener('click', () => {
+    state.randomSeed += 1;
+    document.getElementById('randomSeed').value = state.randomSeed;
+    applyRandomDensity(parseInt(slider.value, 10) / 100);
+  });
+
+  // ArUco marker controls
+  buildArucoControls();
+  document.getElementById('toggleArucoBorder').addEventListener('click', () => {
+    state.arucoBorderOn = !state.arucoBorderOn;
+    if (state.arucoBorderOn) {
+      applyArucoBorder();
+    } else {
+      clearArucoBorder();
+    }
+    if (state.fixedBorder) applyBorder();
+    rerenderAll();
+  });
+
+  // Axonometric orbit drag
+  setupAxoOrbit();
+  document.getElementById('resetAxo').addEventListener('click', e => {
+    e.stopPropagation();
+    state.axoYaw = 30 * Math.PI / 180;
+    state.axoPitch = 30 * Math.PI / 180;
+    renderAxo();
+  });
+
+  // Export / save / load
+  document.getElementById('exportSvg').addEventListener('click', exportSvg);
+  document.getElementById('savePattern').addEventListener('click', savePattern);
+  document.getElementById('loadPattern').addEventListener('click', () => {
+    document.getElementById('loadInput').click();
+  });
+  document.getElementById('loadInput').addEventListener('change', e => {
+    if (e.target.files[0]) loadPattern(e.target.files[0]);
+  });
+
+  rerenderAll();
+}
+
+function setupAxoOrbit() {
+  const svg = document.getElementById('axo-svg');
+  let dragStart = null;
+
+  svg.addEventListener('mousedown', e => {
+    // Ignore clicks on buttons inside the view title (they live outside the svg anyway)
+    dragStart = {
+      x: e.clientX,
+      y: e.clientY,
+      yaw: state.axoYaw,
+      pitch: state.axoPitch,
+    };
+    svg.classList.add('grabbing');
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!dragStart) return;
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    const sensitivity = 0.008;
+    state.axoYaw = dragStart.yaw + dx * sensitivity;
+    const pitchLimit = Math.PI / 2 - 0.05;
+    state.axoPitch = Math.max(-pitchLimit, Math.min(pitchLimit, dragStart.pitch + dy * sensitivity));
+    renderAxo();
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (dragStart) {
+      dragStart = null;
+      svg.classList.remove('grabbing');
+    }
+  });
+}
+
+function buildArucoControls() {
+  const host = document.getElementById('arucoControls');
+  host.innerHTML = '';
+
+  const maxId = (1 << (ARUCO_INNER_SIZE * ARUCO_INNER_SIZE)) - 1;
+
+  state.arucoMarkers.forEach((m, idx) => {
+    if (m.id > maxId) m.id = m.id & maxId;
+    const row = document.createElement('div');
+    row.className = 'aruco-row';
+    row.innerHTML = `
+      <svg class="marker-preview" data-preview="${idx}" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="marker-fields">
+        <label>id</label>
+        <input type="number" data-aruco="${idx}" data-field="id" value="${m.id}" min="0" max="${maxId}" step="1">
+        <button type="button" class="reroll-btn" data-reroll="${idx}">⟳</button>
+      </div>
+    `;
+    host.appendChild(row);
+  });
+
+  // Reroll-all button at the bottom
+  const rerollAll = document.createElement('button');
+  rerollAll.type = 'button';
+  rerollAll.className = 'full';
+  rerollAll.id = 'rerollAllAruco';
+  rerollAll.textContent = 'Reroll all markers';
+  rerollAll.style.marginTop = '8px';
+  host.appendChild(rerollAll);
+
+  // ID input handlers — update preview + paint canvas if border is on
+  host.querySelectorAll('input[data-aruco]').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const idx = parseInt(e.target.dataset.aruco, 10);
+      const val = parseInt(e.target.value, 10);
+      if (isNaN(val)) return;
+      state.arucoMarkers[idx].id = val;
+      renderArucoPreviews();
+      if (state.arucoBorderOn) {
+        applyMarkerToCanvas(idx);
+        rerenderAll();
+      }
+    });
+  });
+
+  // Per-marker reroll handlers
+  host.querySelectorAll('.reroll-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const idx = parseInt(e.currentTarget.dataset.reroll, 10);
+      rerollMarker(idx);
+    });
+  });
+
+  // Reroll-all handler
+  rerollAll.addEventListener('click', () => {
+    state.arucoMarkers.forEach((_, idx) => rerollMarker(idx, false));
+    state.arucoMarkers.forEach((m, idx) => {
+      const inp = host.querySelector(`input[data-aruco="${idx}"]`);
+      if (inp) inp.value = m.id;
+    });
+    renderArucoPreviews();
+    if (state.arucoBorderOn) {
+      applyAllMarkers();
+      rerenderAll();
+    }
+  });
+
+  renderArucoPreviews();
+}
+
+function rerollMarker(idx, rerender = true) {
+  const maxId = (1 << (ARUCO_INNER_SIZE * ARUCO_INNER_SIZE)) - 1;
+  const newId = Math.floor(Math.random() * (maxId + 1));
+  state.arucoMarkers[idx].id = newId;
+  const inp = document.querySelector(`input[data-aruco="${idx}"]`);
+  if (inp) inp.value = newId;
+  if (rerender) {
+    renderArucoPreviews();
+    if (state.arucoBorderOn) {
+      applyMarkerToCanvas(idx);
+      rerenderAll();
+    }
+  }
+}
+
+function renderArucoPreviews() {
+  state.arucoMarkers.forEach((m, idx) => {
+    const el = document.querySelector(`svg[data-preview="${idx}"]`);
+    if (!el) return;
+    const grid = generateArucoMarker(m.id, ARUCO_INNER_SIZE);
+    el.innerHTML = renderArucoMarkerSVG(grid, 0, 0, 60);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
