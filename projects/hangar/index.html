@@ -366,7 +366,7 @@
       <h2>ArUco Code Generator</h2>
       <div class="hint" style="font-size:10px;color:var(--muted);margin-bottom:8px">6 markers · 3×3 inner pattern + 1-cell border (IDs 0–511).</div>
       <div class="control-row" style="margin-bottom:8px">
-        <button id="toggleArucoBorder" class="full">Toggle ArUco Border</button>
+        <label><input type="checkbox" id="toggleArucoBorder"> Toggle ArUco Border</label>
       </div>
       <div id="arucoControls"></div>
     </div>
@@ -1528,6 +1528,7 @@ function init() {
   // All Solid / All Void — clear all editing, toggle off ArUco border
   document.getElementById('allSolid').addEventListener('click', () => {
     state.arucoBorderOn = false;
+    document.getElementById('toggleArucoBorder').checked = false;
     const rows = state.numBays;
     const cols = totalCols();
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) state.pattern[r][c] = 1;
@@ -1535,6 +1536,7 @@ function init() {
   });
   document.getElementById('allVoid').addEventListener('click', () => {
     state.arucoBorderOn = false;
+    document.getElementById('toggleArucoBorder').checked = false;
     state.pattern = createEmptyPattern();
     if (state.fixedBorder) applyBorder();
     enforceB1Solid();
@@ -1571,8 +1573,8 @@ function init() {
 
   // ArUco marker controls
   buildArucoControls();
-  document.getElementById('toggleArucoBorder').addEventListener('click', () => {
-    state.arucoBorderOn = !state.arucoBorderOn;
+  document.getElementById('toggleArucoBorder').addEventListener('change', e => {
+    state.arucoBorderOn = e.target.checked;
     if (state.arucoBorderOn) {
       applyArucoBorder();
     } else {
