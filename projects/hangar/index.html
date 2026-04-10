@@ -378,7 +378,7 @@
         <button id="allVoid">All Void</button>
       </div>
       <div class="control-row">
-        <label><input type="checkbox" id="mirrorMode" checked> Mirror across crown</label>
+        <label><input type="checkbox" id="mirrorMode"> Mirror across crown</label>
       </div>
       <div class="control-row" style="margin-bottom:4px">
         <button id="randomBtn" class="full">Random</button>
@@ -462,7 +462,7 @@ const state = {
   wallHeight: 10.5,         // feet — vertical wall height before arch springs
   crownHeight: 54,           // feet — total height at crown (10.5' wall + 43.5' arch rise)
   pattern: [],              // 2D array: [row=bay][col], values: 0=void, 1=solid
-  mirrorMode: true,
+  mirrorMode: false,
   fixedBorder: true,
   isDragging: false,
   dragPaintValue: null,     // the value we're painting during a drag (toggle from initial)
