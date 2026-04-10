@@ -1773,7 +1773,7 @@ function renderCanvasPreviews() {
         grid[r + 1][c + 1] = state.pattern[cv.rows[r]][cv.cols[c]];
       }
     }
-    el.innerHTML = `<g transform="rotate(90,30,30)">${renderArucoMarkerSVG(grid, 0, 0, 60)}</g>`;
+    el.innerHTML = renderArucoMarkerSVG(grid, 0, 0, 60);
   });
   // Keep marker IDs in sync with the actual canvas content
   syncIdsFromCanvases();
