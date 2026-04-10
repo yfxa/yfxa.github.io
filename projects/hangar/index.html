@@ -417,7 +417,7 @@
 
     <div class="view-block">
       <div class="view-title">
-        <span>Top View — Roof Plan (editable, rotated 180°)</span>
+        <span>Top View — Roof Plan (editable)</span>
       </div>
       <svg id="plan-svg" viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg"></svg>
       <div class="legend">
@@ -857,8 +857,8 @@ function renderPlan() {
   const offsetX = (W - usedW) / 2;
   const offsetY = (H - usedH) / 2;
 
-  // 180° rotation: cell at world (lx, wy) → screen at mirrored position.
-  const bx = lx => offsetX + (L - lx) * scale;
+  // Bays go 1→15 left to right; arch direction still flipped vertically.
+  const bx = lx => offsetX + lx * scale;
   const by = wy => offsetY + (WD - wy) * scale;
 
   let svgContent = '';
@@ -880,8 +880,7 @@ function renderPlan() {
       const wy1 = fullXs[i + 1];
       const lx0 = r * bayLen;
       const lx1 = (r + 1) * bayLen;
-      // After 180° rotation, (lx1, wy1) is the top-left of the screen rect.
-      const sx = bx(lx1);
+      const sx = bx(lx0);
       const sy = by(wy1);
       const sw = (lx1 - lx0) * scale;
       const sh = (wy1 - wy0) * scale;
@@ -961,9 +960,8 @@ function renderElevation() {
   const offsetX = (W - L * scale) / 2;
   const offsetY = H - padY;
 
-  // Mirror the length axis so bay 0 sits on the right, matching the
-  // 180°-rotated top view (leftmost cell in both views == highest bay index).
-  const bx = x => offsetX + (L - x) * scale;
+  // Bays go 1→15 left to right (matching the plan)
+  const bx = x => offsetX + x * scale;
   const by = y => offsetY - y * scale;
 
   const bayLen = L / state.numBays;
@@ -972,15 +970,13 @@ function renderElevation() {
   let svgContent = '';
 
   // Ground line
-  svgContent += `<line x1="${bx(L + 10)}" y1="${by(0)}" x2="${bx(-10)}" y2="${by(0)}" class="dim-line"/>`;
+  svgContent += `<line x1="${bx(-10)}" y1="${by(0)}" x2="${bx(L + 10)}" y2="${by(0)}" class="dim-line"/>`;
 
   // Wall cells (pattern col 0) — rectangular strip at the bottom
   if (hasWalls()) {
     const wallPatternCol = 0;
     for (let r = 0; r < state.numBays; r++) {
-      // Use the right edge of the bay (r+1) because bx mirrors, so the rect
-      // anchor needs to be the higher-length end to get positive width.
-      const x = bx((r + 1) * bayLen);
+      const x = bx(r * bayLen);
       const val = state.pattern[r][wallPatternCol];
       svgContent += `<rect class="cell" data-row="${r}" data-col="${wallPatternCol}" x="${x}" y="${by(wH)}" width="${bayCellW}" height="${wH * scale}" fill="${cellColor(val)}" stroke="#888" stroke-width="0.4"/>`;
     }
@@ -994,15 +990,14 @@ function renderElevation() {
     const yUpper = rowYs[i + 1];                // closer to crown
     const rowH = (yUpper - yLower) * scale;     // projected vertical extent (positive)
     for (let r = 0; r < state.numBays; r++) {
-      const x = bx((r + 1) * bayLen);
+      const x = bx(r * bayLen);
       const val = state.pattern[r][patternCol];
       svgContent += `<rect class="cell" data-row="${r}" data-col="${patternCol}" x="${x}" y="${by(yUpper)}" width="${bayCellW}" height="${rowH}" fill="${cellColor(val)}" stroke="#888" stroke-width="0.4"/>`;
     }
   }
 
-  // Screen x bounds of the drawing rectangle
-  const screenLeft = offsetX;
-  const screenRight = offsetX + L * scale;
+  const screenLeft = bx(0);
+  const screenRight = bx(L);
 
   // Spring line (wall top)
   if (hasWalls()) {
@@ -1762,7 +1757,7 @@ function renderArucoPreviews() {
     if (!el) return;
     const grid = generateArucoMarker(m.id, ARUCO_INNER_SIZE);
     // Rotate 180° to match the 180°-rotated roof plan
-    el.innerHTML = `<g transform="rotate(180,30,30)">${renderArucoMarkerSVG(grid, 0, 0, 60)}</g>`;
+    el.innerHTML = renderArucoMarkerSVG(grid, 0, 0, 60);
   });
 }
 
@@ -1779,7 +1774,7 @@ function renderCanvasPreviews() {
         grid[r + 1][c + 1] = state.pattern[cv.rows[r]][cv.cols[c]];
       }
     }
-    el.innerHTML = `<g transform="rotate(180,30,30)">${renderArucoMarkerSVG(grid, 0, 0, 60)}</g>`;
+    el.innerHTML = renderArucoMarkerSVG(grid, 0, 0, 60);
   });
   // Keep marker IDs in sync with the actual canvas content
   syncIdsFromCanvases();
