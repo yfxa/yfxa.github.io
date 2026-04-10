@@ -593,7 +593,8 @@ function syncIdsFromCanvases() {
 function applyArucoBorder() {
   const rows = state.numBays;
   const cols = totalCols();
-  const archCols = [5, 6, 7];
+  // B5-B7 and their mirrors B8 (both sides of the crown border)
+  const archCols = [5, 6, 7, 8];
   const bayRows = [4, 5, 9, 10];
   // Solid: arch columns (skip bay rows to keep B1 intersections)
   for (let r = 0; r < rows; r++) {
@@ -617,7 +618,7 @@ function applyArucoBorder() {
 function clearArucoBorder() {
   const rows = state.numBays;
   const cols = totalCols();
-  const archCols = [5, 6, 7];
+  const archCols = [5, 6, 7, 8];
   const bayRows = [4, 5, 9, 10];
   for (let r = 0; r < rows; r++) {
     archCols.forEach(c => { state.pattern[r][c] = 0; });
