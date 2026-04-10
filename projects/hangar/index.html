@@ -1464,6 +1464,7 @@ function rerenderAll() {
   renderElevation();
   renderAxo();
   updateStats();
+  if (state.arucoBorderOn) renderCanvasPreviews();
 }
 
 function applyDefaultPattern() {
@@ -1711,6 +1712,23 @@ function renderArucoPreviews() {
     const el = document.querySelector(`svg[data-preview="${idx}"]`);
     if (!el) return;
     const grid = generateArucoMarker(m.id, ARUCO_INNER_SIZE);
+    el.innerHTML = renderArucoMarkerSVG(grid, 0, 0, 60);
+  });
+}
+
+// Read the actual 3×3 pattern state from each canvas and render it into
+// the sidebar preview SVGs — so edits on the plan/elevation are reflected.
+function renderCanvasPreviews() {
+  const size = ARUCO_INNER_SIZE + 2; // 5
+  CANVASES.forEach((cv, idx) => {
+    const el = document.querySelector(`svg[data-preview="${idx}"]`);
+    if (!el) return;
+    const grid = Array.from({ length: size }, () => new Array(size).fill(1));
+    for (let r = 0; r < ARUCO_INNER_SIZE; r++) {
+      for (let c = 0; c < ARUCO_INNER_SIZE; c++) {
+        grid[r + 1][c + 1] = state.pattern[cv.rows[r]][cv.cols[c]];
+      }
+    }
     el.innerHTML = renderArucoMarkerSVG(grid, 0, 0, 60);
   });
 }
