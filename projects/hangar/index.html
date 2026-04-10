@@ -1686,7 +1686,7 @@ function buildArucoControls() {
       const val = parseInt(e.target.value, 10);
       if (isNaN(val)) return;
       state.arucoMarkers[idx].id = val;
-      renderArucoPreviews();
+      renderArucoPreview(idx);
     });
   });
 
@@ -1715,12 +1715,9 @@ function buildArucoControls() {
 
   // Reroll-all handler
   rerollAll.addEventListener('click', () => {
-    state.arucoMarkers.forEach((_, idx) => rerollMarker(idx, false));
-    state.arucoMarkers.forEach((m, idx) => {
-      const inp = host.querySelector(`input[data-aruco="${idx}"]`);
-      if (inp) inp.value = m.id;
+    state.arucoMarkers.forEach((_, idx) => {
+      rerollMarker(idx, true);
     });
-    renderArucoPreviews();
   });
 
   renderArucoPreviews();
@@ -1733,7 +1730,7 @@ function rerollMarker(idx, rerender = true) {
   state.arucoMarkers[idx].id = newId;
   const inp = document.querySelector(`input[data-aruco="${idx}"]`);
   if (inp) inp.value = newId;
-  if (rerender) renderArucoPreviews();
+  if (rerender) renderArucoPreview(idx);
 }
 
 function updateApplyButtons() {
@@ -1750,14 +1747,15 @@ function updateApplyButtons() {
   }
 }
 
+function renderArucoPreview(idx) {
+  const el = document.querySelector(`svg[data-preview="${idx}"]`);
+  if (!el) return;
+  const grid = generateArucoMarker(state.arucoMarkers[idx].id, ARUCO_INNER_SIZE);
+  el.innerHTML = `<g transform="rotate(90,30,30)">${renderArucoMarkerSVG(grid, 0, 0, 60)}</g>`;
+}
+
 function renderArucoPreviews() {
-  state.arucoMarkers.forEach((m, idx) => {
-    const el = document.querySelector(`svg[data-preview="${idx}"]`);
-    if (!el) return;
-    const grid = generateArucoMarker(m.id, ARUCO_INNER_SIZE);
-    // Rotate 180° to match the 180°-rotated roof plan
-    el.innerHTML = `<g transform="rotate(90,30,30)">${renderArucoMarkerSVG(grid, 0, 0, 60)}</g>`;
-  });
+  state.arucoMarkers.forEach((_, idx) => renderArucoPreview(idx));
 }
 
 // Read the actual 3×3 pattern state from each canvas and render it into
