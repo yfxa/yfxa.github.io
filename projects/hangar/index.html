@@ -581,7 +581,10 @@ function applyArucoBorder() {
     }
   });
   if (state.mirrorMode) applyMirror();
-  applyAllMarkers();
+  // Clear canvases to void (border only, no markers applied yet)
+  CANVASES.forEach(cv => {
+    cv.rows.forEach(r => { cv.cols.forEach(c => { state.pattern[r][c] = 0; }); });
+  });
   enforceB1Solid();
 }
 
@@ -1626,19 +1629,26 @@ function buildArucoControls() {
         <label>id</label>
         <input type="number" data-aruco="${idx}" data-field="id" value="${m.id}" min="0" max="${maxId}" step="1">
         <button type="button" class="reroll-btn" data-reroll="${idx}">⟳</button>
+        <button type="button" class="reroll-btn" data-apply="${idx}">Apply</button>
       </div>
     `;
     host.appendChild(row);
   });
 
-  // Reroll-all button at the bottom
+  // Bottom buttons row: Apply All + Reroll All
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:4px;margin-top:8px';
+  const applyAll = document.createElement('button');
+  applyAll.type = 'button';
+  applyAll.className = 'full';
+  applyAll.textContent = 'Apply All';
   const rerollAll = document.createElement('button');
   rerollAll.type = 'button';
   rerollAll.className = 'full';
-  rerollAll.id = 'rerollAllAruco';
-  rerollAll.textContent = 'Reroll all markers';
-  rerollAll.style.marginTop = '8px';
-  host.appendChild(rerollAll);
+  rerollAll.textContent = 'Reroll All';
+  btnRow.appendChild(applyAll);
+  btnRow.appendChild(rerollAll);
+  host.appendChild(btnRow);
 
   // ID input handlers — update preview + paint canvas if border is on
   host.querySelectorAll('input[data-aruco]').forEach(inp => {
@@ -1648,19 +1658,30 @@ function buildArucoControls() {
       if (isNaN(val)) return;
       state.arucoMarkers[idx].id = val;
       renderArucoPreviews();
-      if (state.arucoBorderOn) {
-        applyMarkerToCanvas(idx);
-        rerenderAll();
-      }
     });
   });
 
   // Per-marker reroll handlers
-  host.querySelectorAll('.reroll-btn').forEach(btn => {
+  host.querySelectorAll('[data-reroll]').forEach(btn => {
     btn.addEventListener('click', e => {
       const idx = parseInt(e.currentTarget.dataset.reroll, 10);
       rerollMarker(idx);
     });
+  });
+
+  // Per-marker apply handlers
+  host.querySelectorAll('[data-apply]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const idx = parseInt(e.currentTarget.dataset.apply, 10);
+      applyMarkerToCanvas(idx);
+      rerenderAll();
+    });
+  });
+
+  // Apply-all handler
+  applyAll.addEventListener('click', () => {
+    applyAllMarkers();
+    rerenderAll();
   });
 
   // Reroll-all handler
@@ -1671,10 +1692,6 @@ function buildArucoControls() {
       if (inp) inp.value = m.id;
     });
     renderArucoPreviews();
-    if (state.arucoBorderOn) {
-      applyAllMarkers();
-      rerenderAll();
-    }
   });
 
   renderArucoPreviews();
@@ -1686,13 +1703,7 @@ function rerollMarker(idx, rerender = true) {
   state.arucoMarkers[idx].id = newId;
   const inp = document.querySelector(`input[data-aruco="${idx}"]`);
   if (inp) inp.value = newId;
-  if (rerender) {
-    renderArucoPreviews();
-    if (state.arucoBorderOn) {
-      applyMarkerToCanvas(idx);
-      rerenderAll();
-    }
-  }
+  if (rerender) renderArucoPreviews();
 }
 
 function renderArucoPreviews() {
