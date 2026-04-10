@@ -857,9 +857,9 @@ function renderPlan() {
   const offsetX = (W - usedW) / 2;
   const offsetY = (H - usedH) / 2;
 
-  // Bays go 1→15 left to right; mirrored along crown (eaves swapped top/bottom).
+  // Bays go 1→15 left to right.
   const bx = lx => offsetX + lx * scale;
-  const by = wy => offsetY + wy * scale;
+  const by = wy => offsetY + (WD - wy) * scale;
 
   let svgContent = '';
 
