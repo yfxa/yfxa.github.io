@@ -1355,7 +1355,6 @@ function updateStats() {
     <div>Grid: ${cols} × ${rows} = ${total}</div>
     <div>Solid: ${solid} (${Math.round(100 * solid / total)}%)</div>
     <div>Void: ${void_} (${Math.round(100 * void_ / total)}%)</div>
-    <div>Seed: ${state.randomSeed}</div>
     <div>Cell: ${(state.buildingLength / rows).toFixed(1)}' × ${(state.buildingWidth / cols).toFixed(1)}' (avg)</div>
   `;
   document.getElementById('jsonOut').textContent = JSON.stringify({
