@@ -363,6 +363,15 @@
     </div>
 
     <div class="section">
+      <h2>ArUco Code Generator</h2>
+      <div class="hint" style="font-size:10px;color:var(--muted);margin-bottom:8px">6 markers · 3×3 inner pattern + 1-cell border (IDs 0–511).</div>
+      <div class="control-row" style="margin-bottom:8px">
+        <button id="toggleArucoBorder" class="full">Toggle ArUco Border</button>
+      </div>
+      <div id="arucoControls"></div>
+    </div>
+
+    <div class="section">
       <h2>Edit</h2>
       <div class="btn-group" style="margin-bottom:8px">
         <button id="allSolid">All Solid</button>
@@ -388,12 +397,8 @@
     </div>
 
     <div class="section">
-      <h2>ArUco Code Generator</h2>
-      <div class="hint" style="font-size:10px;color:var(--muted);margin-bottom:8px">6 markers · 3×3 inner pattern + 1-cell border (IDs 0–511).</div>
-      <div class="control-row" style="margin-bottom:8px">
-        <button id="toggleArucoBorder" class="full">Toggle ArUco Border</button>
-      </div>
-      <div id="arucoControls"></div>
+      <h2>Stats</h2>
+      <div class="stats" id="stats"></div>
     </div>
 
     <div class="section">
@@ -404,11 +409,6 @@
         <button id="loadPattern">Load JSON</button>
         <input type="file" id="loadInput" accept=".json" style="display:none">
       </div>
-    </div>
-
-    <div class="section">
-      <h2>Stats</h2>
-      <div class="stats" id="stats"></div>
     </div>
 
   </aside>
@@ -1526,14 +1526,16 @@ function init() {
     });
   });
 
-  // All Solid / All Void
+  // All Solid / All Void — clear all editing, toggle off ArUco border
   document.getElementById('allSolid').addEventListener('click', () => {
+    state.arucoBorderOn = false;
     const rows = state.numBays;
     const cols = totalCols();
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) state.pattern[r][c] = 1;
     rerenderAll();
   });
   document.getElementById('allVoid').addEventListener('click', () => {
+    state.arucoBorderOn = false;
     state.pattern = createEmptyPattern();
     if (state.fixedBorder) applyBorder();
     enforceB1Solid();
