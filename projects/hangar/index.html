@@ -566,12 +566,13 @@ function applyAllMarkers() {
 // Reverse-read a canvas's 3×3 pattern back to a marker ID
 function readCanvasToId(canvasIdx) {
   const cv = CANVASES[canvasIdx];
+  const n = ARUCO_INNER_SIZE;
   let id = 0;
-  for (let r = 0; r < ARUCO_INNER_SIZE; r++) {
-    for (let c = 0; c < ARUCO_INNER_SIZE; c++) {
-      const val = state.pattern[cv.rows[r]][cv.cols[c]];
-      // ArUco convention: bit==1 → white (val=0), bit==0 → black (val=1)
-      if (val === 0) id |= (1 << (r * ARUCO_INNER_SIZE + c));
+  // Canvas stores the transposed grid, so reverse: raw(r,c) = canvas(c,r)
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      const val = state.pattern[cv.rows[c]][cv.cols[r]]; // transposed read
+      if (val === 0) id |= (1 << (r * n + c));
     }
   }
   return id;
@@ -797,16 +798,18 @@ function mulberry32(seed) {
 // from an integer ID. Not a real dictionary — a deterministic encoding.
 function generateArucoMarker(id, innerSize = 4) {
   const size = innerSize + 2;
-  const grid = Array.from({ length: size }, () => new Array(size).fill(1));
-  // Outer border is all black (1). Inner cells from bits of id.
+  const raw = Array.from({ length: size }, () => new Array(size).fill(1));
   for (let r = 0; r < innerSize; r++) {
     for (let c = 0; c < innerSize; c++) {
       const bit = (id >> (r * innerSize + c)) & 1;
-      // ArUco convention: 1 bit = white (void), 0 bit = black (solid).
-      // Flip to match: visually, bit==1 → white cell, bit==0 → black cell.
-      grid[r + 1][c + 1] = bit === 1 ? 0 : 1;
+      raw[r + 1][c + 1] = bit === 1 ? 0 : 1;
     }
   }
+  // Rotate 90° CW then mirror along x-axis (= transpose)
+  const grid = Array.from({ length: size }, () => new Array(size).fill(0));
+  for (let r = 0; r < size; r++)
+    for (let c = 0; c < size; c++)
+      grid[r][c] = raw[c][r];
   return grid;
 }
 
