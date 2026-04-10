@@ -689,7 +689,7 @@ details.print-group:not([open]) > .group-head {
   <h2>SCHEDULE</h2>
   <div class="gantt-meta">
     <span>2026-04-07 → 2026-06-11 · 10 weeks</span>
-    <span class="val">DAY 1 / 65</span>
+    <span class="val" id="gantt-day">DAY 1 / 65</span>
   </div>
   <div class="gantt">
 
@@ -706,7 +706,7 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">Source &amp; receive parts</div>
       <div class="gantt-track">
         <div class="gantt-bar" style="left:0%;width:15%;"></div>
-        <div class="gantt-now" style="left:1%;"></div>
+        <div class="gantt-now" id="gantt-now" style="left:1%;"></div>
       </div>
     </div>
 
@@ -889,7 +889,7 @@ details.print-group:not([open]) > .group-head {
   <div class="col">
   <h2>PRINT CHECKLIST</h2>
   <div class="print-meta">
-    <span>48 STL files · Builders Club shell + Joe's Drive MK3 Flywheel</span>
+    <span>49 STL files · Builders Club shell + Joe's Drive MK3 Flywheel</span>
     <span><span class="count" id="print-count">0 / 48</span> &nbsp;<button id="print-reset" type="button">Reset</button></span>
   </div>
   <p class="print-credit">Shell &amp; dome from <a href="https://www.facebook.com/groups/BB8BuildersClub/" target="_blank" rel="noopener">BB-8 Builders Club</a> (Dai Buckley, Monty Saine, Nick Danielak, Bob Ross, Autumn Jackson, et al.) · drive from <strong>Joe Latiola</strong>, <a href="https://www.facebook.com/groups/JoesDrive/" target="_blank" rel="noopener">Joe's Drive MK3 Flywheel</a> (file names pulled directly from the BCC Google Drive archive).</p>
@@ -937,7 +937,7 @@ details.print-group:not([open]) > .group-head {
     </details>
 
     <details class="print-group">
-      <summary class="group-head"><span class="group-name">Joe's Drive MK3 · Center Assembly</span><span>12</span></summary>
+      <summary class="group-head"><span class="group-name">Joe's Drive MK3 · Center Assembly</span><span>13</span></summary>
       <ul class="print-list">
         <li><label><input type="checkbox" data-stl="jd3-main-square"><span class="pname">Main Square.stl</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="jd3-motor-carriage-v3"><span class="pname">Motor Carriage V3.stl</span><span class="qty">×1</span></label></li>
@@ -951,6 +951,7 @@ details.print-group:not([open]) > .group-head {
         <li><label><input type="checkbox" data-stl="jd3-pots-v3"><span class="pname">Pots v3_1_fixed.stl <em>(S2S + head-tilt pot holder)</em></span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="jd3-washers-spacers"><span class="pname">assorted washers and spacers_fixed.stl</span><span class="qty">×1</span></label></li>
         <li><label><input type="checkbox" data-stl="jd3-imu-mount"><span class="pname">IMU mount_fixed.stl <em>(repurpose for BNO055)</em></span><span class="qty">×1</span></label></li>
+        <li><label><input type="checkbox" data-stl="jd3-head-tilt-arm"><span class="pname">head tilt arm.stl</span><span class="qty">×1</span></label></li>
       </ul>
     </details>
 
@@ -1095,6 +1096,22 @@ details.print-group:not([open]) > .group-head {
     });
 
     refreshCount();
+  })();
+
+  // Auto-update schedule: day counter + "now" marker
+  (function () {
+    var START = new Date('2026-04-07T00:00:00');
+    var TOTAL_DAYS = 65;
+    var now = new Date();
+    var elapsed = Math.floor((now - START) / 86400000) + 1; // day 1 = start date
+    var day = Math.max(1, Math.min(elapsed, TOTAL_DAYS));
+    var pct = Math.min(((elapsed - 1) / TOTAL_DAYS) * 100, 100).toFixed(1);
+
+    var dayEl = document.getElementById('gantt-day');
+    if (dayEl) dayEl.textContent = 'DAY ' + day + ' / ' + TOTAL_DAYS;
+
+    var nowEl = document.getElementById('gantt-now');
+    if (nowEl) nowEl.style.left = pct + '%';
   })();
   </script>
   </div>
