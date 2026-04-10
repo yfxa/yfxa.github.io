@@ -1535,6 +1535,7 @@ function init() {
     const rows = state.numBays;
     const cols = totalCols();
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) state.pattern[r][c] = 1;
+    updateApplyButtons();
     rerenderAll();
   });
   document.getElementById('allVoid').addEventListener('click', () => {
@@ -1543,6 +1544,7 @@ function init() {
     state.pattern = createEmptyPattern();
     if (state.fixedBorder) applyBorder();
     enforceB1Solid();
+    updateApplyButtons();
     rerenderAll();
   });
 
@@ -1584,6 +1586,7 @@ function init() {
       clearArucoBorder();
     }
     if (state.fixedBorder) applyBorder();
+    updateApplyButtons();
     rerenderAll();
   });
 
@@ -1671,6 +1674,7 @@ function buildArucoControls() {
   btnRow.style.cssText = 'display:flex;gap:4px;margin-top:8px';
   const applyAll = document.createElement('button');
   applyAll.type = 'button';
+  applyAll.id = 'applyAllBtn';
   applyAll.className = 'full';
   applyAll.textContent = 'Apply All';
   const rerollAll = document.createElement('button');
@@ -1726,6 +1730,7 @@ function buildArucoControls() {
   });
 
   renderArucoPreviews();
+  updateApplyButtons();
 }
 
 function rerollMarker(idx, rerender = true) {
@@ -1735,6 +1740,20 @@ function rerollMarker(idx, rerender = true) {
   const inp = document.querySelector(`input[data-aruco="${idx}"]`);
   if (inp) inp.value = newId;
   if (rerender) renderArucoPreviews();
+}
+
+function updateApplyButtons() {
+  document.querySelectorAll('[data-apply]').forEach(btn => {
+    btn.disabled = !state.arucoBorderOn;
+    btn.style.opacity = state.arucoBorderOn ? '1' : '0.35';
+    btn.style.cursor = state.arucoBorderOn ? 'pointer' : 'default';
+  });
+  const applyAllBtn = document.getElementById('applyAllBtn');
+  if (applyAllBtn) {
+    applyAllBtn.disabled = !state.arucoBorderOn;
+    applyAllBtn.style.opacity = state.arucoBorderOn ? '1' : '0.35';
+    applyAllBtn.style.cursor = state.arucoBorderOn ? 'pointer' : 'default';
+  }
 }
 
 function renderArucoPreviews() {
