@@ -419,7 +419,7 @@
       <div class="view-title">
         <span>Top View — Roof Plan (editable)</span>
       </div>
-      <svg id="plan-svg" viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"></svg>
+      <svg id="plan-svg" viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg"></svg>
       <div class="legend">
         <div class="legend-item"><span class="swatch" style="background:#000"></span>Solid panel (opaque roof)</div>
         <div class="legend-item"><span class="swatch" style="background:#fff"></span>Void panel (translucent/mesh)</div>
@@ -430,7 +430,7 @@
       <div class="view-title">
         <span>Long Elevation (editable)</span>
       </div>
-      <svg id="elev-svg" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"></svg>
+      <svg id="elev-svg" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
 
     <div class="view-block">
@@ -874,16 +874,19 @@ function renderPlan() {
   const bayLen = L / state.numBays;
   const archStartCol = hasWalls() ? 1 : 0;
 
+  // Precompute screen y for each arch boundary ONCE so adjacent cells
+  // share exact pixel positions (no floating-point gaps).
+  const screenYs = fullXs.map(wy => by(wy));
+  const screenBayXs = [];
+  for (let r = 0; r <= state.numBays; r++) screenBayXs.push(bx(r * bayLen));
+
   for (let r = 0; r < state.numBays; r++) {
     for (let i = 0; i < numArchCells; i++) {
-      const wy0 = fullXs[i];
-      const wy1 = fullXs[i + 1];
-      const lx0 = r * bayLen;
-      const lx1 = (r + 1) * bayLen;
-      const sx = bx(lx0);
-      const sy = by(wy1);
-      const sw = (lx1 - lx0) * scale;
-      const sh = (wy1 - wy0) * scale;
+      const sx = screenBayXs[r];
+      const sw = screenBayXs[r + 1] - screenBayXs[r];
+      // by flips: screenYs[i] > screenYs[i+1] (i is closer to eave = bottom)
+      const sy = screenYs[i + 1];
+      const sh = screenYs[i] - screenYs[i + 1];
       const patternCol = archStartCol + i;
       const color = cellColor(state.pattern[r][patternCol]);
       svgContent += `<rect class="cell" data-row="${r}" data-col="${patternCol}" x="${sx}" y="${sy}" width="${sw}" height="${sh}" fill="${color}" stroke="#888" stroke-width="0.3"/>`;
