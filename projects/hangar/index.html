@@ -537,13 +537,15 @@ function enforceB1Solid() {
 //   border row 14 (bay 15)
 //
 // Cols 2-4 = B2-B4 (left of crown), cols 9-11 = B9-B11 (right of crown).
+// Sidebar order: 6, 4, 2, 5, 3, 1 (matching the visual reading order
+// the user wants — right column top-to-bottom, then left column top-to-bottom)
 const CANVASES = [
-  { rows: [1, 2, 3],    cols: [2, 3, 4] },
-  { rows: [1, 2, 3],    cols: [9, 10, 11] },
-  { rows: [6, 7, 8],    cols: [2, 3, 4] },
-  { rows: [6, 7, 8],    cols: [9, 10, 11] },
-  { rows: [11, 12, 13], cols: [2, 3, 4] },
-  { rows: [11, 12, 13], cols: [9, 10, 11] },
+  { rows: [11, 12, 13], cols: [9, 10, 11] },  // was 6 (bot-right)
+  { rows: [6, 7, 8],    cols: [9, 10, 11] },   // was 4 (mid-right)
+  { rows: [1, 2, 3],    cols: [9, 10, 11] },   // was 2 (top-right)
+  { rows: [11, 12, 13], cols: [2, 3, 4] },     // was 5 (bot-left)
+  { rows: [6, 7, 8],    cols: [2, 3, 4] },     // was 3 (mid-left)
+  { rows: [1, 2, 3],    cols: [2, 3, 4] },     // was 1 (top-left)
 ];
 
 function applyMarkerToCanvas(markerIdx) {
