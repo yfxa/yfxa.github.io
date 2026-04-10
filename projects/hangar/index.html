@@ -1672,19 +1672,25 @@ function buildArucoControls() {
     });
   });
 
-  // Per-marker apply handlers
+  // Per-marker apply handlers — render views but skip canvas preview sync
   host.querySelectorAll('[data-apply]').forEach(btn => {
     btn.addEventListener('click', e => {
       const idx = parseInt(e.currentTarget.dataset.apply, 10);
       applyMarkerToCanvas(idx);
-      rerenderAll();
+      renderPlan();
+      renderElevation();
+      renderAxo();
+      updateStats();
     });
   });
 
-  // Apply-all handler
+  // Apply-all handler — same: render views but skip canvas preview sync
   applyAll.addEventListener('click', () => {
     applyAllMarkers();
-    rerenderAll();
+    renderPlan();
+    renderElevation();
+    renderAxo();
+    updateStats();
   });
 
   // Reroll-all handler
