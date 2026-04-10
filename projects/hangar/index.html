@@ -537,13 +537,14 @@ function enforceB1Solid() {
 //
 // Cols 2-4 = B2-B4 (left of crown), cols 9-11 = B9-B11 (right of crown).
 // Sidebar order: 6, 4, 2, 5, 3, 1
+// Sidebar order: 2, 4, 6, 1, 3, 5
 const CANVASES = [
-  { rows: [11, 12, 13], cols: [9, 10, 11] },  // bot-right
-  { rows: [6, 7, 8],    cols: [9, 10, 11] },   // mid-right
   { rows: [1, 2, 3],    cols: [9, 10, 11] },   // top-right
-  { rows: [11, 12, 13], cols: [2, 3, 4] },     // bot-left
-  { rows: [6, 7, 8],    cols: [2, 3, 4] },     // mid-left
+  { rows: [6, 7, 8],    cols: [9, 10, 11] },   // mid-right
+  { rows: [11, 12, 13], cols: [9, 10, 11] },   // bot-right
   { rows: [1, 2, 3],    cols: [2, 3, 4] },     // top-left
+  { rows: [6, 7, 8],    cols: [2, 3, 4] },     // mid-left
+  { rows: [11, 12, 13], cols: [2, 3, 4] },     // bot-left
 ];
 
 function applyMarkerToCanvas(markerIdx) {
