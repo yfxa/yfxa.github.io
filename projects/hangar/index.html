@@ -561,6 +561,30 @@ function applyAllMarkers() {
   for (let i = 0; i < 6; i++) applyMarkerToCanvas(i);
 }
 
+// Reverse-read a canvas's 3×3 pattern back to a marker ID
+function readCanvasToId(canvasIdx) {
+  const cv = CANVASES[canvasIdx];
+  let id = 0;
+  for (let r = 0; r < ARUCO_INNER_SIZE; r++) {
+    for (let c = 0; c < ARUCO_INNER_SIZE; c++) {
+      const val = state.pattern[cv.rows[r]][cv.cols[c]];
+      // ArUco convention: bit==1 → white (val=0), bit==0 → black (val=1)
+      if (val === 0) id |= (1 << (r * ARUCO_INNER_SIZE + c));
+    }
+  }
+  return id;
+}
+
+// Sync all marker IDs from the current canvas state
+function syncIdsFromCanvases() {
+  CANVASES.forEach((_, idx) => {
+    const newId = readCanvasToId(idx);
+    state.arucoMarkers[idx].id = newId;
+    const inp = document.querySelector(`input[data-aruco="${idx}"]`);
+    if (inp) inp.value = newId;
+  });
+}
+
 // Set the ArUco border cells (B5-B7 columns + bays 5,6,10,11) solid,
 // then paint the 6 markers into the 6 canvases.
 function applyArucoBorder() {
@@ -581,10 +605,8 @@ function applyArucoBorder() {
     }
   });
   if (state.mirrorMode) applyMirror();
-  // Clear canvases to void (border only, no markers applied yet)
-  CANVASES.forEach(cv => {
-    cv.rows.forEach(r => { cv.cols.forEach(c => { state.pattern[r][c] = 0; }); });
-  });
+  // Apply the current markers into the canvases
+  applyAllMarkers();
   enforceB1Solid();
 }
 
@@ -1731,6 +1753,8 @@ function renderCanvasPreviews() {
     }
     el.innerHTML = renderArucoMarkerSVG(grid, 0, 0, 60);
   });
+  // Keep marker IDs in sync with the actual canvas content
+  syncIdsFromCanvases();
 }
 
 document.addEventListener('DOMContentLoaded', init);
