@@ -1567,16 +1567,6 @@ function init() {
     renderAxo();
   });
 
-  // Export / save / load
-  document.getElementById('exportSvg').addEventListener('click', exportSvg);
-  document.getElementById('savePattern').addEventListener('click', savePattern);
-  document.getElementById('loadPattern').addEventListener('click', () => {
-    document.getElementById('loadInput').click();
-  });
-  document.getElementById('loadInput').addEventListener('change', e => {
-    if (e.target.files[0]) loadPattern(e.target.files[0]);
-  });
-
   rerenderAll();
 }
 
@@ -1731,7 +1721,7 @@ function renderArucoPreview(idx) {
   const el = document.querySelector(`svg[data-preview="${idx}"]`);
   if (!el) return;
   const grid = generateArucoMarker(state.arucoMarkers[idx].id, ARUCO_INNER_SIZE);
-  el.innerHTML = `<g transform="rotate(90,30,30)">${renderArucoMarkerSVG(grid, 0, 0, 60)}</g>`;
+  el.innerHTML = renderArucoMarkerSVG(grid, 0, 0, 60);
 }
 
 function renderArucoPreviews() {
