@@ -706,7 +706,6 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">Source &amp; receive parts</div>
       <div class="gantt-track">
         <div class="gantt-bar" style="left:0%;width:15%;"></div>
-        <div class="gantt-now" id="gantt-now" style="left:1%;"></div>
       </div>
     </div>
 
@@ -1121,20 +1120,38 @@ details.print-group:not([open]) > .group-head {
     refreshCount();
   })();
 
-  // Auto-update schedule: day counter + "now" marker
+  // Auto-update schedule: day counter + "now" marker across active rows
   (function () {
     var START = new Date('2026-04-07T00:00:00');
     var TOTAL_DAYS = 65;
     var now = new Date();
     var elapsed = Math.floor((now - START) / 86400000) + 1; // day 1 = start date
     var day = Math.max(1, Math.min(elapsed, TOTAL_DAYS));
-    var pct = Math.min(((elapsed - 1) / TOTAL_DAYS) * 100, 100).toFixed(1);
+    var pct = Math.min(((elapsed - 1) / TOTAL_DAYS) * 100, 100);
+    var pctStr = pct.toFixed(1);
 
     var dayEl = document.getElementById('gantt-day');
     if (dayEl) dayEl.textContent = 'DAY ' + day + ' / ' + TOTAL_DAYS;
 
-    var nowEl = document.getElementById('gantt-now');
-    if (nowEl) nowEl.style.left = pct + '%';
+    // Inject "now" line into every row with a bar that covers today's position
+    var rows = document.querySelectorAll('.gantt-row:not(.head)');
+    rows.forEach(function (row) {
+      var track = row.querySelector('.gantt-track');
+      if (!track) return;
+      var bars = row.querySelectorAll('.gantt-bar');
+      var active = false;
+      bars.forEach(function (bar) {
+        var left = parseFloat(bar.style.left) || 0;
+        var width = parseFloat(bar.style.width) || 0;
+        if (pct >= left && pct <= left + width) active = true;
+      });
+      if (active) {
+        var marker = document.createElement('div');
+        marker.className = 'gantt-now';
+        marker.style.left = pctStr + '%';
+        track.appendChild(marker);
+      }
+    });
   })();
   </script>
   </div>
@@ -1148,7 +1165,7 @@ details.print-group:not([open]) > .group-head {
       <span class="date">2026-04-20</span>
     </div>
     <h3>H2D strike.</h3>
-    <p>My printer stopped working for a whole 24 hours, unacceptable. It won't extrude filament and the AMS keeps pulling and feeding the filament in loop. Went through all the typical troubleshooting steps (Bambu Lab suggests it's clogged but it's not clogged), nothing works. After staring at the extruder emotionlessly for 5 minutes I noticed that the filament feeders are wobbly and the left feeder missed the mark every time the AMS pushes the filament forward (therefore the AMS had to pull it back again and refeed it). So I dismantled the whole thing the 100 times and found out that the spring that was supposed to connect the left and right feeders was not doing its job. Voila. And now it's fixed.</p>
+    <p>My printer stopped working for a whole 24 hours, unacceptable. It won't extrude filament and the AMS keeps pulling and feeding the filament in loop. Went through all the typical troubleshooting steps (Bambu Lab suggests it's clogged but it's not clogged), nothing works. After staring at the extruder emotionlessly for 5 minutes I noticed that the filament feeders are wobbly and the left feeder missed the mark every time the AMS pushes the filament forward (therefore the AMS had to pull it back again and refeed it). So I dismantled the whole thing the 100 times and found out that the spring that was supposed to connect the left and right feeders was not doing its job. Voila. And now it's back on shift.</p>
   </article>
 
   <article class="log-entry">
