@@ -788,11 +788,11 @@ details.print-group:not([open]) > .group-head {
 
   <h2>ARCHITECTURE</h2>
   <div class="arch-grid">
-    <div class="arch-item"><div class="role">BRAIN · body</div><div class="name">Jetson Orin Nano Super (67 TOPS)</div></div>
+    <div class="arch-item"><div class="role">BRAIN · head</div><div class="name">Jetson Orin Nano Super (67 TOPS)</div></div>
     <div class="arch-item"><div class="role">CAMERA · head</div><div class="name">Arducam B0274 IMX477 (12.3MP)</div></div>
-    <div class="arch-item"><div class="role">HEAD↔BODY LINK</div><div class="name">USB over slip ring (TBD)</div></div>
-    <div class="arch-item"><div class="role">BODY MCU</div><div class="name">ESP32-S3 (motors, IMU, ToF)</div></div>
-    <div class="arch-item"><div class="role">HEAD MCU</div><div class="name">ESP32-S3 (servos, LEDs, sound)</div></div>
+    <div class="arch-item"><div class="role">HEAD↔BODY LINK</div><div class="name">WiFi (Jetson AP → ESP32 client)</div></div>
+    <div class="arch-item"><div class="role">BODY MCU</div><div class="name">Arduino MEGA (motor control)</div></div>
+    <div class="arch-item"><div class="role">BODY RADIO</div><div class="name">ESP32 (WiFi bridge → MEGA via UART)</div></div>
     <div class="arch-item"><div class="role">IMU</div><div class="name">Adafruit BNO055</div></div>
     <div class="arch-item"><div class="role">OBSTACLE</div><div class="name">VL53L1X ToF ×3</div></div>
     <div class="arch-item"><div class="role">DRIVE</div><div class="name">Joe's Drive MK3 Flywheel (dual motor)</div></div>
@@ -1158,6 +1158,24 @@ details.print-group:not([open]) > .group-head {
   </div>
 
   <h2>BUILD LOG</h2>
+
+  <article class="log-entry">
+    <div class="log-meta">
+      <span class="day">Day 16</span>
+      <span class="date">2026-04-24</span>
+    </div>
+    <h3>Proof-of-Concept.</h3>
+    <p>Turned flat ArUco Markers into a 3D paper model. Tested out if BB-8 recognizes it.</p>
+  </article>
+
+  <article class="log-entry">
+    <div class="log-meta">
+      <span class="day">Day 15</span>
+      <span class="date">2026-04-24</span>
+    </div>
+    <h3>ArUco Marker Studies.</h3>
+    <p>Tested out how well BB-8 recognizes the standard ArUco Markers.</p>
+  </article>
 
   <article class="log-entry">
     <div class="log-meta">
