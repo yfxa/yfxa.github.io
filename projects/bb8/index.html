@@ -469,7 +469,7 @@ details.print-group:not([open]) > .group-head {
 .gantt-bar {
   position: absolute;
   top: 2px;
-  height: 6px;
+  bottom: 2px;
   background: linear-gradient(90deg, #1a8a1a, #33ff33);
   border-radius: 2px;
   box-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
@@ -478,11 +478,8 @@ details.print-group:not([open]) > .group-head {
   background: linear-gradient(90deg, #1a4a1a, #2a8a2a);
   box-shadow: none;
 }
-.gantt-bar.actual {
-  top: auto;
-  bottom: 2px;
-  height: 6px;
-  background: linear-gradient(90deg, #8a1a1a, #ff3333);
+.gantt-bar.overrun {
+  background: linear-gradient(90deg, #ff5555, #ff3333);
   box-shadow: 0 0 4px rgba(255, 51, 51, 0.4);
 }
 .gantt-milestone {
@@ -536,7 +533,7 @@ details.print-group:not([open]) > .group-head {
   border-radius: 1px;
 }
 .gantt-legend .swatch.bar { background: linear-gradient(90deg, #1a8a1a, #33ff33); }
-.gantt-legend .swatch.actual { background: linear-gradient(90deg, #8a1a1a, #ff3333); }
+.gantt-legend .swatch.overrun { background: linear-gradient(90deg, #ff5555, #ff3333); }
 .gantt-legend .swatch.diamond {
   width: 9px; height: 9px;
   transform: rotate(45deg);
@@ -714,7 +711,7 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">Source &amp; receive parts</div>
       <div class="gantt-track">
         <div class="gantt-bar" style="left:0%;width:15%;"></div>
-        <div class="gantt-bar actual" style="left:0%;width:40%;"></div>
+        <div class="gantt-bar overrun" style="left:15%;width:25%;"></div>
       </div>
     </div>
 
@@ -722,7 +719,7 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">3D print body shell</div>
       <div class="gantt-track">
         <div class="gantt-bar" style="left:5%;width:25%;"></div>
-        <div class="gantt-bar actual" style="left:5%;width:36.5%;"></div>
+        <div class="gantt-bar overrun" style="left:30%;width:11.5%;"></div>
       </div>
     </div>
 
@@ -730,7 +727,7 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">Drive unit build</div>
       <div class="gantt-track">
         <div class="gantt-bar" style="left:0%;width:25%;"></div>
-        <div class="gantt-bar actual" style="left:0%;width:41.5%;"></div>
+        <div class="gantt-bar overrun" style="left:25%;width:16.5%;"></div>
         <div class="gantt-milestone" style="left:25%;" title="Ball rolls (wk 2.5)"></div>
       </div>
     </div>
@@ -747,7 +744,7 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">Print &amp; assemble head</div>
       <div class="gantt-track">
         <div class="gantt-bar" style="left:15%;width:25%;"></div>
-        <div class="gantt-bar actual" style="left:15%;width:26.5%;"></div>
+        <div class="gantt-bar overrun" style="left:40%;width:1.5%;"></div>
       </div>
     </div>
 
@@ -763,7 +760,6 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">Face recognition</div>
       <div class="gantt-track">
         <div class="gantt-bar soft" style="left:10%;width:3%;"></div>
-        <div class="gantt-bar actual" style="left:10%;width:3%;"></div>
       </div>
     </div>
 
@@ -801,7 +797,7 @@ details.print-group:not([open]) > .group-head {
 
     <div class="gantt-legend">
       <span><span class="swatch bar"></span>Plan</span>
-      <span><span class="swatch actual"></span>Actual</span>
+      <span><span class="swatch overrun"></span>Overrun</span>
       <span><span class="swatch diamond"></span>Milestone</span>
       <span><span class="swatch now"></span>Today</span>
     </div>
