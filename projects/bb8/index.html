@@ -469,7 +469,7 @@ details.print-group:not([open]) > .group-head {
 .gantt-bar {
   position: absolute;
   top: 2px;
-  bottom: 2px;
+  height: 6px;
   background: linear-gradient(90deg, #1a8a1a, #33ff33);
   border-radius: 2px;
   box-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
@@ -477,6 +477,13 @@ details.print-group:not([open]) > .group-head {
 .gantt-bar.soft {
   background: linear-gradient(90deg, #1a4a1a, #2a8a2a);
   box-shadow: none;
+}
+.gantt-bar.actual {
+  top: auto;
+  bottom: 2px;
+  height: 6px;
+  background: linear-gradient(90deg, #8a1a1a, #ff3333);
+  box-shadow: 0 0 4px rgba(255, 51, 51, 0.4);
 }
 .gantt-milestone {
   position: absolute;
@@ -529,6 +536,7 @@ details.print-group:not([open]) > .group-head {
   border-radius: 1px;
 }
 .gantt-legend .swatch.bar { background: linear-gradient(90deg, #1a8a1a, #33ff33); }
+.gantt-legend .swatch.actual { background: linear-gradient(90deg, #8a1a1a, #ff3333); }
 .gantt-legend .swatch.diamond {
   width: 9px; height: 9px;
   transform: rotate(45deg);
@@ -706,6 +714,7 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">Source &amp; receive parts</div>
       <div class="gantt-track">
         <div class="gantt-bar" style="left:0%;width:15%;"></div>
+        <div class="gantt-bar actual" style="left:0%;width:40%;"></div>
       </div>
     </div>
 
@@ -713,6 +722,7 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">3D print body shell</div>
       <div class="gantt-track">
         <div class="gantt-bar" style="left:5%;width:25%;"></div>
+        <div class="gantt-bar actual" style="left:5%;width:36.5%;"></div>
       </div>
     </div>
 
@@ -720,6 +730,7 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">Drive unit build</div>
       <div class="gantt-track">
         <div class="gantt-bar" style="left:0%;width:25%;"></div>
+        <div class="gantt-bar actual" style="left:0%;width:41.5%;"></div>
         <div class="gantt-milestone" style="left:25%;" title="Ball rolls (wk 2.5)"></div>
       </div>
     </div>
@@ -736,6 +747,7 @@ details.print-group:not([open]) > .group-head {
       <div class="gantt-task">Print &amp; assemble head</div>
       <div class="gantt-track">
         <div class="gantt-bar" style="left:15%;width:25%;"></div>
+        <div class="gantt-bar actual" style="left:15%;width:26.5%;"></div>
       </div>
     </div>
 
@@ -748,17 +760,25 @@ details.print-group:not([open]) > .group-head {
     </div>
 
     <div class="gantt-row">
-      <div class="gantt-task">Face / gesture software</div>
+      <div class="gantt-task">Face recognition</div>
       <div class="gantt-track">
-        <div class="gantt-bar soft" style="left:25%;width:35%;"></div>
-        <div class="gantt-milestone" style="left:60%;" title="Gesture response works (wk 6)"></div>
+        <div class="gantt-bar soft" style="left:10%;width:3%;"></div>
+        <div class="gantt-bar actual" style="left:10%;width:3%;"></div>
+      </div>
+    </div>
+
+    <div class="gantt-row">
+      <div class="gantt-task">Gesture recognition</div>
+      <div class="gantt-track">
+        <div class="gantt-bar soft" style="left:50%;width:15%;"></div>
+        <div class="gantt-milestone" style="left:65%;" title="Gesture response works (wk 6.5)"></div>
       </div>
     </div>
 
     <div class="gantt-row">
       <div class="gantt-task">Indoor navigation</div>
       <div class="gantt-track">
-        <div class="gantt-bar soft" style="left:35%;width:30%;"></div>
+        <div class="gantt-bar soft" style="left:60%;width:25%;"></div>
       </div>
     </div>
 
@@ -780,7 +800,8 @@ details.print-group:not([open]) > .group-head {
     </div>
 
     <div class="gantt-legend">
-      <span><span class="swatch bar"></span>Critical path</span>
+      <span><span class="swatch bar"></span>Plan</span>
+      <span><span class="swatch actual"></span>Actual</span>
       <span><span class="swatch diamond"></span>Milestone</span>
       <span><span class="swatch now"></span>Today</span>
     </div>
