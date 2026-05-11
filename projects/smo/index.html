@@ -385,7 +385,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
       <option value="viewer_data_2029.json">2029 — SMO Closed</option>
       <option value="viewer_data_2031.json">2031 — eVTOL Air Taxis Launch</option>
       <option value="viewer_data_2033.json">2033 — Barker Hangar Turns Drone Hub</option>
-      <option value="viewer_data_2038.json">2038 — Drone Hubs Spring</option>
+      <option value="viewer_data_2038.json">2038 — Three Drone Hubs</option>
       <option value="viewer_data_2040.json">2040 — Autonomous Freight Corridors</option>
       <option value="viewer_data_2045.json">2045 — Full UAM Network</option>
       <option value="viewer_data_2050.json">2050 — Autonomous Airspace</option>    </select>
@@ -400,7 +400,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
           <option value="viewer_data_2029.json">2029 — SMO Closed</option>
           <option value="viewer_data_2031.json">2031 — eVTOL Air Taxis Launch</option>
           <option value="viewer_data_2033.json">2033 — Barker Hangar Turns Drone Hub</option>
-          <option value="viewer_data_2038.json">2038 — Drone Hubs Spring</option>
+          <option value="viewer_data_2038.json">2038 — Three Drone Hubs</option>
           <option value="viewer_data_2040.json">2040 — Autonomous Freight Corridors</option>
           <option value="viewer_data_2045.json">2045 — Full UAM Network</option>
           <option value="viewer_data_2050.json">2050 — Autonomous Airspace</option>
@@ -414,7 +414,7 @@ body { background: #0a0e14; color: #c8d0dc; font-family: -apple-system, BlinkMac
           <option value="viewer_data_2029.json" selected>2029 — SMO Closed</option>
           <option value="viewer_data_2031.json">2031 — eVTOL Air Taxis Launch</option>
           <option value="viewer_data_2033.json">2033 — Barker Hangar Turns Drone Hub</option>
-          <option value="viewer_data_2038.json">2038 — Drone Hubs Spring</option>
+          <option value="viewer_data_2038.json">2038 — Three Drone Hubs</option>
           <option value="viewer_data_2040.json">2040 — Autonomous Freight Corridors</option>
           <option value="viewer_data_2045.json">2045 — Full UAM Network</option>
           <option value="viewer_data_2050.json">2050 — Autonomous Airspace</option>
@@ -2204,17 +2204,19 @@ const csState = {
   disabledPreHubs: new Set(), // names of disabled preconfigured hubs
 };
 
-// Preconfigured drone hubs by year
+// Preconfigured drone hubs by year.
+// 2038 is the "three anchor hubs" scenario: Barker Hangar (SMO) + Mid-City + Sherman Oaks.
+// The remaining 6 hubs come online in 2040 to match viewer_data_2040.json+.
 const CS_PRECONFIGURED_HUBS = [
   { name: 'Barker Hangar', lat: 34.0158, lon: -118.4513, minYear: 2033 },
   { name: 'Mid-City', lat: 34.0017, lon: -118.297, minYear: 2038 },
-  { name: 'East Hollywood', lat: 34.0864, lon: -118.2914, minYear: 2038 },
-  { name: 'West LA', lat: 34.0084, lon: -118.4333, minYear: 2038 },
-  { name: 'Highland Park', lat: 34.0936, lon: -118.2068, minYear: 2038 },
-  { name: 'Miracle Mile', lat: 34.0533, lon: -118.3536, minYear: 2038 },
-  { name: 'South LA', lat: 33.9402, lon: -118.2737, minYear: 2038 },
   { name: 'Sherman Oaks', lat: 34.127, lon: -118.4067, minYear: 2038 },
-  { name: 'Brentwood', lat: 34.0716, lon: -118.5127, minYear: 2038 },
+  { name: 'East Hollywood', lat: 34.0864, lon: -118.2914, minYear: 2040 },
+  { name: 'West LA', lat: 34.0084, lon: -118.4333, minYear: 2040 },
+  { name: 'Highland Park', lat: 34.0936, lon: -118.2068, minYear: 2040 },
+  { name: 'Miracle Mile', lat: 34.0533, lon: -118.3536, minYear: 2040 },
+  { name: 'South LA', lat: 33.9402, lon: -118.2737, minYear: 2040 },
+  { name: 'Brentwood', lat: 34.0716, lon: -118.5127, minYear: 2040 },
   { name: 'South Bay', lat: 33.8500, lon: -118.3800, minYear: 2050 },
   { name: 'East LA', lat: 34.0300, lon: -118.1500, minYear: 2050 },
   { name: 'West Valley', lat: 34.2400, lon: -118.5500, minYear: 2050 },
