@@ -1241,6 +1241,43 @@ function updateMapTimer(progress) {
   timer.textContent = animTimeStr(progress);
 }
 
+// Time-of-day weighted distribution for synthetic future flights
+// (drones / eVTOL / cargo). Mirrors CS_TRAFFIC_CURVE used by the Create-Mode
+// generator so the preset and Create-Mode pulses line up visually.
+const ANIM_TRAFFIC_CURVE = [
+  [0.00, 0.25, 0.5],  // 00–06  sleep
+  [0.25, 0.29, 2],    // 06–07  wakeup
+  [0.29, 0.38, 5],    // 07–09  breakfast peak
+  [0.38, 0.46, 2],    // 09–11  morning
+  [0.46, 0.54, 5],    // 11–13  lunch peak
+  [0.54, 0.71, 2],    // 13–17  afternoon
+  [0.71, 0.83, 5],    // 17–20  dinner peak
+  [0.83, 0.92, 2],    // 20–22  evening
+  [0.92, 1.00, 0.5],  // 22–24  late night
+];
+const ANIM_TRAFFIC_TOTAL = ANIM_TRAFFIC_CURVE.reduce(
+  (s, c) => s + c[2] * (c[1] - c[0]), 0
+);
+function animSampleTrafficCurve(rng) {
+  let r = rng() * ANIM_TRAFFIC_TOTAL;
+  for (const [from, to, w] of ANIM_TRAFFIC_CURVE) {
+    const segW = w * (to - from);
+    if (r < segW) return from + r / w;
+    r -= segW;
+  }
+  return rng();
+}
+// Categories whose start times follow the traffic curve (peaks at meal hours).
+// Everything else in a future scenario gets uniform spread instead.
+const ANIM_PULSE_CATEGORIES = new Set(['drone', 'evtol', 'cargo']);
+function animMakeRng(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
+}
+
 function animCachePaths() {
   if (!DATA || !basemapImg) return;
 
@@ -1256,9 +1293,13 @@ function animCachePaths() {
   const filtersActive = altMinFt > 0 || altMaxFt < 45000 ||
     filters.spdMin > 0 || filters.spdMax < 600;
 
+  // Future scenarios (anything with a scenario tag) get per-flight start
+  // offsets so traffic isn't lockstep at t=0. Today's real ADS-B replay
+  // (no scenario tag) keeps the legacy stretch-to-fit behavior.
+  const useOffsets = !!DATA.scenario;
+
   const flights = DATA.flights.filter(f => activeTypes.has(f.t || 'UNKNOWN'));
 
-  let maxPts = 0;
   const cached = [];
 
   for (const flight of flights) {
@@ -1283,9 +1324,41 @@ function animCachePaths() {
 
     const numPts = pts.length / 2;
     if (numPts < 2) continue;
-    if (numPts > maxPts) maxPts = numPts;
 
-    cached.push({ pts, numPts });
+    cached.push({ pts, numPts, flight });
+  }
+
+  // The day's length in animation steps = the longest single flight's point
+  // count. Future synthetic flights with short trajectories (e.g. one drone
+  // round trip) will fit inside this window with room to spare.
+  let dayLen = 0;
+  for (const c of cached) if (c.numPts > dayLen) dayLen = c.numPts;
+
+  // Assign each path a startStep (animation step at which it appears).
+  // Today: every path starts at 0 (legacy stretch behavior, restored below).
+  // Future: drones/eVTOL/cargo follow the traffic curve; everything else
+  //   gets a uniform random offset so flights don't all launch at t=0.
+  // Per-flight explicit `s` (fraction [0,1]) in the data file overrides.
+  const rng = animMakeRng(0x5a17e); // deterministic per render
+  let maxPts = dayLen;
+  for (const c of cached) {
+    if (!useOffsets) {
+      c.startStep = 0;
+      continue;
+    }
+    const cat = (DATA.types[c.flight.t] || {}).category || 'other';
+    let frac;
+    if (typeof c.flight.s === 'number') {
+      frac = c.flight.s;
+    } else if (ANIM_PULSE_CATEGORIES.has(cat)) {
+      frac = animSampleTrafficCurve(rng);
+    } else {
+      frac = rng() * 0.95;
+    }
+    const slack = Math.max(0, dayLen - c.numPts);
+    c.startStep = Math.round(Math.max(0, Math.min(1, frac)) * slack);
+    const end = c.startStep + c.numPts;
+    if (end > maxPts) maxPts = end;
   }
 
   // Compute path lengths for weighting
@@ -1309,6 +1382,7 @@ function animCachePaths() {
 
   anim.allPaths = cached;
   anim.maxPts = maxPts;
+  anim.useOffsets = useOffsets;
   anim.wakeDensity = new Float32Array(W * H);
   anim.wakeStep = -1;
 
@@ -1380,16 +1454,28 @@ function trailSteps() {
 function rasterizeRange(grid, fromStep, toStep, trailMode) {
   const spacing = params.pixelSpacing;
   let samples = 0;
+  const useOffsets = anim.useOffsets;
 
   for (const path of anim.allPaths) {
     const { pts, numPts, weight } = path;
-    // Map global step to this flight's local point index
-    const localFrom = Math.floor(fromStep / anim.maxPts * numPts);
-    const localTo = Math.min(numPts - 1, Math.floor(toStep / anim.maxPts * numPts));
+    let localFrom, localTo;
+    if (useOffsets) {
+      // Each path plays at 1 step per point starting at startStep, so quick
+      // round trips look quick and different drones launch at different
+      // times of day.
+      const startStep = path.startStep || 0;
+      localFrom = Math.max(0, fromStep - startStep);
+      localTo   = Math.min(numPts - 1, toStep - startStep);
+      if (localTo < 1 || localFrom >= numPts) continue;
+    } else {
+      // Today's real ADS-B replay: legacy stretch-to-fit behavior preserved.
+      localFrom = Math.floor(fromStep / anim.maxPts * numPts);
+      localTo = Math.min(numPts - 1, Math.floor(toStep / anim.maxPts * numPts));
+      if (localTo < 1) continue;
+      localFrom = Math.max(0, localFrom);
+    }
 
-    if (localTo < 1) continue;
-
-    const segStart = Math.max(0, localFrom) * 2;
+    const segStart = localFrom * 2;
     const segEnd = Math.min(pts.length - 2, localTo * 2);
 
     for (let i = segStart; i < segEnd; i += 2) {
