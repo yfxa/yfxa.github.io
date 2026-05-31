@@ -366,6 +366,7 @@ footer a:hover { color: var(--accent); }
         <button class="btn" id="reset" title="All solid (default)">reset</button>
         <button class="btn" id="clear" title="All void">clear</button>
         <button class="btn" id="invert" title="Invert all cells">invert</button>
+        <button class="btn" id="savePng" title="Save marker as PNG">save png</button>
       </div>
       <div class="hint">
         click cells to toggle &nbsp;&middot;&nbsp; click a match to load
@@ -526,6 +527,32 @@ function paintCanvas() {
   }
 }
 
+function savePng() {
+  // Render the marker exactly as shown on the canvas: a half-cell black border
+  // (matching .canvas padding) around the NxN grid. bit 0 = solid/black, 1 = void/white.
+  const OUT_CELL = 64;                       // px per cell in the exported image
+  const pad = OUT_CELL / 2;                  // half-cell border, like .canvas padding
+  const dim = size * OUT_CELL + pad * 2;
+  const cv = document.createElement('canvas');
+  cv.width = dim;
+  cv.height = dim;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, dim, dim);              // border + all solid cells
+  ctx.fillStyle = '#f5f5f0';
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (bitAt(state, r, c) === 1) {        // void cell → white
+        ctx.fillRect(pad + c * OUT_CELL, pad + r * OUT_CELL, OUT_CELL, OUT_CELL);
+      }
+    }
+  }
+  const a = document.createElement('a');
+  a.download = `marker-${size}x${size}.png`;
+  a.href = cv.toDataURL('image/png');
+  a.click();
+}
+
 function renderPreview(val, n) {
   // Outer black padding at half-cell; inner NxN grid shows bits.
   // Preview total = (n+1) cells at PREVIEW_PX/n-ish each; we just use padding = PREVIEW_PX/(2*(n+1)).
@@ -681,6 +708,7 @@ undoBtn.addEventListener('click',                          undo);
 document.getElementById('reset').addEventListener('click', () => setState(zeroState()));
 document.getElementById('clear').addEventListener('click', () => setState(voidState()));
 document.getElementById('invert').addEventListener('click', () => setState(state ^ mask()));
+document.getElementById('savePng').addEventListener('click', savePng);
 dictEl.addEventListener('change', renderMatches);
 canvasSizeEl.addEventListener('change', (e) => switchSize(parseInt(e.target.value, 10)));
 
