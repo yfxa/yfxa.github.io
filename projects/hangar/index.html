@@ -2908,6 +2908,12 @@ function cellColor(v) {
   return v === 1 ? SOLID_COLOR : VOID_COLOR;
 }
 
+// Wall cells (W1-W3) use the structural grey for solid, white for void, so the
+// wall reads as the same material in the Long Elevation and the axonometric.
+function wallColor(v) {
+  return v === 1 ? WALL_FILL : VOID_COLOR;
+}
+
 // Seeded PRNG (mulberry32) — deterministic random for a given seed
 function mulberry32(seed) {
   return function() {
@@ -3180,7 +3186,7 @@ function renderElevation() {
         const sx = screenRowXs[r];
         const sw = screenRowXs[r + 1] - screenRowXs[r];
         const val = state.wallPattern[r] ? state.wallPattern[r][w] || 0 : 0;
-        svgContent += `<rect class="cell" data-row="${r}" data-wcol="${w}" x="${sx}" y="${by(yUpper)}" width="${sw}" height="${cellH}" fill="${cellColor(val)}" stroke="#888" stroke-width="0.4"/>`;
+        svgContent += `<rect class="cell" data-row="${r}" data-wcol="${w}" x="${sx}" y="${by(yUpper)}" width="${sw}" height="${cellH}" fill="${wallColor(val)}" stroke="#888" stroke-width="0.4"/>`;
       }
     }
   }
@@ -3411,19 +3417,27 @@ function renderAxo() {
         isWall: false,
       });
     }
-    // Vertical side walls (structure, not pattern-bearing)
+    // Side walls as W1-W3 cells, synced with the Long Elevation's wall rows
+    // (grey = solid, white = void). W1 at the base → W_n just under the spring.
     if (wH > 0) {
+      const nW = state.numWallRows;
+      const wallRowH = wH / nW;
+      const wRow = state.wallPattern[seg.row];
       for (const yEdge of [0, WD]) {
-        const wall3d = [
-          [xA, yEdge, 0], [xB, yEdge, 0],
-          [xB, yEdge, wH], [xA, yEdge, wH],
-        ];
-        panels.push({
-          points: wall3d.map(c => toScreen(c[0], c[1], c[2])),
-          fill: WALL_FILL,
-          depth: centroidDepth(wall3d),
-          isWall: true,
-        });
+        for (let w = 0; w < nW; w++) {
+          const zL = w * wallRowH;
+          const zU = (w + 1) * wallRowH;
+          const wall3d = [
+            [xA, yEdge, zL], [xB, yEdge, zL],
+            [xB, yEdge, zU], [xA, yEdge, zU],
+          ];
+          panels.push({
+            points: wall3d.map(c => toScreen(c[0], c[1], c[2])),
+            fill: wallColor(wRow ? (wRow[w] || 0) : 0),
+            depth: centroidDepth(wall3d),
+            isWall: true,
+          });
+        }
       }
     }
   }
