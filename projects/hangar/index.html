@@ -2592,7 +2592,7 @@ function applyBorder() {
   applyElevBorder();
 }
 
-// Rows F(0) and 15 are always solid across all elevation bands; W1 always solid
+// Rows F(0) and 15 are always solid across all elevation bands; W1-W3 all solid
 function applyElevBorder() {
   const rows = totalRows();
   const a = archStartCol();
@@ -2604,10 +2604,12 @@ function applyElevBorder() {
       for (let w = 0; w < state.numWallRows; w++) state.wallPattern[r][w] = 1;
     }
   });
-  // W1 always solid for all rows
+  // Wall rows W1-W3 solid for all rows (walls are solid by default)
   if (state.wallPattern) {
     for (let r = 0; r < rows; r++) {
-      if (state.wallPattern[r]) state.wallPattern[r][0] = 1;
+      if (state.wallPattern[r]) {
+        for (let w = 0; w < state.numWallRows; w++) state.wallPattern[r][w] = 1;
+      }
     }
   }
 }
@@ -3274,6 +3276,8 @@ function renderAxo() {
   const WD = state.buildingWidth;
   const HT = state.crownHeight;
   const wH = state.wallHeight;
+  const FBD = state.hasFrontBox ? state.frontBoxDepth : 0;  // front-box depth (near end)
+  const totalLen = FBD + L;                                 // length incl. front box
 
   // Orbit camera: yaw around the vertical (z) axis, then pitch tilt around the
   // horizontal (x) axis. Orthographic projection onto the screen plane.
@@ -3281,7 +3285,7 @@ function renderAxo() {
   const sYaw = Math.sin(state.axoYaw);
   const cPit = Math.cos(state.axoPitch);
   const sPit = Math.sin(state.axoPitch);
-  const cx = L / 2, cy = WD / 2, cz = 0;
+  const cx = totalLen / 2, cy = WD / 2, cz = 0;
 
   function project3(x, y, z) {
     // Center the world so rotation pivots around the building midpoint
@@ -3301,9 +3305,9 @@ function renderAxo() {
   // Fit the projected bounding box to the viewport
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
   const corners = [
-    [0, 0, 0], [L, 0, 0], [L, WD, 0], [0, WD, 0],
-    [0, 0, wH], [L, 0, wH], [L, WD, wH], [0, WD, wH],
-    [0, WD / 2, HT], [L, WD / 2, HT],
+    [0, 0, 0], [totalLen, 0, 0], [totalLen, WD, 0], [0, WD, 0],
+    [0, 0, wH], [totalLen, 0, wH], [totalLen, WD, wH], [0, WD, wH],
+    [0, WD / 2, HT], [totalLen, WD / 2, HT],
   ];
   corners.forEach(c => {
     const p = project3(c[0], c[1], c[2]);
@@ -3363,8 +3367,8 @@ function renderAxo() {
 
   // Ground plane
   const g1 = toScreen(0, 0, 0);
-  const g2 = toScreen(L, 0, 0);
-  const g3 = toScreen(L, WD, 0);
+  const g2 = toScreen(totalLen, 0, 0);
+  const g3 = toScreen(totalLen, WD, 0);
   const g4 = toScreen(0, WD, 0);
   svgContent += `<polygon points="${g1.join(',')} ${g2.join(',')} ${g3.join(',')} ${g4.join(',')}" fill="#f0ede6" stroke="#ccc" stroke-width="0.5"/>`;
 
@@ -3377,13 +3381,20 @@ function renderAxo() {
     return sum / corners3d.length;
   }
 
-  // Swept panels: every column (A-shelves + B-arch) carries its pattern cell,
-  // mapped across the width boundaries and along the length bays.
-  const axoRowOffset = frontRowCount();
+  // Length segments along the building: the front box (row 0) at the near end,
+  // then each bay. Rendering the front box caps the near end with its solid
+  // frame, matching the solid far end (last bay) — as in the plan/elevation.
   const numCols = widthBounds.length - 1;   // === totalCols()
-  for (let r = 0; r < state.numBays; r++) {
-    const xA = r * bayH;
-    const xB = (r + 1) * bayH;
+  const segs = [];
+  let segX = 0;
+  if (state.hasFrontBox) { segs.push({ x0: 0, x1: FBD, row: 0 }); segX = FBD; }
+  for (let b = 0; b < state.numBays; b++) {
+    segs.push({ x0: segX, x1: segX + bayH, row: frontRowCount() + b });
+    segX += bayH;
+  }
+  for (const seg of segs) {
+    const xA = seg.x0;
+    const xB = seg.x1;
     for (let i = 0; i < numCols; i++) {
       const y0 = widthBounds[i];
       const y1 = widthBounds[i + 1];
@@ -3395,7 +3406,7 @@ function renderAxo() {
       ];
       panels.push({
         points: corners3d.map(c => toScreen(c[0], c[1], c[2])),
-        fill: cellColor(state.pattern[r + axoRowOffset][i]),
+        fill: cellColor(state.pattern[seg.row][i]),
         depth: centroidDepth(corners3d),
       });
     }
@@ -3424,7 +3435,7 @@ function renderAxo() {
   });
 
   // End arch outlines
-  for (const bayEnd of [0, L]) {
+  for (const bayEnd of [0, totalLen]) {
     let archPath = '';
     const steps = 60;
 
