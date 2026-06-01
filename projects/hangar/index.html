@@ -3408,6 +3408,7 @@ function renderAxo() {
         points: corners3d.map(c => toScreen(c[0], c[1], c[2])),
         fill: cellColor(state.pattern[seg.row][i]),
         depth: centroidDepth(corners3d),
+        isWall: false,
       });
     }
     // Vertical side walls (structure, not pattern-bearing)
@@ -3421,13 +3422,19 @@ function renderAxo() {
           points: wall3d.map(c => toScreen(c[0], c[1], c[2])),
           fill: WALL_FILL,
           depth: centroidDepth(wall3d),
+          isWall: true,
         });
       }
     }
   }
 
-  // Painter's algorithm: sort by depth, draw farthest first (largest depth)
-  panels.sort((a, b) => b.depth - a.depth);
+  // Painter's algorithm: draw farthest first (largest depth). Structural side
+  // walls always draw behind the roof cells, so the roof surface stays on top
+  // where the two meet at the eaves.
+  panels.sort((a, b) => {
+    if (a.isWall !== b.isWall) return a.isWall ? -1 : 1;
+    return b.depth - a.depth;
+  });
 
   panels.forEach(p => {
     const pointsStr = p.points.map(pt => pt.join(',')).join(' ');
