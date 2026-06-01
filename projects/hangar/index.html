@@ -2854,24 +2854,25 @@ function getElevationRowYs(n) {
   return ys;
 }
 
-// For the plan (top view): derive x-positions from the elevation y-boundaries.
-// Each elevation band has a height range; mapping that back through the parabola
-// gives the plan width of the same physical strip. Because the arch flattens
-// near the crown, a small vertical band there maps to a WIDE plan strip.
+// For the plan (top view): horizontal positions of the equal-arc arch bands,
+// from eave (k=0, building edge) to crown (k=n, centerline). This is the true
+// top-down foreshortening — bands narrow toward the steep eaves, widest at the
+// flatter crown — but visually EXAGGERATED via PLAN_FORESHORTEN_BOOST so the
+// effect reads at a glance. The boost computes positions as if the vault were
+// BOOST× steeper (capped near a semicircle): still a genuine circular
+// projection — monotonic and crown-widest — just more pronounced.
+// BOOST = 1 reproduces the exact, un-exaggerated projection.
+const PLAN_FORESHORTEN_BOOST = 1.8;
 function getPlanXPositions(n) {
-  const rowYs = getElevationRowYs(n);  // eave (wH) → crown
-  const wH = state.wallHeight;
-  const archH = state.crownHeight - wH;
   const halfW = state.buildingWidth / 2;
-  const R = archRadius();
-  const yCenter = wH + archH - R;
-  // Invert the circular arc: y = yCenter + sqrt(R² - x²)
-  //   → x = sqrt(R² - (y - yCenter)²),  measured from center
+  const realArchH = state.crownHeight - state.wallHeight;
+  const archH = Math.min(halfW * 0.98, realArchH * PLAN_FORESHORTEN_BOOST);
+  const R = (halfW * halfW + archH * archH) / (2 * archH);
+  const thetaMax = Math.asin(Math.min(1, halfW / R));
   const xsFromEdge = [];
   for (let k = 0; k <= n; k++) {
-    const dy = rowYs[k] - yCenter;
-    const xFromCenter = Math.sqrt(Math.max(0, R * R - dy * dy));
-    xsFromEdge.push(halfW - xFromCenter);
+    const theta = thetaMax * (1 - k / n);   // crown (k=n) → 0, eave (k=0) → thetaMax
+    xsFromEdge.push(halfW - R * Math.sin(theta));
   }
   return xsFromEdge;
 }
