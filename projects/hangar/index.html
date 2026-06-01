@@ -346,7 +346,7 @@
       </div>
       <div class="control-row">
         <label>Building length (ft)</label>
-        <input type="number" id="buildingLength" value="250" min="100" max="500">
+        <input type="number" id="buildingLength" value="203" min="100" max="500">
       </div>
       <div class="control-row">
         <label>Building width (ft)</label>
@@ -354,11 +354,11 @@
       </div>
       <div class="control-row">
         <label>Wall height (ft)</label>
-        <input type="number" id="wallHeight" value="10.5" min="0" max="30" step="0.5">
+        <input type="number" id="wallHeight" value="16" min="0" max="30" step="0.5">
       </div>
       <div class="control-row">
         <label>Crown height (ft)</label>
-        <input type="number" id="crownHeight" value="54" min="20" max="150">
+        <input type="number" id="crownHeight" value="45" min="20" max="150">
       </div>
     </div>
 
@@ -454,12 +454,12 @@ const state = {
   numSegments: 6,           // arch segments per half (12 total; crown between B6 and B7)
   numSideCols: 3,           // A1-A3 / A4-A6 side box columns
   hasFrontBox: true,        // extra row at the front of the building
-  buildingLength: 250,      // feet
+  buildingLength: 203,      // feet — real OBJ proportion (1.370 × width)
   buildingWidth: 148,       // feet
   sideBoxWidth: 40,         // feet per side (total width of A1-A3 or A4-A6)
   frontBoxDepth: 20,        // feet (depth of front box row)
-  wallHeight: 10.5,         // feet — vertical wall height before arch springs
-  crownHeight: 54,          // feet — total height at crown (10.5' wall + 43.5' arch rise)
+  wallHeight: 16,           // feet — vertical wall height before arch springs
+  crownHeight: 45,          // feet — total height at crown (16' wall + 29' arch rise)
   pattern: [],              // 2D array: [totalRows][totalCols], values: 0=void, 1=solid
   numWallRows: 3,           // W1-W3 wall rows below the arch (elevation only)
   wallPattern: [],          // 2D array: [totalRows][numWallRows], elevation wall data
@@ -2894,6 +2894,13 @@ function archYAtX(x) {
 const SOLID_COLOR = '#000';
 const VOID_COLOR = '#ffffff';
 
+// Axonometric geometry baked from the FRED'S DOME OBJ: eave-shelf width as a
+// fraction of building width. The arch occupies the middle 1 − 2·AXO_EAVE_FRAC
+// of the width (springing from the side-wall top), with flat eave shelves and
+// vertical side walls outboard. See hangar-axo-rebuild-spec.
+const AXO_EAVE_FRAC = 0.1514;
+const WALL_FILL = '#b5afa3';   // structural side walls (not pattern-bearing)
+
 function cellColor(v) {
   return v === 1 ? SOLID_COLOR : VOID_COLOR;
 }
@@ -3319,15 +3326,36 @@ function renderAxo() {
     return project3(bxr, byr, bzr).depth;
   }
 
+  // ── Real building cross-section (from FRED'S DOME OBJ) ──
+  // Circular arch over the middle of the width, springing from the side-wall
+  // top, flanked by flat eave shelves and vertical side walls at the edges.
+  const eave = AXO_EAVE_FRAC * WD;          // eave-shelf width per side
+  const archHalf = (WD - 2 * eave) / 2;     // arch half-span (middle of width)
+  const archH = HT - wH;                    // arch rise above the spring/shelf
+  const axoR = (archHalf * archHalf + archH * archH) / (2 * archH);
+  const axoZc = wH + archH - axoR;          // arch circle-center height
+  const thetaMax = Math.asin(Math.min(1, archHalf / axoR));
+
+  // Surface height across the width (y): wall-top on the shelves, circular on
+  // the arch. Used for both the swept panels and the gable-end outlines.
   function surfaceHeight(byr) {
-    return archYAtX(byr);
+    const dz = byr - WD / 2;
+    if (Math.abs(dz) >= archHalf) return wH;   // eave shelves
+    return axoZc + Math.sqrt(Math.max(0, axoR * axoR - dz * dz));
   }
 
-  const xsFromEdge = getSegmentXPositions(state.numSegments);
-  const leftXs = xsFromEdge.slice();
-  const rightXs = xsFromEdge.slice().reverse().map(v => WD - v);
-  const archFullXs = leftXs.concat(rightXs.slice(1));
-  const numArchCells = state.numSegments * 2;
+  // Width-cell boundaries: numSideCols shelf cells | numSegments*2 equal-angle
+  // arch facets | numSideCols shelf cells  →  totalCols()+1 boundaries.
+  const nSide = state.numSideCols;
+  const nArch = state.numSegments * 2;
+  const widthBounds = [];
+  for (let k = 0; k <= nSide; k++) widthBounds.push((eave * k) / nSide);
+  for (let k = 1; k <= nArch; k++) {
+    const phi = -thetaMax + (2 * thetaMax * k) / nArch;
+    widthBounds.push(WD / 2 + axoR * Math.sin(phi));
+  }
+  for (let k = 1; k <= nSide; k++) widthBounds.push((WD - eave) + (eave * k) / nSide);
+
   const bayH = L / state.numBays;
 
   let svgContent = '';
@@ -3348,32 +3376,41 @@ function renderAxo() {
     return sum / corners3d.length;
   }
 
-  // Walls — skip in axo for now (A-zone side boxes rendered later)
-
-  // Arch panels
-  const axoArchStart = archStartCol();
+  // Swept panels: every column (A-shelves + B-arch) carries its pattern cell,
+  // mapped across the width boundaries and along the length bays.
   const axoRowOffset = frontRowCount();
+  const numCols = widthBounds.length - 1;   // === totalCols()
   for (let r = 0; r < state.numBays; r++) {
-    for (let i = 0; i < numArchCells; i++) {
-      const xA = r * bayH;
-      const xB = (r + 1) * bayH;
-      const y0 = archFullXs[i];
-      const y1 = archFullXs[i + 1];
-      const z_y0 = surfaceHeight(y0);
-      const z_y1 = surfaceHeight(y1);
-
-      const archCorners3d = [
-        [xA, y0, z_y0], [xB, y0, z_y0],
-        [xB, y1, z_y1], [xA, y1, z_y1],
+    const xA = r * bayH;
+    const xB = (r + 1) * bayH;
+    for (let i = 0; i < numCols; i++) {
+      const y0 = widthBounds[i];
+      const y1 = widthBounds[i + 1];
+      const z0 = surfaceHeight(y0);
+      const z1 = surfaceHeight(y1);
+      const corners3d = [
+        [xA, y0, z0], [xB, y0, z0],
+        [xB, y1, z1], [xA, y1, z1],
       ];
-      const patternCol = axoArchStart + i;
       panels.push({
-        type: 'arch',
-        r: r + axoRowOffset, c: patternCol,
-        points: archCorners3d.map(c => toScreen(c[0], c[1], c[2])),
-        colorVal: state.pattern[r + axoRowOffset][patternCol],
-        depth: centroidDepth(archCorners3d),
+        points: corners3d.map(c => toScreen(c[0], c[1], c[2])),
+        fill: cellColor(state.pattern[r + axoRowOffset][i]),
+        depth: centroidDepth(corners3d),
       });
+    }
+    // Vertical side walls (structure, not pattern-bearing)
+    if (wH > 0) {
+      for (const yEdge of [0, WD]) {
+        const wall3d = [
+          [xA, yEdge, 0], [xB, yEdge, 0],
+          [xB, yEdge, wH], [xA, yEdge, wH],
+        ];
+        panels.push({
+          points: wall3d.map(c => toScreen(c[0], c[1], c[2])),
+          fill: WALL_FILL,
+          depth: centroidDepth(wall3d),
+        });
+      }
     }
   }
 
@@ -3381,9 +3418,8 @@ function renderAxo() {
   panels.sort((a, b) => b.depth - a.depth);
 
   panels.forEach(p => {
-    const fill = cellColor(p.colorVal);
     const pointsStr = p.points.map(pt => pt.join(',')).join(' ');
-    svgContent += `<polygon points="${pointsStr}" fill="${fill}" stroke="#555" stroke-width="0.5"/>`;
+    svgContent += `<polygon points="${pointsStr}" fill="${p.fill}" stroke="#555" stroke-width="0.5"/>`;
   });
 
   // End arch outlines
