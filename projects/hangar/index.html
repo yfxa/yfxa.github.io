@@ -2902,16 +2902,9 @@ const VOID_COLOR = '#ffffff';
 // of the width (springing from the side-wall top), with flat eave shelves and
 // vertical side walls outboard. See hangar-axo-rebuild-spec.
 const AXO_EAVE_FRAC = 0.1514;
-const WALL_FILL = '#b5afa3';   // structural side walls (not pattern-bearing)
 
 function cellColor(v) {
   return v === 1 ? SOLID_COLOR : VOID_COLOR;
-}
-
-// Wall cells (W1-W3) use the structural grey for solid, white for void, so the
-// wall reads as the same material in the Long Elevation and the axonometric.
-function wallColor(v) {
-  return v === 1 ? WALL_FILL : VOID_COLOR;
 }
 
 // Seeded PRNG (mulberry32) — deterministic random for a given seed
@@ -3186,7 +3179,7 @@ function renderElevation() {
         const sx = screenRowXs[r];
         const sw = screenRowXs[r + 1] - screenRowXs[r];
         const val = state.wallPattern[r] ? state.wallPattern[r][w] || 0 : 0;
-        svgContent += `<rect class="cell" data-row="${r}" data-wcol="${w}" x="${sx}" y="${by(yUpper)}" width="${sw}" height="${cellH}" fill="${wallColor(val)}" stroke="#888" stroke-width="0.4"/>`;
+        svgContent += `<rect class="cell" data-row="${r}" data-wcol="${w}" x="${sx}" y="${by(yUpper)}" width="${sw}" height="${cellH}" fill="${cellColor(val)}" stroke="#888" stroke-width="0.4"/>`;
       }
     }
   }
@@ -3433,7 +3426,7 @@ function renderAxo() {
           ];
           panels.push({
             points: wall3d.map(c => toScreen(c[0], c[1], c[2])),
-            fill: wallColor(wRow ? (wRow[w] || 0) : 0),
+            fill: cellColor(wRow ? (wRow[w] || 0) : 0),
             depth: centroidDepth(wall3d),
             isWall: true,
           });
@@ -3532,9 +3525,7 @@ function paintCell(cellEl) {
     const key = `w${r},${w}`;
     if (state.lastCell === key) return;
     state.lastCell = key;
-    // F and last row locked solid in wall; W1 always solid; W2 locked when ArUco border on
-    if (r === 0 || r === totalRows() - 1 || w === 0) return;
-    if (state.arucoBorderOn && w === 1) return;
+    // All wall cells (W1-W3) are freely editable
     if (state.wallPattern[r]) state.wallPattern[r][w] = val;
   } else {
     // Normal cell
